@@ -415,8 +415,15 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 	_add_section_label(_right_panel_box, "结算方式：")
 	_add_wrapped_label(_right_panel_box, _settlement_mode_label(
 		str(result.get("settlement_mode", "demo")),
-		str(result.get("model_type", ""))
+		str(result.get("model_type", "")),
+		str(result.get("model_version", ""))
 	), Color(0.92, 0.80, 0.46), 16)
+	var curve_shifts_variant: Variant = result.get("curve_shifts", {})
+	if curve_shifts_variant is Dictionary:
+		var curve_shifts: Dictionary = curve_shifts_variant as Dictionary
+		_add_section_label(_right_panel_box, "曲线移动：")
+		_add_info_row(_right_panel_box, "IS", str(curve_shifts.get("IS", "-")))
+		_add_info_row(_right_panel_box, "LM", str(curve_shifts.get("LM", "-")))
 	_add_section_label(_right_panel_box, "宏观状态变化：")
 	for key: String in ["Y", "u", "π", "i", "Debt"]:
 		var old_value: String = str(before.get(key, "-"))
@@ -570,8 +577,25 @@ func _policy_names_text(policies: Array) -> String:
 	return "、".join(names)
 
 
-func _settlement_mode_label(mode: String, model_type: String = "") -> String:
+func _confirmed_meeting_log(summary: String) -> String:
+	if str(_last_result.get("settlement_mode", "")) == "model" and str(_last_result.get("model_type", "")) == "IS_LM":
+		var mechanisms: Array[String] = []
+		var mechanism_variant: Variant = _last_result.get("mechanism", [])
+		if mechanism_variant is Array:
+			for item: Variant in mechanism_variant:
+				mechanisms.append(str(item))
+		return "已确认政策：%s\n\n模型结算：IS-LM v1\n\n机制：\n%s\n\n结果：%s" % [
+			_policy_names_text(_selected_policies),
+			"\n".join(mechanisms),
+			summary
+		]
+	return "已确认政策：“%s”。%s" % [_policy_names_text(_selected_policies), summary]
+
+
+func _settlement_mode_label(mode: String, model_type: String = "", model_version: String = "") -> String:
 	if mode == "model":
+		if model_type == "IS_LM" and model_version == "v1":
+			return "IS-LM 模型结算 v1"
 		if model_type == "IS_LM":
 			return "IS-LM 模型结算占位"
 		return "模型结算占位"
@@ -627,7 +651,7 @@ func _on_confirm_policy() -> void:
 	_confirm_button.disabled = true
 
 	var summary: String = str(_last_result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
-	_advisor_panel.call("set_advisor", "会议记录", "已确认政策：“%s”。%s" % [_policy_names_text(_selected_policies), summary])
+	_advisor_panel.call("set_advisor", "会议记录", _confirmed_meeting_log(summary))
 	AudioManager.play_sfx(&"card_play")
 
 

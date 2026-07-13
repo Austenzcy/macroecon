@@ -47,6 +47,20 @@
     "settlement_mode": "model",
     "model_type": "IS_LM",
     "policy_point_limit": 5,
+    "model_params": {
+      "IS_LM": {
+        "A": 132,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 5.0,
+        "pi_base": 2.0,
+        "debt_base": 60.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
     "available_policies": [
       {
         "id": "increase_government_purchase",

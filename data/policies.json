@@ -6,10 +6,12 @@
     "default_cost": 3,
     "description": "扩大政府购买以支撑总需求。",
     "policy_impacts": {
-      "IS_shift": "right",
-      "LM_shift": "none",
-      "AD_shift": "right",
-      "fiscal_pressure": "increase"
+      "IS_LM": {
+        "delta_A": 8,
+        "delta_d": 0,
+        "debt_delta": 3,
+        "mechanism": "政府购买增加提高自主支出，推动 IS 曲线右移。"
+      }
     }
   },
   {
@@ -19,10 +21,12 @@
     "default_cost": 2,
     "description": "通过更宽松的货币环境降低融资压力。",
     "policy_impacts": {
-      "IS_shift": "none",
-      "LM_shift": "right",
-      "AD_shift": "right",
-      "interest_rate_pressure": "down"
+      "IS_LM": {
+        "delta_A": 0,
+        "delta_d": 0.6,
+        "debt_delta": 0,
+        "mechanism": "货币条件宽松提高流动性，推动 LM 曲线右移或下移。"
+      }
     }
   },
   {
@@ -32,10 +36,12 @@
     "default_cost": 2,
     "description": "提高居民和企业可支配收入。",
     "policy_impacts": {
-      "IS_shift": "right",
-      "LM_shift": "none",
-      "AD_shift": "right",
-      "fiscal_pressure": "increase"
+      "IS_LM": {
+        "delta_A": 5,
+        "delta_d": 0,
+        "debt_delta": 1.5,
+        "mechanism": "减税提高可支配收入和支出意愿，推动 IS 曲线右移。"
+      }
     }
   }
 ]

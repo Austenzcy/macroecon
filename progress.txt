@@ -183,6 +183,23 @@ PolicyDesk UI 可用性优化记录：
 - 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
 - 暂停继续开发，等待人工核验线上网站。
 
+IS-LM Solver v1 记录：
+- 已实现 `ISLMSolver.solve(...)` v1，用于封闭经济、短期、价格刚性背景下的 IS-LM 模型结算。
+- `consumer_confidence_drop_budget` 已增加 `model_params.IS_LM`，参数满足初始均衡约为 `Y=100`、`i=4%`。
+- `data/policies.json` 已改为通过 `policy_impacts.IS_LM.delta_A`、`delta_d`、`debt_delta` 描述政策对模型参数的影响，不写死最终变量结果。
+- budget + model 组合训练关不再使用 placeholder；确认政策后通过 `MacroEngine.calculate_result(...)` 分发到 `ISLMSolver.solve(...)`。
+- 多张政策先合并 `delta_A` 与 `delta_d`，再重新求解 `Y=(A+b*d)/(1+b*c)` 和 `i=cY-d`，不是简单相加卡牌结果。
+- demo 基础教学关保持不变，仍使用基础教学演示结算。
+- 右侧宏观状态面板已显示 `IS-LM 模型结算 v1`、IS/LM 曲线移动和 `Y/u/π/i/Debt` 的 before → after。
+- 会议记录已显示 IS-LM v1 机制路径，并说明合并参数变化后重新求均衡。
+- 已新增 `docs/ISLM_Solver_v1.md`，记录 v1 方程、参数含义、政策映射、组合政策逻辑、限制和后续扩展。
+- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260714-002904`。
+- `latest.json` 已上线，内容指向 `/releases/20260714-002904/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。
+
 测试关卡入口与分流验证记录：
 - MainMenu 已新增两个测试关卡入口：`基础教学关：单一政策决策` 和 `组合训练关：政策点数决策`。
 - 基础教学关使用 `consumer_confidence_drop_basic`，配置为 `selection_mode=single`、`settlement_mode=demo`、`model_type=IS_LM`。
