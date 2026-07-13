@@ -303,3 +303,21 @@ PolicyDesk 缩放与安全边距修复记录：
 - `latest.json` 已上线，内容指向 `/releases/20260713-211044/index.html`。
 - 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
 - 暂停继续开发，等待人工核验线上网站。
+
+结果页与两回合状态继承 v1 记录：
+- 已新增 Result 页面 / 本轮总结页面，读取 `GameState.last_result` 显示本轮结果。
+- 已新增 `current_round` / `max_rounds`，当前演示版固定为 2 回合。
+- 政策确认后可以从 PolicyDesk 点击“本轮总结”进入 Result 页面。
+- Result 页面显示已执行政策、宏观变量变化和机制总结。
+- Result 页面不重新计算变量，不显示长期副作用模块。
+- 已支持点击“进入下一回合”回到 PolicyDesk。
+- 下一回合会将上一回合 `result.after` 写入 `GameState.current_state`，并清空政策选择状态。
+- 第 2 回合结束后显示“测试结束，返回主菜单”。
+- 本轮不实现评分系统。
+- 本轮不实现突发事件系统。
+- 长期副作用以后放在所有回合结束后的最终总结页，不放在每回合总结页。
+- 已新增 `docs/Round_Flow_v1.md`，记录两回合流程、GameState 状态、Result 页面数据来源和后续评分/事件边界。
+- 已重新导出并部署 CloudBase。
+- 最终 BuildId：`20260714-012717`。
+- `latest.json` 已上线，内容指向 `/releases/20260714-012717/index.html`。
+- 线上检查通过：根目录 `index.html`、release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。

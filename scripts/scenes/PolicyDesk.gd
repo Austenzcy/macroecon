@@ -221,6 +221,7 @@ func _build_problem_banner() -> PanelContainer:
 	box.add_theme_constant_override("separation", _dim(3))
 	margin.add_child(box)
 
+	_add_wrapped_label(box, "第 %d 回合 / 共 %d 回合" % [GameState.current_round, GameState.max_rounds], Color(0.92, 0.80, 0.46), 16)
 	_add_wrapped_label(box, "当前问题", Color(0.62, 0.84, 1.0), 17)
 	_add_wrapped_label(box, "%s：%s" % [
 		str(scenario.get("problem_title", "消费信心下降")),
@@ -389,7 +390,7 @@ func _build_right_column() -> PanelContainer:
 func _show_current_state_panel() -> void:
 	_clear_right_panel()
 	var scenario: Dictionary = _get_current_scenario()
-	var variables: Dictionary = DataLoader.load_dict("res://data/variables.json")
+	var variables: Dictionary = GameState.get_current_state()
 
 	_add_panel_title(_right_panel_box, "宏观状态监测")
 	_add_section_label(_right_panel_box, "当前问题：")
@@ -446,8 +447,18 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		replay_button.pressed.connect(_on_open_replay_pressed)
 		_right_panel_box.add_child(replay_button)
 
+	var summary_button: Button = Button.new()
+	summary_button.text = "本轮总结"
+	summary_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
+	summary_button.add_theme_font_size_override("font_size", _font(16))
+	summary_button.pressed.connect(_on_round_summary_pressed)
+	_right_panel_box.add_child(summary_button)
+
 
 func _set_default_advisor() -> void:
+	if GameState.current_round > 1:
+		_advisor_panel.call("set_advisor", "会议记录", "第 %d 回合开始。上一轮后的宏观状态已带入本轮，请继续选择政策。" % GameState.current_round)
+		return
 	var advisors: Array = DataLoader.load_array("res://data/advisors.json")
 	if advisors.size() > 0 and advisors[0] is Dictionary:
 		var advisor: Dictionary = advisors[0] as Dictionary
@@ -628,7 +639,15 @@ func _settlement_mode_label(mode: String, model_type: String = "", model_version
 
 
 func _current_state() -> Dictionary:
-	return DataLoader.load_dict("res://data/variables.json").duplicate(true)
+	return GameState.get_current_state()
+
+
+func _state_value(state: Dictionary, key: String) -> String:
+	if state.has(key):
+		return str(state.get(key))
+	if key == "π" and state.has("蟺"):
+		return str(state.get("蟺"))
+	return "-"
 
 
 func _on_policy_selected(policy_id: String, policy_name: String) -> void:
@@ -671,6 +690,7 @@ func _on_confirm_policy() -> void:
 
 	_is_policy_confirmed = true
 	_last_result = MacroEngine.calculate_result(_scenario, _selected_policies, _current_state())
+	GameState.set_last_result(_last_result)
 	_show_policy_result_panel(_last_result)
 	_confirm_button.text = "政策已确认"
 	_confirm_button.disabled = true
@@ -678,6 +698,13 @@ func _on_confirm_policy() -> void:
 	var summary: String = str(_last_result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
 	_advisor_panel.call("set_advisor", "会议记录", _confirmed_meeting_log(summary))
 	AudioManager.play_sfx(&"card_play")
+
+
+func _on_round_summary_pressed() -> void:
+	if _last_result.is_empty():
+		_advisor_panel.call("set_advisor", "会议记录", "请先确认政策，再进入本轮总结。")
+		return
+	get_tree().change_scene_to_file("res://scenes/Result.tscn")
 
 
 func _on_open_replay_pressed() -> void:
