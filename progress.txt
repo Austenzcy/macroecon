@@ -218,3 +218,25 @@ PolicyDesk 缩放与安全边距修复记录：
 - `latest.json` 已上线，内容指向 `/releases/20260713-183448/index.html`。
 - 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
 - 暂停继续开发，等待人工核验线上网站。
+
+选择模式与结算架构记录：
+- 已在 `data/scenarios.json` 增加 `selection_mode`、`settlement_mode`、`model_type`、`policy_point_limit`、`available_policies` 字段。
+- 当前默认测试关卡为 `consumer_confidence_drop_basic`，使用 `selection_mode=single` 和 `settlement_mode=demo`。
+- 已保留 `consumer_confidence_drop_budget` 示例关卡，使用 `selection_mode=budget`、`settlement_mode=model`、`model_type=IS_LM`、`policy_point_limit=5`。
+- 已扩展 `data/policies.json`：政策卡保留 `default_cost` 和 `policy_impacts`，不再在卡牌数据中写死最终变量结果。
+- 已支持 single 选择模式：最多选择一张卡，点击另一张切换，再次点击当前卡取消选择，不显示政策点数。
+- 已预留 budget 政策点数模式：支持多选、cost 覆盖、已用点数、点数不足提示和取消选择。
+- 已新增 `MacroEngine.calculate_result(scenario, selected_policies, current_state)` 统一结算入口。
+- 已新增 demo/model 结算分流：demo 用于基础教学演示，model 根据 `model_type` 分发到 solver。
+- 已新增 `ISLMSolver.gd`、`ADASSolver.gd`、`MundellFlemingSolver.gd`、`SolowSolver.gd` 占位文件。
+- 已整理 `CardResolver.gd`，用于标准化已选政策和政策名称列表。
+- PolicyDesk 点击“确认政策”后统一调用 MacroEngine 返回 result，再由右侧面板和会议记录显示。
+- 未确认政策前，右侧宏观状态监测面板仍只显示当前状态，不提前泄露政策结果。
+- 确认政策后，右侧面板显示 MacroEngine 返回的执行政策、结算方式、变量变化和解释。
+- 当前 model solver 只返回清晰占位结果，不进行 IS-LM / AD-AS / Mundell-Fleming / Solow 数学求解。
+- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260713-211044`。
+- `latest.json` 已上线，内容指向 `/releases/20260713-211044/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。

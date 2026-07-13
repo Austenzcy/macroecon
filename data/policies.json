@@ -1,44 +1,41 @@
 [
   {
-    "id": "increase_government_spending",
+    "id": "increase_government_purchase",
     "name": "增加政府购买",
     "type": "财政政策",
+    "default_cost": 3,
     "description": "扩大政府购买以支撑总需求。",
-    "policy_result_demo": {
-      "Y": "104",
-      "u": "4.7%",
-      "π": "2.2%",
-      "i": "4.4%",
-      "Debt": "62%",
-      "summary": "政府支出增加后，总需求获得支撑，但财政债务压力有所上升。"
+    "policy_impacts": {
+      "IS_shift": "right",
+      "LM_shift": "none",
+      "AD_shift": "right",
+      "fiscal_pressure": "increase"
     }
   },
   {
     "id": "expansionary_monetary_policy",
     "name": "扩张性货币政策",
     "type": "货币政策",
+    "default_cost": 2,
     "description": "通过更宽松的货币环境降低融资压力。",
-    "policy_result_demo": {
-      "Y": "103",
-      "u": "4.8%",
-      "π": "2.1%",
-      "i": "3.5%",
-      "Debt": "60%",
-      "summary": "金融条件有所宽松，需求压力得到一定缓解。"
+    "policy_impacts": {
+      "IS_shift": "none",
+      "LM_shift": "right",
+      "AD_shift": "right",
+      "interest_rate_pressure": "down"
     }
   },
   {
     "id": "tax_cut",
     "name": "减税",
     "type": "财政政策",
+    "default_cost": 2,
     "description": "提高居民和企业可支配收入。",
-    "policy_result_demo": {
-      "Y": "102",
-      "u": "4.9%",
-      "π": "2.1%",
-      "i": "4.2%",
-      "Debt": "61%",
-      "summary": "减税提高了可支配收入，消费压力有所缓解，但财政收入承压。"
+    "policy_impacts": {
+      "IS_shift": "right",
+      "LM_shift": "none",
+      "AD_shift": "right",
+      "fiscal_pressure": "increase"
     }
   }
 ]

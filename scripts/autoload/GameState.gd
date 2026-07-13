@@ -1,6 +1,6 @@
 extends Node
 
-var current_scenario_id: String = "confidence_slump"
+var current_scenario_id: String = "consumer_confidence_drop_basic"
 var selected_policy_id: String = ""
 var selected_policy_name: String = ""
 var ui_scale: float = 1.0

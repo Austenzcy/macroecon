@@ -1,7 +1,66 @@
 [
   {
-    "id": "confidence_slump",
-    "title": "消费信心下滑",
+    "id": "consumer_confidence_drop_basic",
+    "title": "消费信心下滑：基础教学",
+    "selection_mode": "single",
+    "settlement_mode": "demo",
+    "model_type": "IS_LM",
+    "policy_point_limit": null,
+    "available_policies": [
+      {
+        "id": "increase_government_purchase"
+      },
+      {
+        "id": "expansionary_monetary_policy"
+      },
+      {
+        "id": "tax_cut"
+      }
+    ],
+    "problem_title": "消费信心下降",
+    "problem_description": "居民消费不足，经济面临需求偏弱压力。",
+    "model_hint": "核心变量：C ↓，总需求下降",
+    "body": "居民对未来收入预期下降，消费支出明显减少，经济出现需求不足迹象。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "story_steps": [
+      {
+        "title": "新闻快讯：商场客流减少",
+        "body": "近期多地商场和餐饮门店客流下降，零售企业反馈销售额明显低于预期。",
+        "button": "继续调查"
+      },
+      {
+        "title": "居民访谈：先少花一点",
+        "body": "一些居民表示，对未来收入和就业形势感到不确定，因此推迟了大额消费，减少了非必要支出。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：消费信心下降",
+        "body": "居民消费意愿下降会导致消费 C 减少，总需求走弱。在短期价格刚性的封闭经济中，这会带来产出下降压力。",
+        "button": "进入政策桌面"
+      }
+    ]
+  },
+  {
+    "id": "consumer_confidence_drop_budget",
+    "title": "消费信心下滑：组合政策训练",
+    "selection_mode": "budget",
+    "settlement_mode": "model",
+    "model_type": "IS_LM",
+    "policy_point_limit": 5,
+    "available_policies": [
+      {
+        "id": "increase_government_purchase",
+        "cost": 3
+      },
+      {
+        "id": "expansionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "tax_cut",
+        "cost": 2
+      }
+    ],
     "problem_title": "消费信心下降",
     "problem_description": "居民消费不足，经济面临需求偏弱压力。",
     "model_hint": "核心变量：C ↓，总需求下降",

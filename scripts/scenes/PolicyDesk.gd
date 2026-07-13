@@ -1,5 +1,6 @@
 extends Control
 
+const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
 const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
@@ -17,7 +18,10 @@ var _right_panel_box: VBoxContainer
 var _theory_panel: PanelContainer
 var _theory_button: Button
 var _confirm_button: Button
-var _selected_policy_data: Dictionary = {}
+var _policy_points_label: Label
+var _scenario: Dictionary = {}
+var _selected_policies: Array[Dictionary] = []
+var _last_result: Dictionary = {}
 var _is_policy_confirmed: bool = false
 var _is_theory_open: bool = false
 var _ui_scale: float = 1.0
@@ -25,6 +29,8 @@ var _ui_scale: float = 1.0
 
 func _ready() -> void:
 	GameState.clear_selection()
+	_scenario = _get_current_scenario()
+	_selected_policies.clear()
 	_ui_scale = 1.0
 	GameState.set_ui_scale(_ui_scale)
 	_build_ui()
@@ -51,6 +57,7 @@ func _build_ui() -> void:
 	_theory_panel = null
 	_theory_button = null
 	_confirm_button = null
+	_policy_points_label = null
 	_scale_label = null
 	_outer_margin = null
 	_content_margin = null
@@ -122,7 +129,7 @@ func _build_ui() -> void:
 	bottom_row.add_child(_confirm_button)
 
 	if _is_policy_confirmed:
-		_show_policy_result_panel(_selected_policy_data)
+		_show_policy_result_panel(_last_result)
 	else:
 		_show_current_state_panel()
 
@@ -136,8 +143,7 @@ func _build_top_row() -> HBoxContainer:
 	tag_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_row.add_child(tag_bar)
 	tag_bar.call("set_ui_scale", _ui_scale)
-	var tag_data: Dictionary = DataLoader.load_dict("res://data/model_tags.json")
-	var default_tags: Variant = tag_data.get("default", ["封闭经济", "短期", "价格刚性", "IS-LM"])
+	var default_tags: Variant = _scenario.get("model_tags", ["封闭经济", "短期", "价格刚性", "IS-LM"])
 	tag_bar.call("set_tags", default_tags)
 
 	top_row.add_child(_build_scale_controls())
@@ -224,16 +230,23 @@ func _build_policy_column() -> VBoxContainer:
 	column.add_theme_constant_override("separation", _dim(12))
 
 	_add_panel_title(column, "政策卡区")
+	_add_wrapped_label(column, _selection_mode_text(), Color(0.72, 0.86, 1.0), 15)
+	if _is_budget_mode():
+		_policy_points_label = Label.new()
+		_policy_points_label.text = _policy_points_text()
+		_policy_points_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_policy_points_label.modulate = Color(0.92, 0.80, 0.46)
+		_policy_points_label.add_theme_font_size_override("font_size", _font(15))
+		column.add_child(_policy_points_label)
 
 	var card_scene: PackedScene = preload("res://scenes/components/PolicyCard.tscn")
-	var policies: Array = DataLoader.load_array("res://data/policies.json")
-	for policy_data: Variant in policies:
-		if not policy_data is Dictionary:
-			continue
+	var policies: Array[Dictionary] = _available_policy_entries()
+	for policy_data: Dictionary in policies:
 		var card: PanelContainer = card_scene.instantiate() as PanelContainer
 		card.call("set_policy", policy_data)
 		card.call("set_ui_scale", _ui_scale)
-		card.call("set_selected", str(policy_data.get("id", "")) == GameState.selected_policy_id)
+		card.call("set_cost", int(policy_data.get("cost", policy_data.get("default_cost", 0))), _is_budget_mode())
+		card.call("set_selected", _is_policy_selected(str(policy_data.get("id", ""))))
 		card.connect("selected", _on_policy_selected)
 		_policy_cards.append(card)
 		column.add_child(card)
@@ -381,23 +394,32 @@ func _show_current_state_panel() -> void:
 	_add_wrapped_label(_right_panel_box, "请选择一张政策卡，并在确认后观察宏观状态变化。", Color(0.78, 0.86, 0.92), 15)
 
 
-func _show_policy_result_panel(policy_data: Dictionary) -> void:
+func _show_policy_result_panel(result: Dictionary) -> void:
 	_clear_right_panel()
-	var variables: Dictionary = DataLoader.load_dict("res://data/variables.json")
-	var result: Dictionary = {}
-	var result_variant: Variant = policy_data.get("policy_result_demo", {})
-	if result_variant is Dictionary:
-		result = result_variant
+	var before: Dictionary = {}
+	var after: Dictionary = {}
+	var before_variant: Variant = result.get("before", {})
+	var after_variant: Variant = result.get("after", {})
+	if before_variant is Dictionary:
+		before = before_variant
+	if after_variant is Dictionary:
+		after = after_variant
+	var executed_variant: Variant = result.get("executed_policies", [])
+	var executed: Array = []
+	if executed_variant is Array:
+		executed = executed_variant
 
 	_add_panel_title(_right_panel_box, "政策执行后状态")
 	_add_section_label(_right_panel_box, "已执行政策：")
-	_add_wrapped_label(_right_panel_box, str(policy_data.get("name", "已选择政策")), Color(0.96, 0.98, 1.0), 18)
+	_add_wrapped_label(_right_panel_box, _policy_names_text(executed), Color(0.96, 0.98, 1.0), 18)
+	_add_section_label(_right_panel_box, "结算方式：")
+	_add_wrapped_label(_right_panel_box, _settlement_mode_label(str(result.get("settlement_mode", "demo"))), Color(0.92, 0.80, 0.46), 16)
 	_add_section_label(_right_panel_box, "宏观状态变化：")
 	for key: String in ["Y", "u", "π", "i", "Debt"]:
-		var old_value: String = str(variables.get(key, "-"))
-		var new_value: String = str(result.get(key, old_value))
+		var old_value: String = str(before.get(key, "-"))
+		var new_value: String = str(after.get(key, old_value))
 		_add_info_row(_right_panel_box, key, "%s → %s" % [old_value, new_value])
-	_add_section_label(_right_panel_box, "会议记录：")
+	_add_section_label(_right_panel_box, "解释：")
 	_add_wrapped_label(_right_panel_box, str(result.get("summary", "政策已提交，宏观状态已进入测试更新。")), Color(0.78, 0.86, 0.92), 15)
 
 
@@ -427,41 +449,173 @@ func _find_policy_data(policy_id: String) -> Dictionary:
 	return {}
 
 
+func _available_policy_entries() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var all_policies: Array = DataLoader.load_array("res://data/policies.json")
+	var available_variant: Variant = _scenario.get("available_policies", [])
+	if not available_variant is Array:
+		return result
+
+	for available_item: Variant in available_variant:
+		if not available_item is Dictionary:
+			continue
+		var policy_id: String = str(available_item.get("id", ""))
+		var policy_data: Dictionary = {}
+		for policy: Variant in all_policies:
+			if policy is Dictionary and str(policy.get("id", "")) == policy_id:
+				policy_data = (policy as Dictionary).duplicate(true)
+				break
+		if policy_data.is_empty():
+			continue
+		if available_item.has("cost"):
+			policy_data["cost"] = int(available_item.get("cost", policy_data.get("default_cost", 0)))
+		else:
+			policy_data["cost"] = int(policy_data.get("default_cost", 0))
+		result.append(policy_data)
+	return result
+
+
+func _is_budget_mode() -> bool:
+	return str(_scenario.get("selection_mode", "single")) == "budget"
+
+
+func _selection_mode_text() -> String:
+	if _is_budget_mode():
+		return "选择模式：政策点数决策"
+	return "选择模式：单一政策决策"
+
+
+func _policy_point_limit() -> int:
+	return int(_scenario.get("policy_point_limit", 0))
+
+
+func _used_policy_points() -> int:
+	var total: int = 0
+	for policy: Dictionary in _selected_policies:
+		total += int(policy.get("cost", policy.get("default_cost", 0)))
+	return total
+
+
+func _policy_points_text() -> String:
+	return "政策点数：已用 %d / %d" % [_used_policy_points(), _policy_point_limit()]
+
+
+func _is_policy_selected(policy_id: String) -> bool:
+	for policy: Dictionary in _selected_policies:
+		if str(policy.get("id", "")) == policy_id:
+			return true
+	return false
+
+
+func _toggle_single_policy(policy_data: Dictionary) -> void:
+	var policy_id: String = str(policy_data.get("id", ""))
+	if _is_policy_selected(policy_id):
+		_selected_policies.clear()
+		GameState.clear_selection()
+		return
+	_selected_policies = [policy_data]
+	GameState.select_policy(policy_id, str(policy_data.get("name", "")))
+
+
+func _toggle_budget_policy(policy_data: Dictionary) -> void:
+	var policy_id: String = str(policy_data.get("id", ""))
+	if _is_policy_selected(policy_id):
+		for index in range(_selected_policies.size()):
+			if str(_selected_policies[index].get("id", "")) == policy_id:
+				_selected_policies.remove_at(index)
+				break
+		return
+
+	var next_cost: int = int(policy_data.get("cost", policy_data.get("default_cost", 0)))
+	if _used_policy_points() + next_cost > _policy_point_limit():
+		_advisor_panel.call("set_advisor", "会议记录", "政策点数不足，无法选择该政策。")
+		return
+	_selected_policies.append(policy_data)
+
+
+func _refresh_card_selection() -> void:
+	for card: Node in _policy_cards:
+		card.call("set_selected", _is_policy_selected(str(card.get("policy_id"))))
+	if _policy_points_label != null:
+		_policy_points_label.text = _policy_points_text()
+
+
+func _selection_message(policy_name: String) -> String:
+	if _selected_policies.is_empty():
+		return "已取消选择。请先选择政策。"
+	if _is_budget_mode():
+		return "已选择政策：%s。当前已用政策点数：%d / %d。点击确认政策后执行。" % [
+			_policy_names_text(_selected_policies),
+			_used_policy_points(),
+			_policy_point_limit()
+		]
+	return "已选择政策：%s。点击确认政策后执行。" % policy_name
+
+
+func _policy_names_text(policies: Array) -> String:
+	var names: Array[String] = []
+	for policy: Variant in policies:
+		if policy is Dictionary:
+			names.append(str(policy.get("name", policy.get("id", "未知政策"))))
+	return "、".join(names)
+
+
+func _settlement_mode_label(mode: String) -> String:
+	if mode == "model":
+		return "模型结算占位"
+	return "基础教学演示结算"
+
+
+func _current_state() -> Dictionary:
+	return DataLoader.load_dict("res://data/variables.json").duplicate(true)
+
+
 func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 	if _is_policy_confirmed:
 		for card: Node in _policy_cards:
-			card.call("set_selected", card.get("policy_id") == GameState.selected_policy_id)
+			card.call("set_selected", _is_policy_selected(str(card.get("policy_id"))))
 		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
 		return
 
-	for card: Node in _policy_cards:
-		card.call("set_selected", card.get("policy_id") == policy_id)
-	GameState.select_policy(policy_id, policy_name)
-	_selected_policy_data = _find_policy_data(policy_id)
+	var policy_data: Dictionary = _find_policy_data(policy_id)
+	if policy_data.is_empty():
+		return
+
+	if _is_budget_mode() and not _is_policy_selected(policy_id):
+		var next_cost: int = int(policy_data.get("cost", policy_data.get("default_cost", 0)))
+		if _used_policy_points() + next_cost > _policy_point_limit():
+			_advisor_panel.call("set_advisor", "会议记录", "政策点数不足，无法选择该政策。")
+			AudioManager.play_sfx(&"card_play")
+			return
+
+	if _is_budget_mode():
+		_toggle_budget_policy(policy_data)
+	else:
+		_toggle_single_policy(policy_data)
+
+	_refresh_card_selection()
 	AudioManager.play_sfx(&"card_play")
-	_advisor_panel.call("set_advisor", "政策秘书", "已选择政策：“%s”。请点击确认政策提交决策。" % policy_name)
+	_advisor_panel.call("set_advisor", "政策秘书", _selection_message(policy_name))
 
 
 func _on_confirm_policy() -> void:
 	if _is_policy_confirmed:
 		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
 		return
-	if GameState.selected_policy_name == "":
-		_advisor_panel.call("set_advisor", "会议记录", "请先选择一张政策卡。")
+	if _selected_policies.is_empty():
+		var empty_message: String = "请至少选择一张政策卡。" if _is_budget_mode() else "请先选择一张政策卡。"
+		_advisor_panel.call("set_advisor", "会议记录", empty_message)
 		AudioManager.play_sfx(&"card_play")
 		return
 
 	_is_policy_confirmed = true
-	_show_policy_result_panel(_selected_policy_data)
+	_last_result = MacroEngine.calculate_result(_scenario, _selected_policies, _current_state())
+	_show_policy_result_panel(_last_result)
 	_confirm_button.text = "政策已确认"
 	_confirm_button.disabled = true
 
-	var result: Dictionary = {}
-	var result_variant: Variant = _selected_policy_data.get("policy_result_demo", {})
-	if result_variant is Dictionary:
-		result = result_variant
-	var summary: String = str(result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
-	_advisor_panel.call("set_advisor", "会议记录", "已确认政策：“%s”。%s" % [GameState.selected_policy_name, summary])
+	var summary: String = str(_last_result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
+	_advisor_panel.call("set_advisor", "会议记录", "已确认政策：“%s”。%s" % [_policy_names_text(_selected_policies), summary])
 	AudioManager.play_sfx(&"card_play")
 
 

@@ -203,3 +203,5 @@ Write-Host "CloudBase deploy command completed."
 Write-Host "BuildId: $BuildId"
 Write-Host "Release URL: $ReleaseUrl"
 Write-Host "Open the CloudBase hosting root URL for acceptance testing."
+
+exit 0

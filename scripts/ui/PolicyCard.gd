@@ -11,6 +11,7 @@ var _ui_scale: float = 1.0
 
 var _name_label: Label
 var _type_label: Label
+var _cost_label: Label
 var _description_label: Label
 
 
@@ -47,7 +48,15 @@ func set_ui_scale(value: float) -> void:
 	if _name_label != null:
 		_name_label.add_theme_font_size_override("font_size", int(roundf(24.0 * _ui_scale)))
 		_type_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
+		_cost_label.add_theme_font_size_override("font_size", int(roundf(14.0 * _ui_scale)))
 		_description_label.add_theme_font_size_override("font_size", int(roundf(16.0 * _ui_scale)))
+
+
+func set_cost(cost: int, show_cost: bool) -> void:
+	if _cost_label == null:
+		return
+	_cost_label.visible = show_cost
+	_cost_label.text = "费用：%d 点" % cost
 
 
 func _build_ui() -> void:
@@ -73,6 +82,11 @@ func _build_ui() -> void:
 	_type_label.add_theme_font_size_override("font_size", 15)
 	_type_label.modulate = Color(0.72, 0.86, 1.0)
 	box.add_child(_type_label)
+
+	_cost_label = Label.new()
+	_cost_label.visible = false
+	_cost_label.modulate = Color(0.92, 0.80, 0.46)
+	box.add_child(_cost_label)
 
 	var line: ColorRect = ColorRect.new()
 	line.custom_minimum_size = Vector2(0, 2)
