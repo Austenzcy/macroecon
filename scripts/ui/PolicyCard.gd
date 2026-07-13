@@ -56,7 +56,7 @@ func set_cost(cost: int, show_cost: bool) -> void:
 	if _cost_label == null:
 		return
 	_cost_label.visible = show_cost
-	_cost_label.text = "费用：%d 点" % cost
+	_cost_label.text = "消耗 %d 点" % cost
 
 
 func _build_ui() -> void:

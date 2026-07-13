@@ -413,7 +413,10 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 	_add_section_label(_right_panel_box, "已执行政策：")
 	_add_wrapped_label(_right_panel_box, _policy_names_text(executed), Color(0.96, 0.98, 1.0), 18)
 	_add_section_label(_right_panel_box, "结算方式：")
-	_add_wrapped_label(_right_panel_box, _settlement_mode_label(str(result.get("settlement_mode", "demo"))), Color(0.92, 0.80, 0.46), 16)
+	_add_wrapped_label(_right_panel_box, _settlement_mode_label(
+		str(result.get("settlement_mode", "demo")),
+		str(result.get("model_type", ""))
+	), Color(0.92, 0.80, 0.46), 16)
 	_add_section_label(_right_panel_box, "宏观状态变化：")
 	for key: String in ["Y", "u", "π", "i", "Debt"]:
 		var old_value: String = str(before.get(key, "-"))
@@ -475,14 +478,21 @@ func _available_policy_entries() -> Array[Dictionary]:
 	return result
 
 
+func _available_policy_entry_by_id(policy_id: String) -> Dictionary:
+	for policy_data: Dictionary in _available_policy_entries():
+		if str(policy_data.get("id", "")) == policy_id:
+			return policy_data
+	return {}
+
+
 func _is_budget_mode() -> bool:
 	return str(_scenario.get("selection_mode", "single")) == "budget"
 
 
 func _selection_mode_text() -> String:
 	if _is_budget_mode():
-		return "选择模式：政策点数决策"
-	return "选择模式：单一政策决策"
+		return "决策模式：政策点数决策"
+	return "决策模式：单一政策决策"
 
 
 func _policy_point_limit() -> int:
@@ -560,8 +570,10 @@ func _policy_names_text(policies: Array) -> String:
 	return "、".join(names)
 
 
-func _settlement_mode_label(mode: String) -> String:
+func _settlement_mode_label(mode: String, model_type: String = "") -> String:
 	if mode == "model":
+		if model_type == "IS_LM":
+			return "IS-LM 模型结算占位"
 		return "模型结算占位"
 	return "基础教学演示结算"
 
@@ -577,7 +589,7 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
 		return
 
-	var policy_data: Dictionary = _find_policy_data(policy_id)
+	var policy_data: Dictionary = _available_policy_entry_by_id(policy_id)
 	if policy_data.is_empty():
 		return
 

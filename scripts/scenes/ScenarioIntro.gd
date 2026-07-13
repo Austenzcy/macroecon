@@ -6,6 +6,8 @@ var _step_index: int = 0
 
 var _content_box: VBoxContainer
 var _progress_label: Label
+var _scenario_title_label: Label
+var _mode_label: Label
 var _title_label: Label
 var _body_label: Label
 var _tags: HBoxContainer
@@ -22,10 +24,12 @@ func _ready() -> void:
 
 
 func _load_scenario() -> void:
-	_scenario = DataLoader.find_by_id("res://data/scenarios.json", GameState.current_scenario_id)
+	_scenario = GameState.get_current_scenario()
 	if _scenario.is_empty():
 		_scenario = {
-			"title": "消费信心下滑",
+			"title": "消费信心下滑：基础教学关",
+			"selection_mode": "single",
+			"policy_point_limit": null,
 			"problem_title": "消费信心下降",
 			"problem_description": "居民消费不足，经济面临需求偏弱压力。",
 			"model_hint": "核心变量：C ↓，总需求下降",
@@ -67,7 +71,7 @@ func _build_ui() -> void:
 	panel.add_child(margin)
 
 	_content_box = VBoxContainer.new()
-	_content_box.add_theme_constant_override("separation", 20)
+	_content_box.add_theme_constant_override("separation", 18)
 	margin.add_child(_content_box)
 
 	var header: HBoxContainer = HBoxContainer.new()
@@ -85,6 +89,18 @@ func _build_ui() -> void:
 	_progress_label.modulate = Color(0.72, 0.82, 0.90)
 	_progress_label.add_theme_font_size_override("font_size", 18)
 	header.add_child(_progress_label)
+
+	_scenario_title_label = Label.new()
+	_scenario_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_scenario_title_label.modulate = Color(0.70, 0.86, 1.0)
+	_scenario_title_label.add_theme_font_size_override("font_size", 22)
+	_content_box.add_child(_scenario_title_label)
+
+	_mode_label = Label.new()
+	_mode_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_mode_label.modulate = Color(0.92, 0.80, 0.46)
+	_mode_label.add_theme_font_size_override("font_size", 18)
+	_content_box.add_child(_mode_label)
 
 	_title_label = Label.new()
 	_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -144,6 +160,8 @@ func _show_step(index: int, animate: bool) -> void:
 	var is_last_step: bool = _step_index == _story_steps.size() - 1
 
 	_progress_label.text = "%d / %d" % [_step_index + 1, _story_steps.size()]
+	_scenario_title_label.text = str(_scenario.get("title", "消费信心下滑"))
+	_mode_label.text = _selection_mode_text()
 	_title_label.text = str(step.get("title", _scenario.get("title", "消费信心下滑")))
 	_body_label.text = str(step.get("body", _scenario.get("body", "")))
 	_next_button.text = str(step.get("button", "进入政策桌面"))
@@ -164,6 +182,12 @@ func _show_step(index: int, animate: bool) -> void:
 		tween.tween_property(_content_box, "modulate:a", 1.0, 0.16)
 	else:
 		_content_box.modulate = Color.WHITE
+
+
+func _selection_mode_text() -> String:
+	if str(_scenario.get("selection_mode", "single")) == "budget":
+		return "决策模式：政策点数决策，总点数 %d" % int(_scenario.get("policy_point_limit", 0))
+	return "决策模式：单一政策决策"
 
 
 func _on_next_pressed() -> void:

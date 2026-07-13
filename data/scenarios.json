@@ -1,7 +1,7 @@
 [
   {
     "id": "consumer_confidence_drop_basic",
-    "title": "消费信心下滑：基础教学",
+    "title": "消费信心下滑：基础教学关",
     "selection_mode": "single",
     "settlement_mode": "demo",
     "model_type": "IS_LM",
@@ -42,7 +42,7 @@
   },
   {
     "id": "consumer_confidence_drop_budget",
-    "title": "消费信心下滑：组合政策训练",
+    "title": "消费信心下滑：组合训练关",
     "selection_mode": "budget",
     "settlement_mode": "model",
     "model_type": "IS_LM",

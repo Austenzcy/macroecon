@@ -183,6 +183,22 @@ PolicyDesk UI 可用性优化记录：
 - 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
 - 暂停继续开发，等待人工核验线上网站。
 
+测试关卡入口与分流验证记录：
+- MainMenu 已新增两个测试关卡入口：`基础教学关：单一政策决策` 和 `组合训练关：政策点数决策`。
+- 基础教学关使用 `consumer_confidence_drop_basic`，配置为 `selection_mode=single`、`settlement_mode=demo`、`model_type=IS_LM`。
+- 组合训练关使用 `consumer_confidence_drop_budget`，配置为 `selection_mode=budget`、`settlement_mode=model`、`model_type=IS_LM`、`policy_point_limit=5`。
+- ScenarioIntro 已从 GameState/DataLoader 动态读取当前 scenario，显示当前关卡标题、三步故事、模型标签和决策模式提示。
+- PolicyDesk 已根据当前 scenario 动态显示 single 或 budget 模式；budget 模式可在线测试政策点数、cost 显示、多选和点数不足提示。
+- 选择政策但未确认前，右侧宏观状态监测面板仍不提前显示政策结果。
+- 确认政策后统一调用 `MacroEngine.calculate_result(...)`；基础教学关进入 demo 演示结算，组合训练关进入 `ISLMSolver.solve(...)` 模型占位路径。
+- 右侧结算方式已能显示 `基础教学演示结算` 或 `IS-LM 模型结算占位`。
+- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 ScenarioIntro / PolicyDesk 场景检查通过。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260713-214809`。
+- `latest.json` 已上线，内容指向 `/releases/20260713-214809/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。
+
 轻量交互优化记录：
 - 已为 PolicyDesk 增加 UI 缩放控件，支持 80% / 90% / 100% / 110% / 120%，并保留滚动与底部安全留白。
 - 已将 ScenarioIntro 改为三步情景互动：新闻播报、居民反馈、顾问总结。

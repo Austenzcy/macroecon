@@ -45,3 +45,7 @@ func find_by_id(path: String, id_value: String) -> Dictionary:
 		if item is Dictionary and str(item.get("id", "")) == id_value:
 			return item
 	return {}
+
+
+func get_scenario_by_id(id_value: String) -> Dictionary:
+	return find_by_id("res://data/scenarios.json", id_value)

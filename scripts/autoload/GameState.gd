@@ -16,5 +16,14 @@ func clear_selection() -> void:
 	selected_policy_name = ""
 
 
+func set_current_scenario(scenario_id: String) -> void:
+	current_scenario_id = scenario_id
+	clear_selection()
+
+
+func get_current_scenario() -> Dictionary:
+	return DataLoader.get_scenario_by_id(current_scenario_id)
+
+
 func set_ui_scale(value: float) -> void:
 	ui_scale = clampf(value, 0.8, 1.2)
