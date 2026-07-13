@@ -338,3 +338,21 @@ FinalSummary 最终总结页 v1 与右侧面板精简记录：
 - 最终 BuildId：`20260714-015113`。
 - `latest.json` 已上线，内容指向 `/releases/20260714-015113/index.html`。
 - 线上检查通过：根目录 `index.html`、release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+
+ScoreEngine v1 与文本排版修复记录：
+- 已修复 FinalSummary / Result 等页面的文本排版问题。
+- 长段落改用 RichTextLabel，自然填充可用宽度后自动换行。
+- bullet 列表改为固定宽度 bullet + 正文 RichTextLabel 的 HBox 结构，避免 bullet 单独成行、句号单独换行和段落异常换行。
+- 已新增 `scripts/engine/ScoreEngine.gd`。
+- ScoreEngine v1 使用连续计分规则，不使用离散档位。
+- 评分结构包括产出稳定、就业改善、通胀控制、债务压力、政策效率五项。
+- 本版不加入模型理解分。
+- FinalSummary 评分模块已从占位改为展示 ScoreEngine 返回的真实评分。
+- 评分参数通过 `data/scenarios.json` 的 `score_config` 配置，并与当前短期 IS-LM 组合训练关绑定。
+- 长期影响只保留在长期视角提示中，不计入评分。
+- 已新增 `docs/ScoreEngine_v1.md`，记录用途、100 分结构、五项连续计分规则、score_config、非离散档位理由和当前限制。
+- 已更新 `docs/FinalSummary_v1.md`，同步评分模块职责。
+- 已重新导出并部署 CloudBase。
+- 最终 BuildId：`20260714-021458`。
+- `latest.json` 已上线，内容指向 `/releases/20260714-021458/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。

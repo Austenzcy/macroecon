@@ -1,5 +1,6 @@
 extends Control
 
+const ScoreEngine = preload("res://scripts/engine/ScoreEngine.gd")
 const CONTENT_WIDTH: float = 1100.0
 
 
@@ -47,7 +48,7 @@ func _build_ui() -> void:
 	grid.add_child(_build_round_history_panel())
 	grid.add_child(_build_variable_path_panel())
 	grid.add_child(_build_learning_summary_panel())
-	grid.add_child(_build_scoring_placeholder_panel())
+	grid.add_child(_build_score_panel())
 
 	page.add_child(_build_long_term_panel())
 	page.add_child(_build_action_button("返回主菜单", _on_return_main_menu_pressed))
@@ -78,25 +79,25 @@ func _build_title_panel() -> PanelContainer:
 
 
 func _build_round_history_panel() -> PanelContainer:
-	var panel: PanelContainer = _new_panel(Vector2(0, 360))
+	var panel: PanelContainer = _new_panel(Vector2(0, 380))
 	var box: VBoxContainer = _panel_content(panel, "回合历史")
 	if GameState.round_history.is_empty():
-		_add_body_label(box, "暂无回合历史。", Color(0.82, 0.88, 0.92), 16)
+		_add_paragraph(box, "暂无回合历史。", Color(0.82, 0.88, 0.92), 16)
 		return panel
 
 	for entry: Dictionary in GameState.round_history:
 		var round_number: int = int(entry.get("round", 0))
 		var result: Dictionary = _dictionary_from_variant(entry.get("result", {}))
 		_add_section_label(box, "第 %d 回合" % round_number)
-		_add_body_label(box, "已执行政策：%s" % _policy_names_text(_array_from_variant(result.get("executed_policies", []))), Color(0.96, 0.98, 1.0), 16)
-		_add_body_label(box, "结算方式：%s" % _settlement_label(result), Color(0.92, 0.80, 0.46), 15)
-		_add_body_label(box, "简要结果：%s" % _brief_result_text(result), Color(0.78, 0.86, 0.92), 15)
+		_add_paragraph(box, "已执行政策：%s" % _policy_names_text(_array_from_variant(result.get("executed_policies", []))), Color(0.96, 0.98, 1.0), 16)
+		_add_paragraph(box, "结算方式：%s" % _settlement_label(result), Color(0.92, 0.80, 0.46), 15)
+		_add_paragraph(box, "简要结果：%s" % _brief_result_text(result), Color(0.78, 0.86, 0.92), 15)
 
 	return panel
 
 
 func _build_variable_path_panel() -> PanelContainer:
-	var panel: PanelContainer = _new_panel(Vector2(0, 360))
+	var panel: PanelContainer = _new_panel(Vector2(0, 380))
 	var box: VBoxContainer = _panel_content(panel, "宏观变量轨迹")
 	var states: Array[Dictionary] = [GameState.get_initial_state()]
 	for entry: Dictionary in GameState.round_history:
@@ -110,36 +111,61 @@ func _build_variable_path_panel() -> PanelContainer:
 		for state: Dictionary in states:
 			values.append(_state_value(state, key))
 		_add_info_row(box, key, " → ".join(values))
-	_add_body_label(box, "当前阶段使用文字轨迹，变量走势图后续再加入。", Color(0.70, 0.78, 0.84), 14)
+	_add_paragraph(box, "当前阶段使用文字轨迹，变量走势图后续再加入。", Color(0.70, 0.78, 0.84), 14)
 	return panel
 
 
 func _build_learning_summary_panel() -> PanelContainer:
-	var panel: PanelContainer = _new_panel(Vector2(0, 360))
+	var panel: PanelContainer = _new_panel(Vector2(0, 380))
 	var box: VBoxContainer = _panel_content(panel, "学习总结")
-	_add_body_label(box, "本关核心机制：", Color(0.86, 0.92, 0.96), 16)
-	_add_body_label(box, "• 消费信心下降导致 C 下降，总需求走弱，IS 曲线左移。", Color(0.78, 0.86, 0.92), 15)
+	_add_paragraph(box, "本关核心机制：", Color(0.86, 0.92, 0.96), 16)
+	_add_bullet(box, "消费信心下降导致 C 下降，总需求走弱，IS 曲线左移。")
 
 	var mechanisms: Array[String] = _unique_mechanisms()
 	for item: String in mechanisms:
-		_add_body_label(box, "• %s" % item, Color(0.78, 0.86, 0.92), 15)
-	_add_body_label(box, "• 组合政策应先合并对模型参数的影响，再重新求解均衡，而不是简单相加。", Color(0.78, 0.86, 0.92), 15)
+		_add_bullet(box, item)
+	_add_bullet(box, "组合政策应先合并对模型参数的影响，再重新求解均衡，而不是简单相加。")
 	return panel
 
 
-func _build_scoring_placeholder_panel() -> PanelContainer:
-	var panel: PanelContainer = _new_panel(Vector2(0, 360))
+func _build_score_panel() -> PanelContainer:
+	var panel: PanelContainer = _new_panel(Vector2(0, 380))
 	var box: VBoxContainer = _panel_content(panel, "评分系统")
-	_add_body_label(box, "评分系统将在下一阶段实现。", Color(0.96, 0.98, 1.0), 17)
-	_add_body_label(box, "后续将根据关卡标签评价当前模型视野下的目标，例如产出缺口、失业率、通胀压力、债务压力和政策效率。", Color(0.78, 0.86, 0.92), 15)
-	_add_body_label(box, "当前不计算分数，不做胜负判定，也不引入评分公式。", Color(0.92, 0.80, 0.46), 15)
+	var scenario: Dictionary = GameState.get_current_scenario()
+	var score_result: Dictionary = ScoreEngine.calculate_score(scenario, GameState.round_history, GameState.get_initial_state(), _final_state())
+
+	if not bool(score_result.get("enabled", false)):
+		_add_paragraph(box, str(score_result.get("overall_comment", "当前关卡未启用评分系统。")), Color(0.82, 0.88, 0.92), 16)
+		return panel
+
+	_add_paragraph(box, "总分：%.1f / %.0f" % [
+		float(score_result.get("total", 0.0)),
+		float(score_result.get("max_total", 100.0))
+	], Color(0.96, 0.98, 1.0), 22)
+
+	var items: Array = _array_from_variant(score_result.get("items", []))
+	for item_variant: Variant in items:
+		if not item_variant is Dictionary:
+			continue
+		var item: Dictionary = item_variant as Dictionary
+		_add_paragraph(box, "%s：%.1f / %.0f" % [
+			str(item.get("name", "评分项")),
+			float(item.get("score", 0.0)),
+			float(item.get("max", 0.0))
+		], Color(0.92, 0.80, 0.46), 15)
+		_add_paragraph(box, str(item.get("comment", "")), Color(0.78, 0.86, 0.92), 14)
+
+	_add_section_label(box, "总体评价")
+	_add_paragraph(box, str(score_result.get("overall_comment", "")), Color(0.86, 0.92, 0.96), 15)
+	_add_section_label(box, "评分边界")
+	_add_paragraph(box, str(score_result.get("scope_note", "")), Color(0.70, 0.78, 0.84), 14)
 	return panel
 
 
 func _build_long_term_panel() -> PanelContainer:
 	var panel: PanelContainer = _new_panel()
 	var box: VBoxContainer = _panel_content(panel, "长期视角提示")
-	_add_body_label(box, "本关为短期 IS-LM 情境，当前结果主要反映价格刚性条件下的短期需求管理效果。财政、货币政策的长期影响将在长期或综合关卡中单独讨论，不计入本关结果。", Color(0.82, 0.88, 0.92), 17)
+	_add_paragraph(box, "本关为短期 IS-LM 情境，当前结果主要反映价格刚性条件下的短期需求管理效果。财政、货币政策的长期影响将在长期或综合关卡中单独讨论，不计入本关结果。", Color(0.82, 0.88, 0.92), 17)
 	return panel
 
 
@@ -153,10 +179,10 @@ func _new_panel(minimum_size: Vector2 = Vector2.ZERO) -> PanelContainer:
 
 func _panel_content(panel: PanelContainer, title: String) -> VBoxContainer:
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 18)
+	margin.add_theme_constant_override("margin_left", 22)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_right", 22)
+	margin.add_theme_constant_override("margin_bottom", 20)
 	panel.add_child(margin)
 
 	var box: VBoxContainer = VBoxContainer.new()
@@ -180,6 +206,16 @@ func _build_action_button(text: String, callback: Callable) -> Button:
 func _on_return_main_menu_pressed() -> void:
 	GameState.reset_for_new_game()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+
+
+func _final_state() -> Dictionary:
+	if not GameState.round_history.is_empty():
+		var last_entry: Dictionary = GameState.round_history[GameState.round_history.size() - 1]
+		var result: Dictionary = _dictionary_from_variant(last_entry.get("result", {}))
+		var after: Dictionary = _dictionary_from_variant(result.get("after", {}))
+		if not after.is_empty():
+			return after
+	return GameState.get_current_state()
 
 
 func _policy_names_text(policies: Array) -> String:
@@ -261,13 +297,40 @@ func _add_section_label(parent: VBoxContainer, text: String) -> void:
 	parent.add_child(label)
 
 
-func _add_body_label(parent: VBoxContainer, text: String, color: Color, font_size: int) -> void:
-	var label: Label = Label.new()
+func _add_paragraph(parent: VBoxContainer, text: String, color: Color, font_size: int) -> void:
+	var label: RichTextLabel = RichTextLabel.new()
 	label.text = text
+	label.fit_content = true
+	label.scroll_active = false
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.modulate = color
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("normal_font_size", font_size)
 	parent.add_child(label)
+
+
+func _add_bullet(parent: VBoxContainer, text: String) -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	parent.add_child(row)
+
+	var bullet: Label = Label.new()
+	bullet.text = "•"
+	bullet.custom_minimum_size = Vector2(18, 0)
+	bullet.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bullet.modulate = Color(0.78, 0.86, 0.92)
+	bullet.add_theme_font_size_override("font_size", 15)
+	row.add_child(bullet)
+
+	var label: RichTextLabel = RichTextLabel.new()
+	label.text = text
+	label.fit_content = true
+	label.scroll_active = false
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.modulate = Color(0.78, 0.86, 0.92)
+	label.add_theme_font_size_override("normal_font_size", 15)
+	row.add_child(label)
 
 
 func _add_info_row(parent: VBoxContainer, name: String, value: String) -> void:
@@ -282,11 +345,13 @@ func _add_info_row(parent: VBoxContainer, name: String, value: String) -> void:
 	name_label.add_theme_font_size_override("font_size", 16)
 	row.add_child(name_label)
 
-	var value_label: Label = Label.new()
+	var value_label: RichTextLabel = RichTextLabel.new()
 	value_label.text = value
+	value_label.fit_content = true
+	value_label.scroll_active = false
 	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	value_label.add_theme_font_size_override("font_size", 16)
+	value_label.add_theme_font_size_override("normal_font_size", 16)
 	row.add_child(value_label)
 
 

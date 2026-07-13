@@ -47,6 +47,42 @@
     "settlement_mode": "model",
     "model_type": "IS_LM",
     "policy_point_limit": 5,
+    "score_config": {
+      "enabled": true,
+      "score_type": "short_run_is_lm",
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
+    },
     "model_params": {
       "IS_LM": {
         "A": 132,

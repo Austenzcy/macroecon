@@ -93,7 +93,7 @@ func _build_policies_panel(result: Dictionary) -> PanelContainer:
 	else:
 		for policy: Variant in policies:
 			if policy is Dictionary:
-				_add_body_label(box, "• %s" % str((policy as Dictionary).get("name", "未知政策")), Color(0.96, 0.98, 1.0), 18)
+				_add_bullet(box, str((policy as Dictionary).get("name", "未知政策")), Color(0.96, 0.98, 1.0), 18)
 	return panel
 
 
@@ -121,7 +121,7 @@ func _build_mechanism_panel(result: Dictionary) -> PanelContainer:
 	if not mechanism.is_empty():
 		_add_section_label(box, "机制路径")
 		for item: Variant in mechanism:
-			_add_body_label(box, "• %s" % str(item), Color(0.78, 0.86, 0.92), 16)
+			_add_bullet(box, str(item), Color(0.78, 0.86, 0.92), 16)
 	return panel
 
 
@@ -208,12 +208,39 @@ func _add_section_label(parent: VBoxContainer, text: String) -> void:
 
 
 func _add_body_label(parent: VBoxContainer, text: String, color: Color, font_size: int) -> void:
-	var label: Label = Label.new()
+	var label: RichTextLabel = RichTextLabel.new()
 	label.text = text
+	label.fit_content = true
+	label.scroll_active = false
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.modulate = color
-	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_font_size_override("normal_font_size", font_size)
 	parent.add_child(label)
+
+
+func _add_bullet(parent: VBoxContainer, text: String, color: Color, font_size: int) -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	parent.add_child(row)
+
+	var bullet: Label = Label.new()
+	bullet.text = "•"
+	bullet.custom_minimum_size = Vector2(18, 0)
+	bullet.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bullet.modulate = color
+	bullet.add_theme_font_size_override("font_size", font_size)
+	row.add_child(bullet)
+
+	var label: RichTextLabel = RichTextLabel.new()
+	label.text = text
+	label.fit_content = true
+	label.scroll_active = false
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.modulate = color
+	label.add_theme_font_size_override("normal_font_size", font_size)
+	row.add_child(label)
 
 
 func _add_info_row(parent: VBoxContainer, name: String, value: String) -> void:
@@ -228,11 +255,13 @@ func _add_info_row(parent: VBoxContainer, name: String, value: String) -> void:
 	name_label.add_theme_font_size_override("font_size", 17)
 	row.add_child(name_label)
 
-	var value_label: Label = Label.new()
+	var value_label: RichTextLabel = RichTextLabel.new()
 	value_label.text = value
+	value_label.fit_content = true
+	value_label.scroll_active = false
 	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	value_label.add_theme_font_size_override("font_size", 18)
+	value_label.add_theme_font_size_override("normal_font_size", 18)
 	row.add_child(value_label)
 
 
