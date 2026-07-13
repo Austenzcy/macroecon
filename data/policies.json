@@ -1,0 +1,44 @@
+[
+  {
+    "id": "increase_government_spending",
+    "name": "增加政府购买",
+    "type": "财政政策",
+    "description": "扩大政府购买以支撑总需求。",
+    "policy_result_demo": {
+      "Y": "104",
+      "u": "4.7%",
+      "π": "2.2%",
+      "i": "4.4%",
+      "Debt": "62%",
+      "summary": "政府支出增加后，总需求获得支撑，但财政债务压力有所上升。"
+    }
+  },
+  {
+    "id": "expansionary_monetary_policy",
+    "name": "扩张性货币政策",
+    "type": "货币政策",
+    "description": "通过更宽松的货币环境降低融资压力。",
+    "policy_result_demo": {
+      "Y": "103",
+      "u": "4.8%",
+      "π": "2.1%",
+      "i": "3.5%",
+      "Debt": "60%",
+      "summary": "金融条件有所宽松，需求压力得到一定缓解。"
+    }
+  },
+  {
+    "id": "tax_cut",
+    "name": "减税",
+    "type": "财政政策",
+    "description": "提高居民和企业可支配收入。",
+    "policy_result_demo": {
+      "Y": "102",
+      "u": "4.9%",
+      "π": "2.1%",
+      "i": "4.2%",
+      "Debt": "61%",
+      "summary": "减税提高了可支配收入，消费压力有所缓解，但财政收入承压。"
+    }
+  }
+]

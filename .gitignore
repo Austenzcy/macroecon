@@ -1,0 +1,8 @@
+deploy.local.ps1
+web_build/
+.godot/
+root_index/
+latest.json
+temp_online_check/
+temp_http_server.*
+temp_local_index.html

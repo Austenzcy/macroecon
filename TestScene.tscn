@@ -1,0 +1,158 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/TestScene.gd" id="1_test_scene"]
+[ext_resource type="FontFile" uid="uid://d236s2465rck5" path="res://assets/fonts/NotoSansSC-Regular.ttf" id="2_chinese_font"]
+
+[node name="TestScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_test_scene")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.08, 0.08, 1)
+
+[node name="Header" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 24.0
+offset_bottom = 76.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 32
+text = "部署验证场景：政策卡 + 国家地图 + 指标变化"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PolicyCard" type="Button" parent="."]
+custom_minimum_size = Vector2(250, 340)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.07
+anchor_top = 0.23
+anchor_right = 0.27
+anchor_bottom = 0.72
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 22
+text = "政策卡
+
+增加政府购买
+
+点击测试动画和音效"
+clip_text = true
+
+[node name="MapPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.34
+anchor_top = 0.22
+anchor_right = 0.69
+anchor_bottom = 0.78
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MapColor" type="ColorRect" parent="MapPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.19, 0.22, 1)
+
+[node name="MapLabel" type="Label" parent="MapPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 28
+text = "抽象国家地图区域
+
+居民消费区 / 工业生产区
+金融市场区 / 政府部门区"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="IndicatorPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.74
+anchor_top = 0.22
+anchor_right = 0.93
+anchor_bottom = 0.78
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="IndicatorBox" type="VBoxContainer" parent="IndicatorPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="PanelTitle" type="Label" parent="IndicatorPanel/IndicatorBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 26
+text = "测试指标"
+
+[node name="YLabel" type="Label" parent="IndicatorPanel/IndicatorBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 24
+text = "Y: 100.0"
+
+[node name="ULabel" type="Label" parent="IndicatorPanel/IndicatorBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 24
+text = "u: 6.0%"
+
+[node name="PiLabel" type="Label" parent="IndicatorPanel/IndicatorBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 24
+text = "π: 2.5%"
+
+[node name="DebtLabel" type="Label" parent="IndicatorPanel/IndicatorBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 24
+text = "Debt: 60.0%"
+
+[node name="Hint" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -74.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("2_chinese_font")
+theme_override_font_sizes/font_size = 20
+text = "点击左侧政策卡：卡牌 Tween 动画、SFX、指标和地图颜色都会变化。"
+horizontal_alignment = 1
+vertical_alignment = 1

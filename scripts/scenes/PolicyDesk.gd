@@ -1,0 +1,622 @@
+extends Control
+
+const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
+const OUTER_MARGIN_X: int = 48
+const OUTER_MARGIN_TOP: int = 48
+const OUTER_MARGIN_BOTTOM: int = 144
+const SCALE_STEP: float = 0.1
+const MIN_UI_SCALE: float = 0.8
+const MAX_UI_SCALE: float = 1.2
+
+var _policy_cards: Array[Node] = []
+var _advisor_panel: PanelContainer
+var _outer_margin: MarginContainer
+var _content_margin: MarginContainer
+var _scale_label: Label
+var _right_panel_box: VBoxContainer
+var _theory_panel: PanelContainer
+var _theory_button: Button
+var _confirm_button: Button
+var _selected_policy_data: Dictionary = {}
+var _is_policy_confirmed: bool = false
+var _is_theory_open: bool = false
+var _ui_scale: float = 1.0
+
+
+func _ready() -> void:
+	GameState.clear_selection()
+	_ui_scale = 1.0
+	GameState.set_ui_scale(_ui_scale)
+	_build_ui()
+	call_deferred("_refresh_initial_layout")
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mouse_event: InputEventMouseButton = event
+		if not mouse_event.pressed or not mouse_event.ctrl_pressed:
+			return
+		if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_set_ui_scale(_ui_scale + SCALE_STEP)
+			get_viewport().set_input_as_handled()
+		elif mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_set_ui_scale(_ui_scale - SCALE_STEP)
+			get_viewport().set_input_as_handled()
+
+
+func _build_ui() -> void:
+	_policy_cards.clear()
+	_advisor_panel = null
+	_right_panel_box = null
+	_theory_panel = null
+	_theory_button = null
+	_confirm_button = null
+	_scale_label = null
+	_outer_margin = null
+	_content_margin = null
+
+	for child: Node in get_children():
+		remove_child(child)
+		child.queue_free()
+
+	var background: ColorRect = ColorRect.new()
+	background.color = Color(0.015, 0.018, 0.022, 1.0)
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(background)
+
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
+	scroll.follow_focus = true
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	add_child(scroll)
+
+	_outer_margin = MarginContainer.new()
+	_outer_margin.custom_minimum_size = _scaled_content_size() + Vector2(float(OUTER_MARGIN_X * 2), float(OUTER_MARGIN_TOP + OUTER_MARGIN_BOTTOM))
+	_outer_margin.add_theme_constant_override("margin_left", OUTER_MARGIN_X)
+	_outer_margin.add_theme_constant_override("margin_top", OUTER_MARGIN_TOP)
+	_outer_margin.add_theme_constant_override("margin_right", OUTER_MARGIN_X)
+	_outer_margin.add_theme_constant_override("margin_bottom", OUTER_MARGIN_BOTTOM)
+	scroll.add_child(_outer_margin)
+
+	_content_margin = MarginContainer.new()
+	_content_margin.custom_minimum_size = _scaled_content_size()
+	_content_margin.add_theme_constant_override("margin_left", _dim(24))
+	_content_margin.add_theme_constant_override("margin_top", _dim(18))
+	_content_margin.add_theme_constant_override("margin_right", _dim(24))
+	_content_margin.add_theme_constant_override("margin_bottom", _dim(20))
+	_outer_margin.add_child(_content_margin)
+
+	var root: VBoxContainer = VBoxContainer.new()
+	root.add_theme_constant_override("separation", _dim(14))
+	_content_margin.add_child(root)
+
+	root.add_child(_build_top_row())
+	root.add_child(_build_problem_banner())
+
+	var desk: HBoxContainer = HBoxContainer.new()
+	desk.add_theme_constant_override("separation", _dim(18))
+	root.add_child(desk)
+
+	desk.add_child(_build_policy_column())
+	desk.add_child(_build_map_panel())
+	desk.add_child(_build_right_column())
+
+	var bottom_row: HBoxContainer = HBoxContainer.new()
+	bottom_row.add_theme_constant_override("separation", _dim(14))
+	root.add_child(bottom_row)
+
+	var advisor_scene: PackedScene = preload("res://scenes/components/AdvisorPanel.tscn")
+	_advisor_panel = advisor_scene.instantiate() as PanelContainer
+	_advisor_panel.custom_minimum_size = Vector2(_dim(0), _dim(132))
+	_advisor_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom_row.add_child(_advisor_panel)
+	_set_default_advisor()
+
+	_confirm_button = Button.new()
+	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "确认政策"
+	_confirm_button.disabled = _is_policy_confirmed
+	_confirm_button.custom_minimum_size = Vector2(_dim(160), _dim(64))
+	_confirm_button.add_theme_font_size_override("font_size", _font(20))
+	_confirm_button.pressed.connect(_on_confirm_policy)
+	bottom_row.add_child(_confirm_button)
+
+	if _is_policy_confirmed:
+		_show_policy_result_panel(_selected_policy_data)
+	else:
+		_show_current_state_panel()
+
+
+func _build_top_row() -> HBoxContainer:
+	var top_row: HBoxContainer = HBoxContainer.new()
+	top_row.add_theme_constant_override("separation", _dim(14))
+
+	var tag_scene: PackedScene = preload("res://scenes/components/ModelTagBar.tscn")
+	var tag_bar: HBoxContainer = tag_scene.instantiate() as HBoxContainer
+	tag_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_row.add_child(tag_bar)
+	tag_bar.call("set_ui_scale", _ui_scale)
+	var tag_data: Dictionary = DataLoader.load_dict("res://data/model_tags.json")
+	var default_tags: Variant = tag_data.get("default", ["封闭经济", "短期", "价格刚性", "IS-LM"])
+	tag_bar.call("set_tags", default_tags)
+
+	top_row.add_child(_build_scale_controls())
+	return top_row
+
+
+func _build_scale_controls() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", _make_compact_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(8))
+	margin.add_theme_constant_override("margin_top", _dim(6))
+	margin.add_theme_constant_override("margin_right", _dim(8))
+	margin.add_theme_constant_override("margin_bottom", _dim(6))
+	panel.add_child(margin)
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(8))
+	margin.add_child(row)
+
+	var minus_button: Button = Button.new()
+	minus_button.text = "-"
+	minus_button.custom_minimum_size = Vector2(_dim(34), _dim(32))
+	minus_button.add_theme_font_size_override("font_size", _font(16))
+	minus_button.pressed.connect(_on_zoom_out)
+	row.add_child(minus_button)
+
+	_scale_label = Label.new()
+	_scale_label.custom_minimum_size = Vector2(_dim(58), _dim(28))
+	_scale_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_scale_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_scale_label.add_theme_font_size_override("font_size", _font(15))
+	_scale_label.text = "%d%%" % int(roundf(_ui_scale * 100.0))
+	row.add_child(_scale_label)
+
+	var plus_button: Button = Button.new()
+	plus_button.text = "+"
+	plus_button.custom_minimum_size = Vector2(_dim(34), _dim(32))
+	plus_button.add_theme_font_size_override("font_size", _font(16))
+	plus_button.pressed.connect(_on_zoom_in)
+	row.add_child(plus_button)
+
+	var reset_button: Button = Button.new()
+	reset_button.text = "重置"
+	reset_button.custom_minimum_size = Vector2(_dim(58), _dim(32))
+	reset_button.add_theme_font_size_override("font_size", _font(15))
+	reset_button.pressed.connect(_on_zoom_reset)
+	row.add_child(reset_button)
+
+	return panel
+
+
+func _build_problem_banner() -> PanelContainer:
+	var scenario: Dictionary = _get_current_scenario()
+	var panel: PanelContainer = PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _make_problem_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(18))
+	margin.add_theme_constant_override("margin_top", _dim(10))
+	margin.add_theme_constant_override("margin_right", _dim(18))
+	margin.add_theme_constant_override("margin_bottom", _dim(10))
+	panel.add_child(margin)
+
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", _dim(3))
+	margin.add_child(box)
+
+	_add_wrapped_label(box, "当前问题", Color(0.62, 0.84, 1.0), 17)
+	_add_wrapped_label(box, "%s：%s" % [
+		str(scenario.get("problem_title", "消费信心下降")),
+		str(scenario.get("problem_description", "居民消费不足，经济面临需求偏弱压力。"))
+	], Color(0.96, 0.98, 1.0), 20)
+	_add_wrapped_label(box, str(scenario.get("model_hint", "核心变量：C ↓，总需求下降")), Color(0.80, 0.90, 0.82), 16)
+
+	return panel
+
+
+func _build_policy_column() -> VBoxContainer:
+	var column: VBoxContainer = VBoxContainer.new()
+	column.custom_minimum_size = Vector2(_dim(250), 0)
+	column.add_theme_constant_override("separation", _dim(12))
+
+	_add_panel_title(column, "政策卡区")
+
+	var card_scene: PackedScene = preload("res://scenes/components/PolicyCard.tscn")
+	var policies: Array = DataLoader.load_array("res://data/policies.json")
+	for policy_data: Variant in policies:
+		if not policy_data is Dictionary:
+			continue
+		var card: PanelContainer = card_scene.instantiate() as PanelContainer
+		card.call("set_policy", policy_data)
+		card.call("set_ui_scale", _ui_scale)
+		card.call("set_selected", str(policy_data.get("id", "")) == GameState.selected_policy_id)
+		card.connect("selected", _on_policy_selected)
+		_policy_cards.append(card)
+		column.add_child(card)
+
+	return column
+
+
+func _build_map_panel() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(_dim(560), _dim(520))
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.add_theme_stylebox_override("panel", _make_map_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(18))
+	margin.add_theme_constant_override("margin_top", _dim(18))
+	margin.add_theme_constant_override("margin_right", _dim(18))
+	margin.add_theme_constant_override("margin_bottom", _dim(18))
+	panel.add_child(margin)
+
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", _dim(14))
+	margin.add_child(box)
+
+	var title_row: HBoxContainer = HBoxContainer.new()
+	title_row.add_theme_constant_override("separation", _dim(12))
+	box.add_child(title_row)
+
+	var title: Label = Label.new()
+	title.text = "抽象国家地图"
+	title.add_theme_font_size_override("font_size", _font(26))
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_row.add_child(title)
+
+	_theory_button = Button.new()
+	_theory_button.text = "关闭理论" if _is_theory_open else "图表/理论"
+	_theory_button.custom_minimum_size = Vector2(_dim(112), _dim(38))
+	_theory_button.add_theme_font_size_override("font_size", _font(16))
+	_theory_button.pressed.connect(_on_toggle_theory_panel)
+	title_row.add_child(_theory_button)
+
+	var grid: GridContainer = GridContainer.new()
+	grid.columns = 2
+	grid.custom_minimum_size = Vector2(_dim(500), _dim(310))
+	grid.add_theme_constant_override("h_separation", _dim(14))
+	grid.add_theme_constant_override("v_separation", _dim(14))
+	box.add_child(grid)
+
+	var region_scene: PackedScene = preload("res://scenes/components/MapRegion.tscn")
+	var names: Array[String] = ["居民消费区", "工业生产区", "金融市场区", "政府部门区"]
+	for index in range(names.size()):
+		var region: PanelContainer = region_scene.instantiate() as PanelContainer
+		region.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		region.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		region.call("set_ui_scale", _ui_scale)
+		region.call("set_region_name", names[index])
+		region.call("set_highlighted", index == 0)
+		grid.add_child(region)
+
+	_theory_panel = _build_theory_panel()
+	_theory_panel.visible = _is_theory_open
+	box.add_child(_theory_panel)
+
+	return panel
+
+
+func _build_theory_panel() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", _make_theory_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(16))
+	margin.add_theme_constant_override("margin_top", _dim(14))
+	margin.add_theme_constant_override("margin_right", _dim(16))
+	margin.add_theme_constant_override("margin_bottom", _dim(14))
+	panel.add_child(margin)
+
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", _dim(10))
+	margin.add_child(box)
+
+	_add_panel_title(box, "理论面板：IS-LM 分析")
+	_add_wrapped_label(box, "当前冲击：消费信心下降 → C ↓", Color(0.88, 0.94, 1.0), 17)
+	_add_wrapped_label(box, "机制链条：C ↓ → 总需求下降 → IS 曲线左移 → Y 下降，i 下降", Color(0.84, 0.90, 0.94), 16)
+	_add_wrapped_label(box, "当前模型：封闭经济｜短期｜价格刚性｜IS-LM", Color(0.72, 0.86, 1.0), 16)
+	box.add_child(_build_chart_placeholder())
+	_add_wrapped_label(box, "这里只解释当前冲击的传导机制，不提前展示任何政策卡的执行结果。", Color(0.82, 0.86, 0.90), 15)
+
+	return panel
+
+
+func _build_chart_placeholder() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(0, _dim(140))
+	panel.add_theme_stylebox_override("panel", _make_chart_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(14))
+	margin.add_theme_constant_override("margin_top", _dim(12))
+	margin.add_theme_constant_override("margin_right", _dim(14))
+	margin.add_theme_constant_override("margin_bottom", _dim(12))
+	panel.add_child(margin)
+
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", _dim(8))
+	margin.add_child(box)
+
+	_add_wrapped_label(box, "i-Y 坐标框", Color(0.72, 0.86, 1.0), 15)
+	_add_wrapped_label(box, "IS 左移示意图", Color(0.96, 0.98, 1.0), 20)
+	_add_wrapped_label(box, "后续将加入动态图表", Color(0.70, 0.78, 0.84), 15)
+	return panel
+
+
+func _build_right_column() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(_dim(282), _dim(520))
+	panel.add_theme_stylebox_override("panel", _make_right_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(16))
+	margin.add_theme_constant_override("margin_top", _dim(16))
+	margin.add_theme_constant_override("margin_right", _dim(16))
+	margin.add_theme_constant_override("margin_bottom", _dim(16))
+	panel.add_child(margin)
+
+	_right_panel_box = VBoxContainer.new()
+	_right_panel_box.add_theme_constant_override("separation", _dim(10))
+	margin.add_child(_right_panel_box)
+
+	return panel
+
+
+func _show_current_state_panel() -> void:
+	_clear_right_panel()
+	var scenario: Dictionary = _get_current_scenario()
+	var variables: Dictionary = DataLoader.load_dict("res://data/variables.json")
+
+	_add_panel_title(_right_panel_box, "宏观状态监测")
+	_add_section_label(_right_panel_box, "当前问题：")
+	_add_wrapped_label(_right_panel_box, str(scenario.get("problem_title", "消费信心下降")), Color(0.96, 0.98, 1.0), 18)
+	_add_section_label(_right_panel_box, "关键变量：")
+	for key: String in ["C", "Y", "u", "π", "i", "Debt"]:
+		_add_info_row(_right_panel_box, key, str(variables.get(key, "-")))
+	_add_section_label(_right_panel_box, "提示：")
+	_add_wrapped_label(_right_panel_box, "请选择一张政策卡，并在确认后观察宏观状态变化。", Color(0.78, 0.86, 0.92), 15)
+
+
+func _show_policy_result_panel(policy_data: Dictionary) -> void:
+	_clear_right_panel()
+	var variables: Dictionary = DataLoader.load_dict("res://data/variables.json")
+	var result: Dictionary = {}
+	var result_variant: Variant = policy_data.get("policy_result_demo", {})
+	if result_variant is Dictionary:
+		result = result_variant
+
+	_add_panel_title(_right_panel_box, "政策执行后状态")
+	_add_section_label(_right_panel_box, "已执行政策：")
+	_add_wrapped_label(_right_panel_box, str(policy_data.get("name", "已选择政策")), Color(0.96, 0.98, 1.0), 18)
+	_add_section_label(_right_panel_box, "宏观状态变化：")
+	for key: String in ["Y", "u", "π", "i", "Debt"]:
+		var old_value: String = str(variables.get(key, "-"))
+		var new_value: String = str(result.get(key, old_value))
+		_add_info_row(_right_panel_box, key, "%s → %s" % [old_value, new_value])
+	_add_section_label(_right_panel_box, "会议记录：")
+	_add_wrapped_label(_right_panel_box, str(result.get("summary", "政策已提交，宏观状态已进入测试更新。")), Color(0.78, 0.86, 0.92), 15)
+
+
+func _set_default_advisor() -> void:
+	var advisors: Array = DataLoader.load_array("res://data/advisors.json")
+	if advisors.size() > 0 and advisors[0] is Dictionary:
+		var advisor: Dictionary = advisors[0] as Dictionary
+		_advisor_panel.call("set_advisor", str(advisor.get("name", "财政部长")), str(advisor.get("line", "")))
+
+
+func _get_current_scenario() -> Dictionary:
+	var scenario: Dictionary = DataLoader.find_by_id("res://data/scenarios.json", GameState.current_scenario_id)
+	if not scenario.is_empty():
+		return scenario
+	return {
+		"problem_title": "消费信心下降",
+		"problem_description": "居民消费不足，经济面临需求偏弱压力。",
+		"model_hint": "核心变量：C ↓，总需求下降"
+	}
+
+
+func _find_policy_data(policy_id: String) -> Dictionary:
+	var policies: Array = DataLoader.load_array("res://data/policies.json")
+	for policy: Variant in policies:
+		if policy is Dictionary and str(policy.get("id", "")) == policy_id:
+			return policy
+	return {}
+
+
+func _on_policy_selected(policy_id: String, policy_name: String) -> void:
+	if _is_policy_confirmed:
+		for card: Node in _policy_cards:
+			card.call("set_selected", card.get("policy_id") == GameState.selected_policy_id)
+		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
+		return
+
+	for card: Node in _policy_cards:
+		card.call("set_selected", card.get("policy_id") == policy_id)
+	GameState.select_policy(policy_id, policy_name)
+	_selected_policy_data = _find_policy_data(policy_id)
+	AudioManager.play_sfx(&"card_play")
+	_advisor_panel.call("set_advisor", "政策秘书", "已选择政策：“%s”。请点击确认政策提交决策。" % policy_name)
+
+
+func _on_confirm_policy() -> void:
+	if _is_policy_confirmed:
+		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
+		return
+	if GameState.selected_policy_name == "":
+		_advisor_panel.call("set_advisor", "会议记录", "请先选择一张政策卡。")
+		AudioManager.play_sfx(&"card_play")
+		return
+
+	_is_policy_confirmed = true
+	_show_policy_result_panel(_selected_policy_data)
+	_confirm_button.text = "政策已确认"
+	_confirm_button.disabled = true
+
+	var result: Dictionary = {}
+	var result_variant: Variant = _selected_policy_data.get("policy_result_demo", {})
+	if result_variant is Dictionary:
+		result = result_variant
+	var summary: String = str(result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
+	_advisor_panel.call("set_advisor", "会议记录", "已确认政策：“%s”。%s" % [GameState.selected_policy_name, summary])
+	AudioManager.play_sfx(&"card_play")
+
+
+func _on_toggle_theory_panel() -> void:
+	_is_theory_open = not _is_theory_open
+	if _theory_panel != null:
+		_theory_panel.visible = _is_theory_open
+	if _theory_button != null:
+		_theory_button.text = "关闭理论" if _is_theory_open else "图表/理论"
+	AudioManager.play_sfx(&"card_play")
+
+
+func _on_zoom_out() -> void:
+	_set_ui_scale(_ui_scale - SCALE_STEP)
+
+
+func _on_zoom_in() -> void:
+	_set_ui_scale(_ui_scale + SCALE_STEP)
+
+
+func _on_zoom_reset() -> void:
+	_set_ui_scale(1.0)
+
+
+func _set_ui_scale(value: float) -> void:
+	var next_scale: float = clampf(roundf(value / SCALE_STEP) * SCALE_STEP, MIN_UI_SCALE, MAX_UI_SCALE)
+	if is_equal_approx(next_scale, _ui_scale):
+		return
+	_ui_scale = next_scale
+	GameState.set_ui_scale(_ui_scale)
+	_build_ui()
+	call_deferred("_refresh_initial_layout")
+
+
+func _refresh_initial_layout() -> void:
+	if _content_margin != null:
+		_content_margin.queue_sort()
+	if _outer_margin != null:
+		_outer_margin.queue_sort()
+
+
+func _clear_right_panel() -> void:
+	if _right_panel_box == null:
+		return
+	for child: Node in _right_panel_box.get_children():
+		child.queue_free()
+
+
+func _add_panel_title(parent: VBoxContainer, text: String) -> void:
+	var label: Label = Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", _font(24))
+	parent.add_child(label)
+
+
+func _add_section_label(parent: VBoxContainer, text: String) -> void:
+	var label: Label = Label.new()
+	label.text = text
+	label.modulate = Color(0.72, 0.86, 1.0)
+	label.add_theme_font_size_override("font_size", _font(15))
+	parent.add_child(label)
+
+
+func _add_wrapped_label(parent: VBoxContainer, text: String, color: Color, base_font_size: int) -> void:
+	var label: Label = Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.modulate = color
+	label.add_theme_font_size_override("font_size", _font(base_font_size))
+	parent.add_child(label)
+
+
+func _add_info_row(parent: VBoxContainer, name: String, value: String) -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(10))
+	parent.add_child(row)
+
+	var name_label: Label = Label.new()
+	name_label.text = name
+	name_label.custom_minimum_size = Vector2(_dim(58), _dim(26))
+	name_label.modulate = Color(0.72, 0.82, 0.90)
+	name_label.add_theme_font_size_override("font_size", _font(15))
+	row.add_child(name_label)
+
+	var value_label: Label = Label.new()
+	value_label.text = value
+	value_label.add_theme_font_size_override("font_size", _font(17))
+	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(value_label)
+
+
+func _scaled_content_size() -> Vector2:
+	return Vector2(_dim(BASE_CONTENT_SIZE.x), _dim(BASE_CONTENT_SIZE.y))
+
+
+func _dim(value: float) -> int:
+	return maxi(1, int(roundf(value * _ui_scale)))
+
+
+func _font(value: int) -> int:
+	return maxi(11, int(roundf(float(value) * _ui_scale)))
+
+
+func _make_map_panel_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.07, 0.10, 0.12, 0.96)
+	style.border_color = Color(0.26, 0.48, 0.58, 0.88)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(8))
+	return style
+
+
+func _make_problem_panel_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.12, 0.135, 0.96)
+	style.border_color = Color(0.45, 0.70, 0.86, 0.92)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(8))
+	style.shadow_color = Color(0.10, 0.38, 0.56, 0.28)
+	style.shadow_size = _dim(14)
+	return style
+
+
+func _make_right_panel_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.12, 0.16, 0.96)
+	style.border_color = Color(0.24, 0.42, 0.56, 0.9)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(8))
+	return style
+
+
+func _make_theory_panel_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.075, 0.085, 0.98)
+	style.border_color = Color(0.42, 0.62, 0.74, 0.88)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(8))
+	return style
+
+
+func _make_chart_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.055, 0.065, 0.98)
+	style.border_color = Color(0.26, 0.48, 0.58, 0.78)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(6))
+	return style
+
+
+func _make_compact_panel_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.075, 0.10, 0.12, 0.92)
+	style.border_color = Color(0.26, 0.46, 0.58, 0.72)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(8))
+	return style

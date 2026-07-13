@@ -1,0 +1,220 @@
+Macro Policy Game / 宏观政策模拟器 - 开发进度
+
+当前阶段：部署路线验证小样
+规则：每次只完成一个 step；每完成三步创建 review step；正式开发需等待 CloudBase 线上验证确认。
+
+[done] 01 创建最小 Godot Web 验证项目
+[done] 02 创建 MainMenu 和 TestScene
+[done] 03 创建 AudioManager 并验证点击后播放音频
+[done] 04 Review 1：检查验证小样是否能运行、场景结构、重复代码、报错和占位资源
+[done] 05 配置 Web 导出并生成 CloudBase 部署检查文档
+[done] 06 等待人工确认 CloudBase 测试结果
+[done] 07 创建正式项目结构
+[done] 08 创建正式 MainMenu
+[done] 09 创建 ScenarioIntro
+[done] 10 Review 2：检查主流程入口、场景结构和占位资源
+[done] 11 创建 PolicyDesk 静态界面
+[done] 12 创建 ModelTagBar
+[done] 13 创建 PolicyCard 组件
+[done] 14 Review 3：检查政策桌面基础 UI 和组件复用
+[done] 15 创建 IndicatorPanel
+[done] 16 创建 AdvisorPanel
+[done] 17 创建抽象国家地图
+[todo] 18 Review 4：检查主界面布局、组件边界和占位资源
+[todo] 19 实现卡牌点击和出牌动画
+[todo] 20 实现 JSON 数据读取
+[todo] 21 实现 MacroEngine 初版
+[todo] 22 Review 5：检查数据驱动、规则边界和运行错误
+[todo] 23 实现 Result 页面
+[todo] 24 实现 ModelReplay IS-LM 初版
+[todo] 25 加入基础 BGM/SFX、导出 Web 并准备 CloudBase 部署
+
+Step 01 记录：
+- 已建立 Godot 验证项目的任务边界。
+- 本阶段只验证 Godot 2D/GDScript/Web Export/CloudBase 静态托管路线。
+- CloudBase 线上测试通过前，不进入正式竖切片开发。
+
+Step 02 记录：
+- 已创建 MainMenu.tscn，显示游戏标题和“点击开始”按钮。
+- 点击按钮后会解锁音频、播放 BGM，并切换到 TestScene.tscn。
+- 已创建 TestScene.tscn，包含占位政策卡、抽象国家地图区域和 Y、u、π、Debt 测试指标。
+
+Step 03 记录：
+- 已创建 AudioManager.gd 并注册为 AutoLoad。
+- BGM 和 SFX 目前为代码生成的占位音频，不依赖外部素材。
+- 音频只会在玩家点击“点击开始”后解锁，符合浏览器自动播放限制。
+
+Review 1 记录：
+- 场景结构：验证小样保持根目录 MainMenu/TestScene，脚本放在 scripts/，音频管理器为 AutoLoad。
+- 重复代码：当前只有两个场景脚本，暂无需要抽象的重复逻辑。
+- 报错风险：本机未在 PATH 中找到 Godot 命令，因此尚未执行 Godot 编辑器运行检查或实际 Web 导出。
+- 占位资源：政策卡、国家地图、BGM、SFX 全部为占位实现。
+- 后续调整：CloudBase 线上验证通过后，再进入正式项目结构整理。
+
+Step 05 记录：
+- 已创建 export_presets.cfg，Web 导出路径为 web_build/index.html。
+- 已设置 Compatibility 渲染。
+- 未启用 Thread Support。
+- 未启用 GDExtension/Extensions Support。
+- 已生成 docs/CloudBase_Web_Deploy_Checklist.md。
+
+Step 06 状态：
+- CloudBase 线上验证已通过：Web 导出文件可部署，线上地址可访问，index.html/index.js/index.wasm/index.pck 加载正常。
+- 中文字体、点击后音频、卡牌动画和指标变化均已进入线上验收流程。
+
+Godot 4.7 兼容修复记录：
+- 已将运行环境要求从 Godot 4.3+ 调整为 Godot 4.7。
+- 已修复 TestScene.gd 中 `var pulse := min(...)` 导致的 Variant 推断问题，改为 `var pulse: float = minf(...)`。
+- 已将浮点比较相关逻辑改为 `minf()`、`maxf()`、`clampf()`，整数比较使用 `maxi()`。
+- 已将 TestScene 的测试指标改为显式 float 成员变量，减少 Godot 4.7 警告即错误的风险。
+
+Godot 4.7 Web 中文字体修复记录：
+- 已确认项目内字体文件为 `res://assets/fonts/NotoSansSC-Regular.ttf`。
+- 已创建 `res://themes/default_theme.tres`，默认字体指向 NotoSansSC-Regular。
+- 已在 `project.godot` 配置 `gui/theme/custom="res://themes/default_theme.tres"`。
+- 已为 MainMenu.tscn 和 TestScene.tscn 的关键中文 Label/Button 显式设置字体。
+- 已用 Godot 4.7 重新导出 Web，`web_build/index.pck` 从约 12 KB 增加到约 13.3 MB，确认字体资源已进入打包文件。
+- 仍保持 Thread Support 和 Extensions Support 关闭。
+
+自动化导出部署脚本记录：
+- 已创建 `scripts/export_web.ps1`：清理旧 `web_build/`，使用 Godot 4.7 Web preset 导出到 `web_build/index.html`，检查 index.html/index.js/index.wasm/index.pck，并清理 `.import` 和 `.gitkeep`。
+- 已创建 `deploy.local.example.ps1`：只包含 CloudBase 环境 ID 和 Godot 路径示例，不再包含项目路径。
+- 已创建 `scripts/deploy_cloudbase.ps1`：读取 `deploy.local.ps1`，检查 `tcb`、CloudBase 环境 ID 和 Web 构建文件，然后执行 CloudBase 静态托管部署。
+- 已创建 `scripts/build_and_deploy.ps1`：先导出 Web，成功后部署 CloudBase，任一步失败都会停止。
+- 已更新 `.gitignore`：忽略 `deploy.local.ps1`、`web_build/`、`.godot/`。
+- 已创建 `docs/CloudBase_Auto_Deploy.md`：记录 tcb login、本地配置、构建部署、线上验收和安全注意事项。
+- 已完成 PowerShell 脚本语法解析检查，尚未实际执行部署脚本。
+- 暂停继续开发，等待人工测试自动化脚本。
+
+自动化脚本修复记录：
+- 已将 `deploy.local.ps1` 改为只保留 `$CloudBaseEnvId` 和 `$GodotExe`。
+- 已将 `$GodotExe` 更新为真实路径：`C:\Users\Lenovo\Godot\Godot_v4.7-stable_win64.exe\Godot_v4.7-stable_win64.exe`。
+- 已移除脚本中的硬编码中文项目路径，改为通过 `$MyInvocation.MyCommand.Path` 自动推导项目根目录。
+- 已让导出脚本先检查 `Test-Path $GodotExe`，若同目录存在 console 版 Godot，则优先使用 `Godot_v4.7-stable_win64_console.exe` 执行命令行导出。
+- 已将 Godot 导出调用改为在项目根目录下使用相对路径 `web_build/index.html`，避免向 Godot CLI 传入中文绝对导出路径。
+- 已修复 `.import`/`.gitkeep` 清理逻辑，避免误删导出的 `index.html`、`index.js`、`index.wasm`、`index.pck`。
+- 已执行 `scripts/export_web.ps1` 验证通过，生成的 `index.pck` 大小为 13,320,104 bytes。
+- 尚未执行 CloudBase 部署命令，等待人工测试 `scripts/build_and_deploy.ps1`。
+
+CloudBase 自动部署验证记录：
+- Godot Web + CloudBase 自动部署链路已跑通。
+- 线上普通浏览器标签页出现过缓存停留在 Godot 加载界面，无痕窗口正常，判断为浏览器/CDN 缓存导致旧 JS/PCK/WASM 混用。
+
+版本化部署防缓存机制记录：
+- 已修改 `scripts/build_and_deploy.ps1`：每次构建生成 `BuildId`，格式为 `yyyyMMdd-HHmmss`。
+- 已修改 `scripts/deploy_cloudbase.ps1`：默认版本化部署，上传 `web_build/` 到 `releases/$BuildId/`。
+- 已生成本地 `root_index/index.html` 启动页：显示“正在进入最新版游戏……”，请求 `latest.json?v=Date.now()`，读取 `url` 后自动跳转。
+- 已生成本地 `latest.json`：包含 `buildId`、`url`、`updatedAt`。
+- 部署流程已改为：上传 release 构建目录，上传 `latest.json` 到根目录，上传 `root_index/index.html` 到根目录 `index.html`。
+- 已保留调试开关：`-LegacyRootDeploy $true` 可临时恢复旧的根目录覆盖部署；默认值为 `$false`。
+- 已更新 `.gitignore`：忽略 `root_index/` 和 `latest.json`。
+- 已更新 `docs/CloudBase_Auto_Deploy.md`：说明 Godot Web 缓存混用风险、版本化部署机制、主网址测试方式和 `?v=时间戳` 临时绕过缓存方式。
+- 已完成 PowerShell 脚本语法检查；尚未执行 CloudBase 版本化部署命令。
+- 暂停继续开发，等待人工测试版本化部署脚本。
+
+CloudBase 线上加载故障诊断记录：
+- 已重新运行 `scripts/export_web.ps1`，本地 Godot Web 导出成功。
+- 已记录本地 `web_build/` 中 index.html/index.js/index.wasm/index.pck 的大小和 SHA256。
+- 已用 `curl.exe --ssl-no-revoke -I` 检查 CloudBase 根目录 Godot 文件，index.html/index.js/index.wasm/index.pck 均为 200。
+- 已下载线上 index.html/index.js/index.wasm/index.pck，并确认 SHA256 与本地导出完全一致。
+- 已运行 `tcb hosting list -e macropolicymanager-d3cqtfccac7ec`，确认核心 Godot 文件存在，同时发现根目录尚未部署版本化启动页，`latest.json` 为 404。
+- 已确认 `/health.html` 可在线访问，CloudBase 静态托管本身正常。
+- 已检查 `export_presets.cfg`：Web preset、单线程、无 Extensions Support、无 C#、无 GDExtension。
+- 已检查 index.html/index.js 引用关系：文件名与线上实际文件一致。
+- 未添加 MainMenu/TestScene 构建标识，因为当前问题更像 runtime 初始化前或版本化入口未上线，场景内标识暂时无法提供额外信息。
+- 已生成 `docs/CloudBase_Loading_Issue_Report.md`。
+- 暂停继续开发，等待人工根据报告测试版本化部署和浏览器 Console 错误。
+
+版本化部署执行记录：
+- 已执行 `scripts/build_and_deploy.ps1` 完成 CloudBase 版本化部署。
+- 最终 BuildId：`20260711-101853`。
+- `latest.json` 已上线，内容指向 `/releases/20260711-101853/index.html`。
+- 根目录 `index.html` 已更新为轻量启动页。
+- Release 目录下 `index.html`、`index.js`、`index.wasm`、`index.pck`、audio worklet 文件和 `health.html` 均返回 HTTP 200。
+- `index.wasm` 的 Content-Type 为 `application/wasm`，`index.pck` 大小为 `13,320,104 bytes`。
+- 已将部署脚本改为生成无 BOM 的 `latest.json` 和 root launcher，降低 JSON 解析风险。
+- 已修复导出脚本：导出前清理 `latest.json` 和 `root_index/`，避免部署元数据被打进 Godot `.pck`。
+- 暂停继续开发，等待人工核验线上网站。
+
+稳定基线整理记录：
+- Godot Web 导出验证完成。
+- 中文字体修复完成。
+- CloudBase 自动部署完成。
+- 线上加载问题修复完成。
+- 技术路线验证完成。
+- 已补充 `docs/CloudBase_Loading_Issue_Report.md` 的最终修复结果。
+
+正式项目结构记录：
+- 已建立 `scenes/`、`scenes/components/`、`scripts/autoload/`、`scripts/scenes/`、`scripts/ui/`、`scripts/engine/`、`data/` 和资源目录。
+- 已保留旧验证文件，当前入口已切换到 `res://scenes/MainMenu.tscn`。
+- 已创建 `GameState.gd`、`AudioManager.gd`、`DataLoader.gd` 三个 AutoLoad。
+- 已创建最小 JSON 数据：scenarios、policies、advisors、variables、model_tags。
+
+政策桌面静态原型记录：
+- MainMenu 已显示“宏观政策模拟器”和“开始游戏”，点击后进入 ScenarioIntro 并播放 BGM。
+- ScenarioIntro 已显示“消费信心下滑”、情境文本、模型标签和“进入政策会议”按钮。
+- PolicyDesk 已包含顶部 ModelTagBar、左侧三张政策卡、中间抽象国家地图、右侧 IndicatorPanel、底部 AdvisorPanel 和“确认政策”按钮。
+- PolicyCard 支持 hover 放大/高亮和点击选中。
+- ModelTagBar、IndicatorPanel、AdvisorPanel、MapRegion 已按组件形式创建。
+- 当前阶段只读取并显示数据，不实现复杂宏观结算。
+- 已用 Godot 4.7 headless 启动检查通过。
+
+政策桌面静态原型部署记录：
+- 已清理诊断遗留文件 `temp_latest_check.json`，避免临时 JSON 被打进 Godot `.pck`。
+- 已修复 `scripts/deploy_cloudbase.ps1`：CloudBase CLI 在 Windows PowerShell 中输出普通 stderr 或上传成功后返回异常退出码时，脚本会根据“部署完成/上传成功/失败 0 个文件”做二次判断；真正失败仍会中止。
+- 已更新 `docs/CloudBase_Auto_Deploy.md`，将线上验收项改为当前 MainMenu → ScenarioIntro → PolicyDesk 流程。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260713-164751`。
+- `latest.json` 已上线，内容指向 `/releases/20260713-164751/index.html`。
+- 线上检查通过：根目录 `index.html` 为 200，release 的 `index.html`、`index.pck`、`index.wasm` 均为 200。
+- `index.wasm` 的 Content-Type 为 `application/wasm`，`index.pck` 大小为 `13,364,596 bytes`。
+- 暂停继续开发，等待人工核验线上网站。
+
+PolicyDesk UI 可用性优化记录：
+- 已在 `data/scenarios.json` 增加 `problem_title`、`problem_description`、`model_hint` 字段。
+- 已在 PolicyDesk 顶部标签下方增加“当前问题”栏，显示“消费信心下降：居民消费不足，经济面临需求偏弱压力。”和“核心变量：C ↓，总需求下降”。
+- 已将 PolicyDesk 主内容放入 `ScrollContainer`，允许高度不足时在 Godot 主界面内部垂直滚动。
+- 已为 PolicyDesk 底部增加 72px 安全留白，避免会议记录、顾问提示和“确认政策”按钮被 Windows 任务栏永久遮挡。
+- 已更新 `docs/CloudBase_Auto_Deploy.md`，补充 Web 版本高度不足时应允许滚动并保留底部安全留白。
+- 已用 Godot 4.7 headless 启动检查通过。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260713-173239`。
+- `latest.json` 已上线，内容指向 `/releases/20260713-173239/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。
+
+轻量交互优化记录：
+- 已为 PolicyDesk 增加 UI 缩放控件，支持 80% / 90% / 100% / 110% / 120%，并保留滚动与底部安全留白。
+- 已将 ScenarioIntro 改为三步情景互动：新闻播报、居民反馈、顾问总结。
+- 已在 `data/scenarios.json` 写入 `story_steps`，保持情景内容数据驱动。
+- 已在 PolicyDesk 地图标题栏增加“图表/理论”按钮，理论面板默认关闭，可打开/关闭。
+- 理论面板当前只显示 IS-LM 静态框架：消费信心下降、C ↓、总需求下降、IS 左移、Y 与 i 下降压力，不展示任何政策卡结果。
+- 已将右侧空白区域改为“宏观状态监测”信息面板，默认显示当前已发生状态：当前问题、C、Y、u、π、i、Debt 和提示。
+- 已确保选中政策卡但未点击“确认政策”时，右侧信息面板不显示政策结果，宏观数值不变化。
+- 已实现点击“确认政策”后，右侧信息面板才更新为“政策执行后状态”，显示静态测试变化和会议记录。
+- 已在 `data/policies.json` 增加 `policy_result_demo` 字段，仅在确认政策后读取。
+- 已更新 `docs/CloudBase_Auto_Deploy.md`：右侧信息面板不是政策预测器，理论面板默认关闭，UI 缩放与滚动用于适配不同窗口高度。
+- 已用 Godot 4.7 headless 启动检查通过，并直接加载 ScenarioIntro / PolicyDesk 场景检查通过。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260713-175235`。
+- `latest.json` 已上线，内容指向 `/releases/20260713-175235/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。
+
+PolicyDesk 缩放与安全边距修复记录：
+- 已支持 Ctrl + 鼠标滚轮缩放：Ctrl + 上滚放大，Ctrl + 下滚缩小，范围保持 80% 到 120%，步长 10%。
+- 已保留 `- / + / 重置` 缩放按钮，并让按钮和 Ctrl + 鼠标滚轮共用同一套 `_set_ui_scale()` 逻辑。
+- 已移除 PolicyDesk 对整块 UI 的 `Control.scale` 缩放方式，改为按当前 UI scale 重建尺寸、间距和字体字号，避免 80% 缩放下中文被整体拉伸变形。
+- 已让 `PolicyCard`、`MapRegion`、`ModelTagBar` 支持按 UI scale 调整字号和最小尺寸。
+- 已将 PolicyDesk 的滚动结构调整为 `ScrollContainer + MarginContainer + 内容区`，并给外侧增加黑色安全边距：左右/顶部 48px，底部 144px。
+- 已修复缩小后 ScrollContainer 内容尺寸未稳定更新的问题，80% 和 100% 下均保留真实滚动空间与底部安全边距。
+- 已为国家地图区域和四个 MapRegion 设置稳定的初始 `custom_minimum_size`，避免第一次进入 PolicyDesk 时地图板块被拉成长方形；进入后会 `call_deferred` 刷新初始布局。
+- 已在 `scripts/export_web.ps1` 中加入 Web 导出后自动 patch：只阻止 Ctrl + wheel 的浏览器默认缩放，不影响普通滚轮滚动。
+- 已更新 `docs/CloudBase_Auto_Deploy.md`：缩放是 Godot 内部 UI scale，普通滚轮用于滚动，Ctrl + 滚轮用于 UI 缩放，PolicyDesk 使用 ScrollContainer 和安全边距适配窗口高度。
+- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
+- 已运行 `scripts/build_and_deploy.ps1`，Godot Web 导出成功，`web_build/index.html` 已确认包含 `macro-policy-ctrl-wheel-guard`。
+- 首次 CloudBase 上传因网络超时 `connect ETIMEDOUT 198.18.0.96:443` 失败；随后使用同一 BuildId 重试 `scripts/deploy_cloudbase.ps1 -BuildId 20260713-183448` 成功。
+- 最终 BuildId：`20260713-183448`。
+- `latest.json` 已上线，内容指向 `/releases/20260713-183448/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。

@@ -1,0 +1,2 @@
+$CloudBaseEnvId = "FILL_YOUR_CLOUDBASE_ENV_ID"
+$GodotExe = "FILL_REAL_GODOT_EXE_PATH"
