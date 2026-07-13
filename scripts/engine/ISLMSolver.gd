@@ -60,6 +60,18 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 		"IS": _is_shift_label(total_delta_a),
 		"LM": _lm_shift_label(total_delta_d)
 	}
+	var graph_data: Dictionary = _build_graph_data(
+		a_before,
+		b,
+		c,
+		d_before,
+		a_after,
+		d_after,
+		y_before,
+		i_before,
+		y_after,
+		i_after
+	)
 
 	mechanisms.append("模型先合并政策对 A 与 d 的影响，再重新求解 IS-LM 均衡。")
 	mechanisms.append("新的均衡下，Y 从 %s 变为 %s，i 从 %s 变为 %s。" % [
@@ -111,6 +123,7 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 			"delta_d": total_delta_d
 		},
 		"curve_shifts": shifts,
+		"graph_data": graph_data,
 		"summary": _summary_text(total_delta_a, total_delta_d, delta_y),
 		"mechanism": mechanisms
 	}
@@ -143,6 +156,84 @@ static func _solve_equilibrium(a: float, b: float, c: float, d: float) -> Dictio
 	var y: float = (a + b * d) / denominator
 	var i: float = c * y - d
 	return {"Y": y, "i": i}
+
+
+static func _build_graph_data(a_before: float, b: float, c: float, d_before: float, a_after: float, d_after: float, y_before: float, i_before: float, y_after: float, i_after: float) -> Dictionary:
+	var y_span: float = maxf(absf(y_after - y_before), 12.0)
+	var y_margin: float = maxf(y_span * 0.75, 10.0)
+	var y_min: float = minf(y_before, y_after) - y_margin
+	var y_max: float = maxf(y_before, y_after) + y_margin
+
+	var is_before_points: Array[Dictionary] = _sample_is_curve(a_before, b, y_min, y_max)
+	var lm_before_points: Array[Dictionary] = _sample_lm_curve(c, d_before, y_min, y_max)
+	var is_after_points: Array[Dictionary] = _sample_is_curve(a_after, b, y_min, y_max)
+	var lm_after_points: Array[Dictionary] = _sample_lm_curve(c, d_after, y_min, y_max)
+	var i_bounds: Dictionary = _curve_i_bounds([
+		is_before_points,
+		lm_before_points,
+		is_after_points,
+		lm_after_points
+	])
+	var raw_i_min: float = minf(minf(i_before, i_after), float(i_bounds.get("min", minf(i_before, i_after))))
+	var raw_i_max: float = maxf(maxf(i_before, i_after), float(i_bounds.get("max", maxf(i_before, i_after))))
+	var i_span: float = maxf(raw_i_max - raw_i_min, 1.5)
+	var i_margin: float = maxf(i_span * 0.12, 0.35)
+
+	return {
+		"y_min": y_min,
+		"y_max": y_max,
+		"i_min": raw_i_min - i_margin,
+		"i_max": raw_i_max + i_margin,
+		"is_before": is_before_points,
+		"lm_before": lm_before_points,
+		"is_after": is_after_points,
+		"lm_after": lm_after_points,
+		"equilibrium_before": {"Y": y_before, "i": i_before},
+		"equilibrium_after": {"Y": y_after, "i": i_after}
+	}
+
+
+static func _sample_is_curve(a: float, b: float, y_min: float, y_max: float) -> Array[Dictionary]:
+	var points: Array[Dictionary] = []
+	var count: int = 28
+	var denominator: float = maxf(b, 0.001)
+	for index in range(count):
+		var t: float = float(index) / float(count - 1)
+		var y: float = lerpf(y_min, y_max, t)
+		points.append({"Y": y, "i": (a - y) / denominator})
+	return points
+
+
+static func _sample_lm_curve(c: float, d: float, y_min: float, y_max: float) -> Array[Dictionary]:
+	var points: Array[Dictionary] = []
+	var count: int = 28
+	for index in range(count):
+		var t: float = float(index) / float(count - 1)
+		var y: float = lerpf(y_min, y_max, t)
+		points.append({"Y": y, "i": c * y - d})
+	return points
+
+
+static func _curve_i_bounds(curves: Array) -> Dictionary:
+	var has_value: bool = false
+	var min_value: float = 0.0
+	var max_value: float = 0.0
+	for curve_variant: Variant in curves:
+		if not (curve_variant is Array):
+			continue
+		for point_variant: Variant in curve_variant:
+			if not (point_variant is Dictionary):
+				continue
+			var point: Dictionary = point_variant as Dictionary
+			var i_value: float = float(point.get("i", 0.0))
+			if not has_value:
+				min_value = i_value
+				max_value = i_value
+				has_value = true
+			else:
+				min_value = minf(min_value, i_value)
+				max_value = maxf(max_value, i_value)
+	return {"min": min_value, "max": max_value}
 
 
 static func _is_shift_label(delta_a: float) -> String:
@@ -184,6 +275,7 @@ static func _missing_params_result(scenario: Dictionary, selected_policies: Arra
 		"model_before": {},
 		"model_after": {},
 		"curve_shifts": {"IS": "未知", "LM": "未知"},
+		"graph_data": {},
 		"summary": "当前关卡缺少 IS-LM 模型参数，已降级为保持现状的模型结果。",
 		"mechanism": ["读取 scenario.model_params.IS_LM 失败", "保持当前宏观状态，避免游戏流程崩溃"]
 	}

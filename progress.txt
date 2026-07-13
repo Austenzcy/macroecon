@@ -183,6 +183,22 @@ PolicyDesk UI 可用性优化记录：
 - 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
 - 暂停继续开发，等待人工核验线上网站。
 
+IS-LM 图形回放 v1 记录：
+- 已在 `ISLMSolver.solve(...)` 返回结果中新增 `graph_data`，包含坐标范围、政策前后 IS/LM 曲线采样点和 E0/E1 均衡点。
+- 已新增 `scripts/ui/ISLMChart.gd`，使用 Godot `_draw()` 绘制 i-Y 坐标轴、IS/LM、IS'/LM'、E0/E1。
+- 已新增 `scenes/components/ISLMReplayPanel.tscn` 和 `scripts/ui/ISLMReplayPanel.gd`，作为 PolicyDesk 内的 IS-LM 图形回放弹窗。
+- 组合训练关确认政策后，右侧面板会显示“查看模型回放”入口，可打开静态 IS-LM 图形回放。
+- 图形回放只读取 `MacroEngine / ISLMSolver` 返回的同一个 `result.graph_data`，不在 UI 层重新计算 IS-LM。
+- 图形中显示政策前后 IS / LM 曲线与 E0 / E1，并显示 Y 与 i 的前后变化。
+- 当前只支持 IS-LM model 关卡；基础教学关 demo 不提供正式图形回放。
+- 已新增 `docs/ISLM_Replay_v1.md`，记录用途、graph_data 结构、曲线采样方式、UI 绘图方式和当前限制。
+- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260714-005019`。
+- `latest.json` 已上线，内容指向 `/releases/20260714-005019/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。
+
 IS-LM Solver v1 记录：
 - 已实现 `ISLMSolver.solve(...)` v1，用于封闭经济、短期、价格刚性背景下的 IS-LM 模型结算。
 - `consumer_confidence_drop_budget` 已增加 `model_params.IS_LM`，参数满足初始均衡约为 `Y=100`、`i=4%`。

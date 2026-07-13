@@ -1,6 +1,7 @@
 extends Control
 
 const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
+const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
 const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
@@ -17,6 +18,7 @@ var _scale_label: Label
 var _right_panel_box: VBoxContainer
 var _theory_panel: PanelContainer
 var _theory_button: Button
+var _replay_overlay: Control
 var _confirm_button: Button
 var _policy_points_label: Label
 var _scenario: Dictionary = {}
@@ -24,6 +26,7 @@ var _selected_policies: Array[Dictionary] = []
 var _last_result: Dictionary = {}
 var _is_policy_confirmed: bool = false
 var _is_theory_open: bool = false
+var _is_replay_open: bool = false
 var _ui_scale: float = 1.0
 
 
@@ -56,6 +59,7 @@ func _build_ui() -> void:
 	_right_panel_box = null
 	_theory_panel = null
 	_theory_button = null
+	_replay_overlay = null
 	_confirm_button = null
 	_policy_points_label = null
 	_scale_label = null
@@ -132,6 +136,9 @@ func _build_ui() -> void:
 		_show_policy_result_panel(_last_result)
 	else:
 		_show_current_state_panel()
+
+	if _is_replay_open:
+		_open_replay_overlay()
 
 
 func _build_top_row() -> HBoxContainer:
@@ -431,6 +438,13 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		_add_info_row(_right_panel_box, key, "%s → %s" % [old_value, new_value])
 	_add_section_label(_right_panel_box, "解释：")
 	_add_wrapped_label(_right_panel_box, str(result.get("summary", "政策已提交，宏观状态已进入测试更新。")), Color(0.78, 0.86, 0.92), 15)
+	if _has_islm_graph_result(result):
+		var replay_button: Button = Button.new()
+		replay_button.text = "查看模型回放"
+		replay_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
+		replay_button.add_theme_font_size_override("font_size", _font(16))
+		replay_button.pressed.connect(_on_open_replay_pressed)
+		_right_panel_box.add_child(replay_button)
 
 
 func _set_default_advisor() -> void:
@@ -592,6 +606,17 @@ func _confirmed_meeting_log(summary: String) -> String:
 	return "已确认政策：“%s”。%s" % [_policy_names_text(_selected_policies), summary]
 
 
+func _has_islm_graph_result(result: Dictionary) -> bool:
+	if str(result.get("settlement_mode", "")) != "model":
+		return false
+	if str(result.get("model_type", "")) != "IS_LM":
+		return false
+	var graph_variant: Variant = result.get("graph_data", {})
+	if not (graph_variant is Dictionary):
+		return false
+	return not (graph_variant as Dictionary).is_empty()
+
+
 func _settlement_mode_label(mode: String, model_type: String = "", model_version: String = "") -> String:
 	if mode == "model":
 		if model_type == "IS_LM" and model_version == "v1":
@@ -652,6 +677,47 @@ func _on_confirm_policy() -> void:
 
 	var summary: String = str(_last_result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
 	_advisor_panel.call("set_advisor", "会议记录", _confirmed_meeting_log(summary))
+	AudioManager.play_sfx(&"card_play")
+
+
+func _on_open_replay_pressed() -> void:
+	if not _has_islm_graph_result(_last_result):
+		_advisor_panel.call("set_advisor", "会议记录", "当前关卡为基础教学演示，暂不提供模型图形回放。")
+		return
+	_is_replay_open = true
+	_open_replay_overlay()
+	AudioManager.play_sfx(&"card_play")
+
+
+func _open_replay_overlay() -> void:
+	if _replay_overlay != null:
+		_replay_overlay.queue_free()
+
+	_replay_overlay = Control.new()
+	_replay_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_replay_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(_replay_overlay)
+
+	var dim: ColorRect = ColorRect.new()
+	dim.color = Color(0.0, 0.0, 0.0, 0.62)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_replay_overlay.add_child(dim)
+
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_replay_overlay.add_child(center)
+
+	var replay_panel: PanelContainer = ISLMReplayPanelScene.instantiate() as PanelContainer
+	replay_panel.call("setup", _last_result, _scenario, _ui_scale)
+	replay_panel.connect("closed", _on_replay_closed)
+	center.add_child(replay_panel)
+
+
+func _on_replay_closed() -> void:
+	_is_replay_open = false
+	if _replay_overlay != null:
+		_replay_overlay.queue_free()
+		_replay_overlay = null
 	AudioManager.play_sfx(&"card_play")
 
 
