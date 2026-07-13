@@ -703,14 +703,20 @@ func _open_replay_overlay() -> void:
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_replay_overlay.add_child(dim)
 
-	var center: CenterContainer = CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_replay_overlay.add_child(center)
+	var overlay_margin: MarginContainer = MarginContainer.new()
+	overlay_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay_margin.add_theme_constant_override("margin_left", _dim(42))
+	overlay_margin.add_theme_constant_override("margin_top", _dim(30))
+	overlay_margin.add_theme_constant_override("margin_right", _dim(42))
+	overlay_margin.add_theme_constant_override("margin_bottom", _dim(30))
+	_replay_overlay.add_child(overlay_margin)
 
 	var replay_panel: PanelContainer = ISLMReplayPanelScene.instantiate() as PanelContainer
+	replay_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	replay_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	replay_panel.call("setup", _last_result, _scenario, _ui_scale)
 	replay_panel.connect("closed", _on_replay_closed)
-	center.add_child(replay_panel)
+	overlay_margin.add_child(replay_panel)
 
 
 func _on_replay_closed() -> void:

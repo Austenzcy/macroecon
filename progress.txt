@@ -183,6 +183,20 @@ PolicyDesk UI 可用性优化记录：
 - 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
 - 暂停继续开发，等待人工核验线上网站。
 
+IS-LM 图形回放滚动修复记录：
+- 已修复 IS-LM 图形回放面板普通鼠标滚轮无法滚动的问题。
+- `ISLMReplayPanel.gd` 已将图形、数值摘要和机制解释放入内部 `ScrollContainer`。
+- `ISLMChart.gd` 已设置为不主动消费鼠标事件，避免图表控件吞掉普通滚轮。
+- `PolicyDesk.gd` 中模型回放弹窗改为在窗口内留安全边距并填满可用区域，避免小窗口下固定居中弹窗底部被裁切。
+- Ctrl + 鼠标滚轮仍沿用原 PolicyDesk UI 缩放逻辑；普通滚轮用于回放面板内容滚动。
+- 未改动 IS-LM Solver 计算逻辑，未改动 MacroEngine 结算逻辑。
+- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
+- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
+- 最终 BuildId：`20260714-010213`。
+- `latest.json` 已上线，内容指向 `/releases/20260714-010213/index.html`。
+- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+- 暂停继续开发，等待人工核验线上网站。
+
 IS-LM 图形回放 v1 记录：
 - 已在 `ISLMSolver.solve(...)` 返回结果中新增 `graph_data`，包含坐标范围、政策前后 IS/LM 曲线采样点和 E0/E1 均衡点。
 - 已新增 `scripts/ui/ISLMChart.gd`，使用 Godot `_draw()` 绘制 i-Y 坐标轴、IS/LM、IS'/LM'、E0/E1。

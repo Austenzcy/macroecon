@@ -20,7 +20,9 @@ func _build_ui() -> void:
 	for child: Node in get_children():
 		child.queue_free()
 
-	custom_minimum_size = Vector2(860, 660) * _ui_scale
+	custom_minimum_size = Vector2(760, 420) * _ui_scale
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_stylebox_override("panel", _make_panel_style())
 
 	var margin: MarginContainer = MarginContainer.new()
@@ -52,16 +54,29 @@ func _build_ui() -> void:
 	close_button.pressed.connect(func() -> void: closed.emit())
 	header.add_child(close_button)
 
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	box.add_child(scroll)
+
+	var content: VBoxContainer = VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation", _dim(14))
+	scroll.add_child(content)
+
 	var chart: Control = Control.new()
 	chart.set_script(ISLMChart)
 	chart.call("set_ui_scale", _ui_scale)
 	var graph_variant: Variant = _result.get("graph_data", {})
 	if graph_variant is Dictionary:
 		chart.call("set_graph_data", graph_variant as Dictionary)
-	box.add_child(chart)
+	content.add_child(chart)
 
-	box.add_child(_build_summary_panel())
-	box.add_child(_build_mechanism_panel())
+	content.add_child(_build_summary_panel())
+	content.add_child(_build_mechanism_panel())
 
 
 func _build_summary_panel() -> PanelContainer:
