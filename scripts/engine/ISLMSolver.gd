@@ -16,14 +16,14 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 	if params.is_empty():
 		return _missing_params_result(scenario, selected_policies, current_state)
 
-	var a_before: float = float(params.get("A", 132.0))
-	var b: float = float(params.get("b", 8.0))
-	var c: float = float(params.get("c", 0.04))
-	var d_before: float = float(params.get("d", 0.0))
+	var a_before: float = _state_float(current_state, "_islm_A", float(params.get("A", 132.0)))
+	var b: float = _state_float(current_state, "_islm_b", float(params.get("b", 8.0)))
+	var c: float = _state_float(current_state, "_islm_c", float(params.get("c", 0.04)))
+	var d_before: float = _state_float(current_state, "_islm_d", float(params.get("d", 0.0)))
 	var y_potential: float = float(params.get("Y_potential", 110.0))
-	var u_base: float = float(params.get("u_base", 5.0))
-	var pi_base: float = float(params.get("pi_base", 2.0))
-	var debt_base: float = float(params.get("debt_base", 60.0))
+	var u_before: float = _state_float(current_state, "u", float(params.get("u_base", 5.0)))
+	var pi_before: float = _state_float(current_state, "π", _state_float(current_state, "蟺", float(params.get("pi_base", 2.0))))
+	var debt_before: float = _state_float(current_state, "Debt", float(params.get("debt_base", 60.0)))
 	var okun_beta: float = float(params.get("okun_beta", 0.04))
 	var pi_sensitivity: float = float(params.get("pi_sensitivity", 0.03))
 
@@ -53,9 +53,9 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 
 	# These derived variables are intentionally simple v1 teaching rules, not a
 	# full labor market, Phillips curve, or debt dynamics model.
-	var u_after: float = u_base - okun_beta * delta_y
-	var pi_after: float = pi_base + pi_sensitivity * maxf(delta_y, 0.0)
-	var debt_after: float = debt_base + total_debt_delta
+	var u_after: float = u_before - okun_beta * delta_y
+	var pi_after: float = pi_before + pi_sensitivity * maxf(delta_y, 0.0)
+	var debt_after: float = debt_before + total_debt_delta
 	var shifts: Dictionary = {
 		"IS": _is_shift_label(total_delta_a),
 		"LM": _lm_shift_label(total_delta_d)
@@ -83,17 +83,27 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 
 	var before_state: Dictionary = current_state.duplicate(true)
 	before_state["Y"] = _format_number(y_before, 1)
-	before_state["u"] = _format_percent(u_base, 1)
-	before_state["π"] = _format_percent(pi_base, 1)
+	before_state["u"] = _format_percent(u_before, 1)
+	before_state["π"] = _format_percent(pi_before, 1)
+	before_state["蟺"] = _format_percent(pi_before, 1)
 	before_state["i"] = _format_percent(i_before, 2)
-	before_state["Debt"] = _format_percent(debt_base, 1)
+	before_state["Debt"] = _format_percent(debt_before, 1)
+	before_state["_islm_A"] = a_before
+	before_state["_islm_b"] = b
+	before_state["_islm_c"] = c
+	before_state["_islm_d"] = d_before
 
 	var after_state: Dictionary = before_state.duplicate(true)
 	after_state["Y"] = _format_number(y_after, 1)
 	after_state["u"] = _format_percent(u_after, 1)
 	after_state["π"] = _format_percent(pi_after, 1)
+	after_state["蟺"] = _format_percent(pi_after, 1)
 	after_state["i"] = _format_percent(i_after, 2)
 	after_state["Debt"] = _format_percent(debt_after, 1)
+	after_state["_islm_A"] = a_after
+	after_state["_islm_b"] = b
+	after_state["_islm_c"] = c
+	after_state["_islm_d"] = d_after
 
 	return {
 		"settlement_mode": "model",
@@ -147,6 +157,14 @@ static func _get_policy_impact(policy: Dictionary) -> Dictionary:
 	if islm_impact is Dictionary:
 		return islm_impact as Dictionary
 	return {}
+
+
+static func _state_float(state: Dictionary, key: String, fallback: float) -> float:
+	if state.has(key):
+		var value_text: String = str(state.get(key)).strip_edges().replace("%", "")
+		if value_text.is_valid_float():
+			return value_text.to_float()
+	return fallback
 
 
 static func _solve_equilibrium(a: float, b: float, c: float, d: float) -> Dictionary:
@@ -254,11 +272,15 @@ static func _lm_shift_label(delta_d: float) -> String:
 
 static func _summary_text(delta_a: float, delta_d: float, delta_y: float) -> String:
 	if not is_zero_approx(delta_a) and not is_zero_approx(delta_d):
-		return "多项政策共同改变 IS-LM 参数。模型重新求解均衡后，短期产出上升，失业率下降，利率变化取决于 IS 与 LM 移动的相对强度。"
-	if not is_zero_approx(delta_a):
+		return "多项政策共同改变 IS-LM 参数。模型重新求解均衡后，产出和利率的变化取决于 IS 与 LM 移动的相对强度。"
+	if delta_a > 0.0:
 		return "财政类政策提高自主支出 A，推动 IS 曲线右移。模型重新求解均衡后，短期产出上升，利率随收入与货币需求变化而上升。"
-	if not is_zero_approx(delta_d):
+	if delta_a < 0.0:
+		return "收缩性财政政策降低自主支出 A，推动 IS 曲线左移。模型重新求解均衡后，需求过热压力下降。"
+	if delta_d > 0.0:
 		return "货币条件宽松提高流动性参数 d，推动 LM 曲线右移或下移。模型重新求解均衡后，短期产出上升，利率下降。"
+	if delta_d < 0.0:
+		return "货币条件收紧降低流动性参数 d，推动 LM 曲线左移或上移。模型重新求解均衡后，需求和价格压力得到抑制。"
 	if delta_y > 0.0:
 		return "政策对模型参数影响较弱，但重新求解后短期产出略有改善。"
 	return "当前政策没有可识别的 IS-LM v1 参数影响，模型均衡基本保持不变。"

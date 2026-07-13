@@ -343,10 +343,11 @@ func _build_theory_panel() -> PanelContainer:
 	box.add_theme_constant_override("separation", _dim(10))
 	margin.add_child(box)
 
+	var scenario: Dictionary = _get_current_scenario()
 	_add_panel_title(box, "理论面板：IS-LM 分析")
-	_add_wrapped_label(box, "当前冲击：消费信心下降 → C ↓", Color(0.88, 0.94, 1.0), 17)
-	_add_wrapped_label(box, "机制链条：C ↓ → 总需求下降 → IS 曲线左移 → Y 下降，i 下降", Color(0.84, 0.90, 0.94), 16)
-	_add_wrapped_label(box, "当前模型：封闭经济｜短期｜价格刚性｜IS-LM", Color(0.72, 0.86, 1.0), 16)
+	_add_wrapped_label(box, "当前冲击：%s" % str(scenario.get("problem_title", "当前宏观冲击")), Color(0.88, 0.94, 1.0), 17)
+	_add_wrapped_label(box, "机制提示：%s" % str(scenario.get("model_hint", "请结合当前模型标签观察 IS-LM 传导。")), Color(0.84, 0.90, 0.94), 16)
+	_add_wrapped_label(box, "当前模型：%s" % _tag_text(scenario.get("model_tags", [])), Color(0.72, 0.86, 1.0), 16)
 	box.add_child(_build_chart_placeholder())
 	_add_wrapped_label(box, "这里只解释当前冲击的传导机制，不提前展示任何政策卡的执行结果。", Color(0.82, 0.86, 0.90), 15)
 
@@ -658,7 +659,19 @@ func _state_value(state: Dictionary, key: String) -> String:
 		return str(state.get(key))
 	if key == "π" and state.has("蟺"):
 		return str(state.get("蟺"))
+	if key == "蟺" and state.has("π"):
+		return str(state.get("π"))
 	return "-"
+
+
+func _tag_text(value: Variant) -> String:
+	var parts: Array[String] = []
+	if value is Array:
+		for item: Variant in value:
+			parts.append(str(item))
+	if parts.is_empty():
+		return "封闭经济｜短期｜价格刚性｜IS-LM"
+	return "｜".join(parts)
 
 
 func _direction_arrow(before_value: String, after_value: String) -> String:

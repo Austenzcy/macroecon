@@ -369,3 +369,15 @@ IS-LM 关卡库 v1 记录：
 - 当前未新增 AD-AS / Mundell-Fleming / Solow、突发事件系统、教学引导系统或变量图表系统。
 - 已重新导出并部署 CloudBase，BuildId：`20260714-030618`。
 - 线上检查通过：根目录 `index.html`、release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+
+多关卡 / 多回合数据一致性审计记录：
+- 已完成多关卡 / 多回合数据一致性审计，重点检查关卡硬编码、状态继承、右侧面板和学习总结。
+- 已修复第二回合 before 状态来源错误：ISLMSolver 会把 `_islm_A/_islm_b/_islm_c/_islm_d` 随 `result.after` 写入下一回合 current_state。
+- 已修复右侧面板数值与箭头的数据源一致性：政策执行后数值来自当前回合 `result.after`，箭头由同一回合 `result.before` 与 `result.after` 比较得出。
+- 已修复 FinalSummary 学习总结硬编码消费信心下降的问题。
+- 学习总结改为读取当前 scenario 的 `learning_points`，所有 8 个 scenario 均已配置 learning_points。
+- 组合政策提示改为仅在 round_history 中实际存在多政策组合时显示。
+- 本轮未新增基础教学关评分，basic/demo 仍沿用 ScoreEngine 的未启用评分 fallback。
+- 已新增 `docs/MultiScenario_State_Consistency_Audit.md`。
+- 已重新导出并部署 CloudBase，BuildId：`20260714-034515`。
+- `latest.json` 已指向 `/releases/20260714-034515/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。

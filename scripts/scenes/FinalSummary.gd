@@ -119,12 +119,20 @@ func _build_learning_summary_panel() -> PanelContainer:
 	var panel: PanelContainer = _new_panel(Vector2(0, 380))
 	var box: VBoxContainer = _panel_content(panel, "学习总结")
 	_add_paragraph(box, "本关核心机制：", Color(0.86, 0.92, 0.96), 16)
-	_add_bullet(box, "消费信心下降导致 C 下降，总需求走弱，IS 曲线左移。")
+	var scenario: Dictionary = GameState.get_current_scenario()
+	var learning_points: Array = _array_from_variant(scenario.get("learning_points", []))
+	if learning_points.is_empty():
+		var fallback_point: String = str(scenario.get("model_hint", scenario.get("problem_title", "请结合当前模型标签复盘政策传导。")))
+		learning_points.append(fallback_point)
+	for point: Variant in learning_points:
+		_add_bullet(box, str(point))
 
 	var mechanisms: Array[String] = _unique_mechanisms()
 	for item: String in mechanisms:
 		_add_bullet(box, item)
-	_add_bullet(box, "组合政策应先合并对模型参数的影响，再重新求解均衡，而不是简单相加。")
+	if _has_policy_combination():
+		_add_section_label(box, "组合政策提示")
+		_add_bullet(box, "组合政策应先合并对模型参数的影响，再重新求解均衡，而不是简单相加。")
 	return panel
 
 
@@ -282,6 +290,18 @@ func _unique_mechanisms() -> Array[String]:
 	return result
 
 
+func _has_policy_combination() -> bool:
+	for entry: Dictionary in GameState.round_history:
+		var policies: Array = _array_from_variant(entry.get("selected_policies", []))
+		if policies.size() >= 2:
+			return true
+		var round_result: Dictionary = _dictionary_from_variant(entry.get("result", {}))
+		policies = _array_from_variant(round_result.get("executed_policies", []))
+		if policies.size() >= 2:
+			return true
+	return false
+
+
 func _add_panel_title(parent: VBoxContainer, text: String) -> void:
 	var label: Label = Label.new()
 	label.text = text
@@ -372,6 +392,8 @@ func _state_value(state: Dictionary, key: String) -> String:
 		return str(state.get(key))
 	if key == "π" and state.has("蟺"):
 		return str(state.get("蟺"))
+	if key == "蟺" and state.has("π"):
+		return str(state.get("π"))
 	return "-"
 
 

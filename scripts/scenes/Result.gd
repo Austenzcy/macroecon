@@ -282,6 +282,8 @@ func _state_value(state: Dictionary, key: String) -> String:
 		return str(state.get(key))
 	if key == "π" and state.has("蟺"):
 		return str(state.get("蟺"))
+	if key == "蟺" and state.has("π"):
+		return str(state.get("π"))
 	return "-"
 
 
