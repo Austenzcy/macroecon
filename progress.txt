@@ -321,3 +321,20 @@ PolicyDesk 缩放与安全边距修复记录：
 - 最终 BuildId：`20260714-012717`。
 - `latest.json` 已上线，内容指向 `/releases/20260714-012717/index.html`。
 - 线上检查通过：根目录 `index.html`、release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+
+FinalSummary 最终总结页 v1 与右侧面板精简记录：
+- Result 本轮总结页已新增右上角“关闭”按钮。
+- 点击 Result 关闭按钮会返回当前 PolicyDesk，并恢复政策已确认后的状态，不推进回合，不清空 `last_result`、`current_state` 或 `round_history`。
+- 已新增 `scenes/FinalSummary.tscn` 和 `scripts/scenes/FinalSummary.gd`。
+- FinalSummary 采用模块化矩形布局，并使用 ScrollContainer 保证窗口高度不足时可滚动查看。
+- FinalSummary 包含回合历史、宏观变量轨迹、学习总结、评分占位、长期视角提示五个模块。
+- 第二回合 Result 页面已将“测试结束，返回主菜单”改为“查看最终总结”。
+- FinalSummary 返回主菜单时会执行 `GameState.reset_for_new_game()`，重置游戏流程。
+- PolicyDesk 右侧信息面板已精简为状态速览面板。
+- 右侧面板政策执行后只显示已执行政策、结算方式、宏观状态当前值和操作按钮。
+- 右侧面板不再显示曲线移动、before → after 完整变化和解释模块。
+- 已新增 `docs/FinalSummary_v1.md`，记录最终总结页用途、五个模块职责、round_history 数据来源和信息分工。
+- 已重新导出并部署 CloudBase。
+- 最终 BuildId：`20260714-015113`。
+- `latest.json` 已上线，内容指向 `/releases/20260714-015113/index.html`。
+- 线上检查通过：根目录 `index.html`、release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。

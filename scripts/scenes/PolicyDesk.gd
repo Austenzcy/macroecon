@@ -31,9 +31,16 @@ var _ui_scale: float = 1.0
 
 
 func _ready() -> void:
-	GameState.clear_selection()
 	_scenario = _get_current_scenario()
 	_selected_policies.clear()
+	if GameState.consume_return_to_confirmed_policy_desk() and not GameState.last_result.is_empty():
+		_last_result = GameState.last_result.duplicate(true)
+		_selected_policies = _executed_policies_from_result(_last_result)
+		_is_policy_confirmed = true
+	else:
+		GameState.clear_selection()
+		_is_policy_confirmed = false
+		_last_result = {}
 	_ui_scale = 1.0
 	GameState.set_ui_scale(_ui_scale)
 	_build_ui()
@@ -426,19 +433,13 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		str(result.get("model_type", "")),
 		str(result.get("model_version", ""))
 	), Color(0.92, 0.80, 0.46), 16)
-	var curve_shifts_variant: Variant = result.get("curve_shifts", {})
-	if curve_shifts_variant is Dictionary:
-		var curve_shifts: Dictionary = curve_shifts_variant as Dictionary
-		_add_section_label(_right_panel_box, "曲线移动：")
-		_add_info_row(_right_panel_box, "IS", str(curve_shifts.get("IS", "-")))
-		_add_info_row(_right_panel_box, "LM", str(curve_shifts.get("LM", "-")))
-	_add_section_label(_right_panel_box, "宏观状态变化：")
+	_add_section_label(_right_panel_box, "宏观状态：")
 	for key: String in ["Y", "u", "π", "i", "Debt"]:
-		var old_value: String = str(before.get(key, "-"))
-		var new_value: String = str(after.get(key, old_value))
-		_add_info_row(_right_panel_box, key, "%s → %s" % [old_value, new_value])
-	_add_section_label(_right_panel_box, "解释：")
-	_add_wrapped_label(_right_panel_box, str(result.get("summary", "政策已提交，宏观状态已进入测试更新。")), Color(0.78, 0.86, 0.92), 15)
+		var old_value: String = _state_value(before, key)
+		var new_value: String = _state_value(after, key)
+		if new_value == "-":
+			new_value = old_value
+		_add_info_row(_right_panel_box, key, "%s %s" % [new_value, _direction_arrow(old_value, new_value)])
 	if _has_islm_graph_result(result):
 		var replay_button: Button = Button.new()
 		replay_button.text = "查看模型回放"
@@ -642,12 +643,42 @@ func _current_state() -> Dictionary:
 	return GameState.get_current_state()
 
 
+func _executed_policies_from_result(result: Dictionary) -> Array[Dictionary]:
+	var policies: Array[Dictionary] = []
+	var executed_variant: Variant = result.get("executed_policies", [])
+	if executed_variant is Array:
+		for item: Variant in executed_variant:
+			if item is Dictionary:
+				policies.append((item as Dictionary).duplicate(true))
+	return policies
+
+
 func _state_value(state: Dictionary, key: String) -> String:
 	if state.has(key):
 		return str(state.get(key))
 	if key == "π" and state.has("蟺"):
 		return str(state.get("蟺"))
 	return "-"
+
+
+func _direction_arrow(before_value: String, after_value: String) -> String:
+	var before_number: Dictionary = _parse_state_number(before_value)
+	var after_number: Dictionary = _parse_state_number(after_value)
+	if not bool(before_number.get("ok", false)) or not bool(after_number.get("ok", false)):
+		return ""
+	var delta: float = float(after_number.get("value", 0.0)) - float(before_number.get("value", 0.0))
+	if delta > 0.001:
+		return "↑"
+	if delta < -0.001:
+		return "↓"
+	return "→"
+
+
+func _parse_state_number(value: String) -> Dictionary:
+	var cleaned: String = value.strip_edges().replace("%", "")
+	if cleaned.is_valid_float():
+		return {"ok": true, "value": cleaned.to_float()}
+	return {"ok": false, "value": 0.0}
 
 
 func _on_policy_selected(policy_id: String, policy_name: String) -> void:

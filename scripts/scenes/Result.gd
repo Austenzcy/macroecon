@@ -24,7 +24,7 @@ func _build_ui() -> void:
 
 	var outer_margin: MarginContainer = MarginContainer.new()
 	outer_margin.add_theme_constant_override("margin_left", 56)
-	outer_margin.add_theme_constant_override("margin_top", 48)
+	outer_margin.add_theme_constant_override("margin_top", 42)
 	outer_margin.add_theme_constant_override("margin_right", 56)
 	outer_margin.add_theme_constant_override("margin_bottom", 128)
 	scroll.add_child(outer_margin)
@@ -35,28 +35,58 @@ func _build_ui() -> void:
 	page.add_theme_constant_override("separation", 18)
 	outer_margin.add_child(page)
 
+	page.add_child(_build_header())
+
 	var result: Dictionary = GameState.last_result
 	if result.is_empty():
-		_add_title(page, "本轮政策总结")
-		_add_panel_text(page, "还没有可展示的本轮结算结果。请先在政策桌面确认政策。")
+		page.add_child(_build_text_panel("提示", "还没有可展示的本轮结算结果。请先在政策桌面确认政策。"))
 		page.add_child(_build_action_button("返回主菜单", _on_return_main_menu_pressed))
 		return
 
-	_add_title(page, "本轮政策总结")
 	_add_subtitle(page, "第 %d 回合结果" % GameState.current_round)
-
 	page.add_child(_build_policies_panel(result))
 	page.add_child(_build_variables_panel(result))
 	page.add_child(_build_mechanism_panel(result))
 
 	if GameState.is_final_round():
-		page.add_child(_build_action_button("测试结束，返回主菜单", _on_return_main_menu_pressed))
+		page.add_child(_build_action_button("查看最终总结", _on_final_summary_pressed))
 	else:
 		page.add_child(_build_action_button("进入下一回合", _on_next_round_pressed))
 
 
+func _build_header() -> HBoxContainer:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+
+	var title_box: VBoxContainer = VBoxContainer.new()
+	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(title_box)
+
+	var title: Label = Label.new()
+	title.text = "本轮政策总结"
+	title.add_theme_font_size_override("font_size", 34)
+	title_box.add_child(title)
+
+	var scenario: Dictionary = GameState.get_current_scenario()
+	var scenario_title: Label = Label.new()
+	scenario_title.text = str(scenario.get("title", "当前测试关卡"))
+	scenario_title.modulate = Color(0.92, 0.80, 0.46)
+	scenario_title.add_theme_font_size_override("font_size", 18)
+	title_box.add_child(scenario_title)
+
+	var close_button: Button = Button.new()
+	close_button.text = "关闭"
+	close_button.custom_minimum_size = Vector2(92, 40)
+	close_button.add_theme_font_size_override("font_size", 17)
+	close_button.pressed.connect(_on_close_pressed)
+	row.add_child(close_button)
+
+	return row
+
+
 func _build_policies_panel(result: Dictionary) -> PanelContainer:
-	var box: VBoxContainer = _panel_box("已执行政策")
+	var panel: PanelContainer = _new_panel()
+	var box: VBoxContainer = _panel_content(panel, "已执行政策")
 	var policies: Array = _array_from_variant(result.get("executed_policies", []))
 	if policies.is_empty():
 		_add_body_label(box, "暂无政策记录。", Color(0.82, 0.88, 0.92), 17)
@@ -64,11 +94,12 @@ func _build_policies_panel(result: Dictionary) -> PanelContainer:
 		for policy: Variant in policies:
 			if policy is Dictionary:
 				_add_body_label(box, "• %s" % str((policy as Dictionary).get("name", "未知政策")), Color(0.96, 0.98, 1.0), 18)
-	return box.get_parent().get_parent() as PanelContainer
+	return panel
 
 
 func _build_variables_panel(result: Dictionary) -> PanelContainer:
-	var box: VBoxContainer = _panel_box("宏观变量变化")
+	var panel: PanelContainer = _new_panel()
+	var box: VBoxContainer = _panel_content(panel, "宏观变量变化")
 	var before: Dictionary = _dictionary_from_variant(result.get("before", {}))
 	var after: Dictionary = _dictionary_from_variant(result.get("after", {}))
 	for key: String in ["Y", "u", "π", "i", "Debt"]:
@@ -77,11 +108,12 @@ func _build_variables_panel(result: Dictionary) -> PanelContainer:
 		if new_value == "-":
 			new_value = old_value
 		_add_info_row(box, key, "%s → %s" % [old_value, new_value])
-	return box.get_parent().get_parent() as PanelContainer
+	return panel
 
 
 func _build_mechanism_panel(result: Dictionary) -> PanelContainer:
-	var box: VBoxContainer = _panel_box("机制总结")
+	var panel: PanelContainer = _new_panel()
+	var box: VBoxContainer = _panel_content(panel, "机制总结")
 	var summary: String = str(result.get("summary", "本轮政策已经完成结算。"))
 	_add_body_label(box, summary, Color(0.86, 0.92, 0.96), 17)
 
@@ -90,14 +122,24 @@ func _build_mechanism_panel(result: Dictionary) -> PanelContainer:
 		_add_section_label(box, "机制路径")
 		for item: Variant in mechanism:
 			_add_body_label(box, "• %s" % str(item), Color(0.78, 0.86, 0.92), 16)
-	return box.get_parent().get_parent() as PanelContainer
+	return panel
 
 
-func _panel_box(title: String) -> VBoxContainer:
+func _build_text_panel(title: String, text: String) -> PanelContainer:
+	var panel: PanelContainer = _new_panel()
+	var box: VBoxContainer = _panel_content(panel, title)
+	_add_body_label(box, text, Color(0.86, 0.92, 0.96), 18)
+	return panel
+
+
+func _new_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _panel_style())
+	return panel
 
+
+func _panel_content(panel: PanelContainer, title: String) -> VBoxContainer:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 20)
 	margin.add_theme_constant_override("margin_top", 16)
@@ -122,22 +164,23 @@ func _build_action_button(text: String, callback: Callable) -> Button:
 	return button
 
 
+func _on_close_pressed() -> void:
+	GameState.mark_return_to_confirmed_policy_desk()
+	get_tree().change_scene_to_file("res://scenes/PolicyDesk.tscn")
+
+
 func _on_next_round_pressed() -> void:
 	GameState.advance_round()
 	get_tree().change_scene_to_file("res://scenes/PolicyDesk.tscn")
 
 
+func _on_final_summary_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/FinalSummary.tscn")
+
+
 func _on_return_main_menu_pressed() -> void:
 	GameState.reset_for_new_game()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
-
-
-func _add_title(parent: VBoxContainer, text: String) -> void:
-	var label: Label = Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 34)
-	parent.add_child(label)
 
 
 func _add_subtitle(parent: VBoxContainer, text: String) -> void:
@@ -171,12 +214,6 @@ func _add_body_label(parent: VBoxContainer, text: String, color: Color, font_siz
 	label.modulate = color
 	label.add_theme_font_size_override("font_size", font_size)
 	parent.add_child(label)
-
-
-func _add_panel_text(parent: VBoxContainer, text: String) -> void:
-	var box: VBoxContainer = _panel_box("提示")
-	_add_body_label(box, text, Color(0.86, 0.92, 0.96), 18)
-	parent.add_child(box.get_parent().get_parent())
 
 
 func _add_info_row(parent: VBoxContainer, name: String, value: String) -> void:

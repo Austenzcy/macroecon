@@ -7,14 +7,17 @@ var ui_scale: float = 1.0
 
 var current_round: int = 1
 var max_rounds: int = 2
+var initial_state: Dictionary = {}
 var current_state: Dictionary = {}
 var last_result: Dictionary = {}
 var round_history: Array[Dictionary] = []
+var return_to_confirmed_policy_desk: bool = false
 
 
 func _ready() -> void:
 	if current_state.is_empty():
-		current_state = _load_initial_state()
+		initial_state = _load_initial_state()
+		current_state = initial_state.duplicate(true)
 
 
 func select_policy(policy_id: String, policy_name: String) -> void:
@@ -35,18 +38,22 @@ func start_scenario(scenario_id: String) -> void:
 	current_scenario_id = scenario_id
 	current_round = 1
 	max_rounds = 2
-	current_state = _load_initial_state()
+	initial_state = _load_initial_state()
+	current_state = initial_state.duplicate(true)
 	last_result = {}
 	round_history.clear()
+	return_to_confirmed_policy_desk = false
 	clear_selection()
 
 
 func reset_for_new_game() -> void:
 	current_round = 1
 	max_rounds = 2
-	current_state = _load_initial_state()
+	initial_state = _load_initial_state()
+	current_state = initial_state.duplicate(true)
 	last_result = {}
 	round_history.clear()
+	return_to_confirmed_policy_desk = false
 	clear_selection()
 
 
@@ -56,8 +63,15 @@ func get_current_scenario() -> Dictionary:
 
 func get_current_state() -> Dictionary:
 	if current_state.is_empty():
-		current_state = _load_initial_state()
+		initial_state = _load_initial_state()
+		current_state = initial_state.duplicate(true)
 	return current_state.duplicate(true)
+
+
+func get_initial_state() -> Dictionary:
+	if initial_state.is_empty():
+		initial_state = _load_initial_state()
+	return initial_state.duplicate(true)
 
 
 func set_last_result(result: Dictionary) -> void:
@@ -76,6 +90,8 @@ func update_current_state_from_result(result: Dictionary) -> void:
 		current_state = (after_variant as Dictionary).duplicate(true)
 		if current_state.has("π"):
 			current_state["蟺"] = current_state.get("π")
+		elif current_state.has("蟺"):
+			current_state["π"] = current_state.get("蟺")
 
 
 func advance_round() -> void:
@@ -83,11 +99,22 @@ func advance_round() -> void:
 		update_current_state_from_result(last_result)
 	if current_round < max_rounds:
 		current_round += 1
+	return_to_confirmed_policy_desk = false
 	clear_selection()
 
 
 func is_final_round() -> bool:
 	return current_round >= max_rounds
+
+
+func mark_return_to_confirmed_policy_desk() -> void:
+	return_to_confirmed_policy_desk = true
+
+
+func consume_return_to_confirmed_policy_desk() -> bool:
+	var should_restore: bool = return_to_confirmed_policy_desk
+	return_to_confirmed_policy_desk = false
+	return should_restore
 
 
 func set_ui_scale(value: float) -> void:
