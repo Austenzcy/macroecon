@@ -2,6 +2,7 @@ extends Control
 
 const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
 const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
+const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
 const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
@@ -9,6 +10,19 @@ const OUTER_MARGIN_BOTTOM: int = 144
 const SCALE_STEP: float = 0.1
 const MIN_UI_SCALE: float = 0.8
 const MAX_UI_SCALE: float = 1.2
+const STAT_DISPLAY_DEFAULTS: Dictionary = {
+	"Y": {"display_min": 80.0, "display_max": 130.0, "reference_value": 110.0},
+	"u": {"display_min": 2.0, "display_max": 10.0, "reference_value": 4.5},
+	"π": {"display_min": 0.0, "display_max": 6.0, "reference_value": 2.0},
+	"i": {"display_min": 0.0, "display_max": 8.0, "reference_value": 4.0},
+	"Debt": {"display_min": 40.0, "display_max": 90.0, "reference_value": 60.0}
+}
+const MAP_REGION_CONFIGS: Array[Dictionary] = [
+	{"name": "居民消费区", "variables": ["C"], "weights": {"C": 1.0}},
+	{"name": "工业产区", "variables": ["Y", "I"], "weights": {"Y": 0.7, "I": 0.3}},
+	{"name": "金融市场区", "variables": ["i"], "weights": {"i": 1.0}},
+	{"name": "政府部门区", "variables": ["G", "Debt"], "weights": {"G": 1.0}}
+]
 
 var _policy_cards: Array[Node] = []
 var _advisor_panel: PanelContainer
@@ -311,14 +325,18 @@ func _build_map_panel() -> PanelContainer:
 	box.add_child(grid)
 
 	var region_scene: PackedScene = preload("res://scenes/components/MapRegion.tscn")
-	var names: Array[String] = ["居民消费区", "工业生产区", "金融市场区", "政府部门区"]
-	for index in range(names.size()):
+	var map_state: Dictionary = _visible_macro_state()
+	for config: Dictionary in MAP_REGION_CONFIGS:
 		var region: PanelContainer = region_scene.instantiate() as PanelContainer
 		region.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		region.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		region.call("set_ui_scale", _ui_scale)
-		region.call("set_region_name", names[index])
-		region.call("set_highlighted", index == 0)
+		region.call(
+			"set_region_data",
+			str(config.get("name", "区域")),
+			_map_region_lines(config, map_state),
+			_map_region_brightness(config, map_state)
+		)
 		grid.add_child(region)
 
 	_theory_panel = _build_theory_panel()
@@ -404,8 +422,8 @@ func _show_current_state_panel() -> void:
 	_add_section_label(_right_panel_box, "当前问题：")
 	_add_wrapped_label(_right_panel_box, str(scenario.get("problem_title", "消费信心下降")), Color(0.96, 0.98, 1.0), 18)
 	_add_section_label(_right_panel_box, "关键变量：")
-	for key: String in ["C", "Y", "u", "π", "i", "Debt"]:
-		_add_info_row(_right_panel_box, key, str(variables.get(key, "-")))
+	for key: String in ["Y", "u", "π", "i", "Debt"]:
+		_add_stat_row(_right_panel_box, key, variables, {})
 	_add_section_label(_right_panel_box, "提示：")
 	_add_wrapped_label(_right_panel_box, "请选择一张政策卡，并在确认后观察宏观状态变化。", Color(0.78, 0.86, 0.92), 15)
 
@@ -436,11 +454,7 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 	), Color(0.92, 0.80, 0.46), 16)
 	_add_section_label(_right_panel_box, "宏观状态：")
 	for key: String in ["Y", "u", "π", "i", "Debt"]:
-		var old_value: String = _state_value(before, key)
-		var new_value: String = _state_value(after, key)
-		if new_value == "-":
-			new_value = old_value
-		_add_info_row(_right_panel_box, key, "%s %s" % [new_value, _direction_arrow(old_value, new_value)])
+		_add_stat_row(_right_panel_box, key, after, before)
 	if _has_islm_graph_result(result):
 		var replay_button: Button = Button.new()
 		replay_button.text = "查看模型回放"
@@ -885,6 +899,193 @@ func _add_info_row(parent: VBoxContainer, name: String, value: String) -> void:
 	value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(value_label)
+
+
+func _add_stat_row(parent: VBoxContainer, key: String, current_state: Dictionary, before_state: Dictionary) -> void:
+	var config: Dictionary = _variable_display_config(key)
+	var current_value_text: String = _state_value(current_state, key)
+	var current_number: float = _state_number(current_state, key, float(config.get("reference_value", 0.0)))
+	var arrow: String = _reference_arrow(key, current_state)
+	if not before_state.is_empty():
+		var before_value_text: String = _state_value(before_state, key)
+		arrow = _direction_arrow(before_value_text, current_value_text)
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(7))
+	parent.add_child(row)
+
+	var name_label: Label = Label.new()
+	name_label.text = key
+	name_label.custom_minimum_size = Vector2(_dim(34), _dim(30))
+	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	name_label.modulate = Color(0.72, 0.82, 0.90)
+	name_label.add_theme_font_size_override("font_size", _font(14))
+	row.add_child(name_label)
+
+	var arrow_label: Label = Label.new()
+	arrow_label.text = arrow
+	arrow_label.custom_minimum_size = Vector2(_dim(24), _dim(30))
+	arrow_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	arrow_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	arrow_label.modulate = _arrow_color(arrow)
+	arrow_label.add_theme_font_size_override("font_size", _font(17))
+	row.add_child(arrow_label)
+
+	var bar: Control = MacroStatBarScript.new() as Control
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.call("setup", config, current_number, _ui_scale)
+	row.add_child(bar)
+
+	var value_label: Label = Label.new()
+	value_label.text = current_value_text
+	value_label.custom_minimum_size = Vector2(_dim(58), _dim(30))
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	value_label.add_theme_font_size_override("font_size", _font(14))
+	row.add_child(value_label)
+
+
+func _visible_macro_state() -> Dictionary:
+	if _is_policy_confirmed and not _last_result.is_empty():
+		var after_variant: Variant = _last_result.get("after", {})
+		if after_variant is Dictionary:
+			return (after_variant as Dictionary).duplicate(true)
+	return GameState.get_current_state()
+
+
+func _map_region_lines(config: Dictionary, state: Dictionary) -> Array[Dictionary]:
+	var lines: Array[Dictionary] = []
+	var variables: Array = config.get("variables", []) as Array
+	for variable: Variant in variables:
+		var key: String = str(variable)
+		lines.append({
+			"label": key,
+			"arrow": _reference_arrow(key, state),
+			"value": _state_value(state, key)
+		})
+	return lines
+
+
+func _map_region_brightness(config: Dictionary, state: Dictionary) -> float:
+	var weights: Dictionary = {}
+	var weights_variant: Variant = config.get("weights", {})
+	if weights_variant is Dictionary:
+		weights = weights_variant as Dictionary
+	if weights.is_empty():
+		return 0.0
+
+	var weighted_total: float = 0.0
+	var weight_sum: float = 0.0
+	for key_variant: Variant in weights.keys():
+		var key: String = str(key_variant)
+		var weight: float = float(weights.get(key, 0.0))
+		if weight <= 0.0:
+			continue
+		weighted_total += _state_score(key, state) * weight
+		weight_sum += weight
+	if weight_sum <= 0.0:
+		return 0.0
+	return clampf(weighted_total / weight_sum, -1.0, 1.0)
+
+
+func _variable_display_config(key: String) -> Dictionary:
+	var normalized_key: String = "π" if key == "蟺" else key
+	var config: Dictionary = {}
+	if STAT_DISPLAY_DEFAULTS.has(normalized_key):
+		config = (STAT_DISPLAY_DEFAULTS[normalized_key] as Dictionary).duplicate(true)
+	else:
+		config = {"display_min": -1.0, "display_max": 1.0, "reference_value": 0.0}
+
+	var params: Dictionary = _islm_params()
+	var score_config: Dictionary = _dictionary_from_variant(_scenario.get("score_config", {}))
+	var targets: Dictionary = _dictionary_from_variant(score_config.get("targets", {}))
+	var limits: Dictionary = _dictionary_from_variant(score_config.get("limits", {}))
+
+	match normalized_key:
+		"Y":
+			config["reference_value"] = float(targets.get("Y_target", params.get("Y_potential", config.get("reference_value", 110.0))))
+		"u":
+			config["reference_value"] = float(targets.get("u_target", params.get("u_base", config.get("reference_value", 4.5))))
+		"π":
+			config["reference_value"] = float(targets.get("pi_target", params.get("pi_base", config.get("reference_value", 2.0))))
+		"i":
+			if params.has("A") and params.has("b") and params.has("c") and params.has("d"):
+				var denominator: float = 1.0 + float(params.get("b", 8.0)) * float(params.get("c", 0.04))
+				if not is_zero_approx(denominator):
+					var y_ref: float = (float(params.get("A", 132.0)) + float(params.get("b", 8.0)) * float(params.get("d", 0.0))) / denominator
+					config["reference_value"] = float(params.get("c", 0.04)) * y_ref - float(params.get("d", 0.0))
+		"Debt":
+			config["reference_value"] = float(params.get("debt_base", limits.get("debt_soft_limit", config.get("reference_value", 60.0))))
+
+	var overrides: Dictionary = _dictionary_from_variant(_scenario.get("variable_display", {}))
+	var override_variant: Variant = overrides.get(normalized_key, {})
+	if override_variant is Dictionary:
+		for override_key: Variant in (override_variant as Dictionary).keys():
+			config[override_key] = (override_variant as Dictionary).get(override_key)
+	return config
+
+
+func _reference_arrow(key: String, state: Dictionary) -> String:
+	var score: float = _state_score(key, state)
+	if score > 0.15:
+		return "↑"
+	if score < -0.15:
+		return "↓"
+	return "→"
+
+
+func _state_score(key: String, state: Dictionary) -> float:
+	var value_text: String = _state_value(state, key)
+	var parsed: Dictionary = _parse_state_number(value_text)
+	if bool(parsed.get("ok", false)):
+		var config: Dictionary = _variable_display_config(key)
+		var reference: float = float(config.get("reference_value", 0.0))
+		var span: float = maxf(float(config.get("display_max", 1.0)) - float(config.get("display_min", 0.0)), 1.0)
+		var tolerance: float = maxf(span * 0.08, 0.35)
+		var delta: float = float(parsed.get("value", 0.0)) - reference
+		if delta > tolerance:
+			return 1.0
+		if delta < -tolerance:
+			return -1.0
+		return 0.0
+	return _qualitative_score(value_text)
+
+
+func _qualitative_score(value_text: String) -> float:
+	if value_text.find("偏高") >= 0 or value_text.find("较高") >= 0 or value_text.find("高") >= 0 or value_text.find("强") >= 0 or value_text.find("扩张") >= 0:
+		return 1.0
+	if value_text.find("偏低") >= 0 or value_text.find("较低") >= 0 or value_text.find("低") >= 0 or value_text.find("弱") >= 0 or value_text.find("下降") >= 0:
+		return -1.0
+	return 0.0
+
+
+func _state_number(state: Dictionary, key: String, fallback: float) -> float:
+	var parsed: Dictionary = _parse_state_number(_state_value(state, key))
+	if bool(parsed.get("ok", false)):
+		return float(parsed.get("value", fallback))
+	return fallback
+
+
+func _arrow_color(arrow: String) -> Color:
+	if arrow == "↑":
+		return Color(0.68, 0.95, 0.72, 1.0)
+	if arrow == "↓":
+		return Color(0.95, 0.62, 0.58, 1.0)
+	return Color(0.78, 0.86, 0.92, 1.0)
+
+
+func _dictionary_from_variant(value: Variant) -> Dictionary:
+	if value is Dictionary:
+		return (value as Dictionary).duplicate(true)
+	return {}
+
+
+func _islm_params() -> Dictionary:
+	var model_params: Dictionary = _dictionary_from_variant(_scenario.get("model_params", {}))
+	var islm_variant: Variant = model_params.get("IS_LM", {})
+	if islm_variant is Dictionary:
+		return (islm_variant as Dictionary).duplicate(true)
+	return {}
 
 
 func _scaled_content_size() -> Vector2:

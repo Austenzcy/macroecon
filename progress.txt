@@ -381,3 +381,17 @@ IS-LM 关卡库 v1 记录：
 - 已新增 `docs/MultiScenario_State_Consistency_Audit.md`。
 - 已重新导出并部署 CloudBase，BuildId：`20260714-034515`。
 - `latest.json` 已指向 `/releases/20260714-034515/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+
+国家地图动态化 v1 与右侧状态条 v1 记录：
+- 已完成国家地图动态化 v1。
+- 地图区域已绑定变量并显示箭头：居民消费区绑定 C，工业产区绑定 Y/I，金融市场区绑定 i，政府部门区绑定 G/Debt。
+- 工业区亮度按 `0.7 * Y状态 + 0.3 * I状态` 综合计算。
+- 政府区亮度仅表示财政活动强度，只使用 G，不使用 Debt。
+- 地图区域填充亮度会随当前宏观状态变化，地图作为“当前状态面板”显示当前 PolicyDesk 状态。
+- 已完成右侧信息面板状态条 v1。
+- 每个主要变量单行显示变量名、箭头、状态条、当前值。
+- 状态条中间竖线标记为“参考值”，三角指针表示当前值。
+- 右侧面板在政策执行后统一使用当前回合 `result.before/result.after` 生成箭头、状态条和数字；未执行前使用当前状态与参考值显示状态。
+- 本轮未修改理论面板、模型回放、ScoreEngine 公式或 CloudBase 自动部署脚本。
+- 已重新导出并部署 CloudBase，BuildId：`20260714-045320`。
+- `latest.json` 已指向 `/releases/20260714-045320/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
