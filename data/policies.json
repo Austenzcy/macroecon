@@ -43,5 +43,50 @@
         "mechanism": "减税提高可支配收入和支出意愿，推动 IS 曲线右移。"
       }
     }
+  },
+  {
+    "id": "contractionary_fiscal_policy",
+    "name": "收缩性财政政策",
+    "type": "财政政策",
+    "default_cost": 3,
+    "description": "削减政府支出或提高财政纪律，以压低过热需求。",
+    "policy_impacts": {
+      "IS_LM": {
+        "delta_A": -6,
+        "delta_d": 0,
+        "debt_delta": -1,
+        "mechanism": "收缩性财政政策降低自主支出，推动 IS 曲线左移。"
+      }
+    }
+  },
+  {
+    "id": "contractionary_monetary_policy",
+    "name": "收缩性货币政策",
+    "type": "货币政策",
+    "default_cost": 2,
+    "description": "收紧货币条件以抑制需求和通胀压力。",
+    "policy_impacts": {
+      "IS_LM": {
+        "delta_A": 0,
+        "delta_d": -0.5,
+        "debt_delta": 0,
+        "mechanism": "收缩性货币政策降低流动性参数 d，推动 LM 曲线左移或上移。"
+      }
+    }
+  },
+  {
+    "id": "keep_policy_unchanged",
+    "name": "维持政策不变",
+    "type": "观望政策",
+    "default_cost": 0,
+    "description": "暂不主动调整政策，观察既有冲击和市场自发调整。",
+    "policy_impacts": {
+      "IS_LM": {
+        "delta_A": 0,
+        "delta_d": 0,
+        "debt_delta": 0,
+        "mechanism": "维持政策不变不会主动推动 IS 或 LM 曲线移动。"
+      }
+    }
   }
 ]

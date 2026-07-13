@@ -1,7 +1,6 @@
 extends Control
 
-const BASIC_SCENARIO_ID: String = "consumer_confidence_drop_basic"
-const BUDGET_SCENARIO_ID: String = "consumer_confidence_drop_budget"
+const QUICK_START_SCENARIO_ID: String = "consumer_confidence_drop_basic"
 
 
 func _ready() -> void:
@@ -17,17 +16,17 @@ func _build_ui() -> void:
 	var table_glow: ColorRect = ColorRect.new()
 	table_glow.color = Color(0.08, 0.14, 0.17, 0.92)
 	table_glow.anchor_left = 0.10
-	table_glow.anchor_top = 0.16
+	table_glow.anchor_top = 0.15
 	table_glow.anchor_right = 0.90
-	table_glow.anchor_bottom = 0.86
+	table_glow.anchor_bottom = 0.88
 	add_child(table_glow)
 
 	var box: VBoxContainer = VBoxContainer.new()
 	box.set_anchors_preset(Control.PRESET_CENTER)
 	box.offset_left = -430
-	box.offset_top = -230
+	box.offset_top = -250
 	box.offset_right = 430
-	box.offset_bottom = 230
+	box.offset_bottom = 250
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 20)
 	add_child(box)
@@ -39,37 +38,43 @@ func _build_ui() -> void:
 	box.add_child(title)
 
 	var subtitle: Label = Label.new()
-	subtitle.text = "选择一个测试关卡，体验不同的政策决策模式。"
+	subtitle.text = "进入 IS-LM 关卡库，选择不同宏观冲击下的政策决策模式。"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.modulate = Color(0.76, 0.86, 0.92)
 	subtitle.add_theme_font_size_override("font_size", 20)
 	box.add_child(subtitle)
 
-	box.add_child(_build_scenario_button(
-		"基础教学关：单一政策决策",
-		"只能选择一张政策卡，适合练习识别冲击与判断政策方向。",
-		BASIC_SCENARIO_ID
+	box.add_child(_build_menu_button(
+		"进入关卡选择",
+		"查看第一批 IS-LM 测试关卡，每个关卡都支持基础教学和组合训练。",
+		_on_level_select_pressed
 	))
-	box.add_child(_build_scenario_button(
-		"组合训练关：政策点数决策",
-		"拥有有限政策点数，可以组合多张政策卡，适合测试资源约束与政策组合。",
-		BUDGET_SCENARIO_ID
+	box.add_child(_build_menu_button(
+		"快速开始：消费信心下滑",
+		"直接进入基础教学关，保留原有测试流程。",
+		_on_quick_start_pressed
 	))
 
 
-func _build_scenario_button(title: String, description: String, scenario_id: String) -> Button:
+func _build_menu_button(title: String, description: String, callback: Callable) -> Button:
 	var button: Button = Button.new()
 	button.text = "%s\n%s" % [title, description]
-	button.custom_minimum_size = Vector2(620, 86)
+	button.custom_minimum_size = Vector2(640, 88)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.add_theme_font_size_override("font_size", 20)
-	button.pressed.connect(_on_scenario_pressed.bind(scenario_id))
+	button.pressed.connect(callback)
 	return button
 
 
-func _on_scenario_pressed(scenario_id: String) -> void:
-	GameState.set_current_scenario(scenario_id)
+func _on_level_select_pressed() -> void:
+	AudioManager.unlock_audio_from_user_gesture()
+	AudioManager.play_bgm()
+	get_tree().change_scene_to_file("res://scenes/LevelSelect.tscn")
+
+
+func _on_quick_start_pressed() -> void:
+	GameState.set_current_scenario(QUICK_START_SCENARIO_ID)
 	AudioManager.unlock_audio_from_user_gesture()
 	AudioManager.play_bgm()
 	get_tree().change_scene_to_file("res://scenes/ScenarioIntro.tscn")

@@ -356,3 +356,16 @@ ScoreEngine v1 与文本排版修复记录：
 - 最终 BuildId：`20260714-021458`。
 - `latest.json` 已上线，内容指向 `/releases/20260714-021458/index.html`。
 - 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+IS-LM 关卡库 v1 记录：
+- 已新增 `scenes/LevelSelect.tscn` 和 `scripts/scenes/LevelSelect.gd`。
+- MainMenu 已新增“进入关卡选择”入口，并保留“快速开始：消费信心下滑”以维持原有测试流程。
+- LevelSelect 已列出四个 IS-LM 情境：消费信心下滑、投资信心下降、货币需求上升、政府支出扩张。
+- 每个情境都提供两个入口：基础教学 `single + demo`，组合训练 `budget + model`。
+- `data/scenarios.json` 已扩展为 8 个 scenario，并为训练关配置 `model_params.IS_LM` 和 `score_config`。
+- `data/policies.json` 已新增收缩性财政政策、收缩性货币政策、维持政策不变三张政策卡。
+- ScenarioIntro / PolicyDesk / Result / FinalSummary 继续从 GameState 当前 scenario 动态读取关卡内容。
+- ISLMSolver 继续从 `scenario.model_params.IS_LM` 读取模型参数，没有硬编码具体关卡。
+- ScoreEngine 继续从 `scenario.score_config` 读取评分配置，缺失或关闭配置时不会崩溃。
+- 当前未新增 AD-AS / Mundell-Fleming / Solow、突发事件系统、教学引导系统或变量图表系统。
+- 已重新导出并部署 CloudBase，BuildId：`20260714-030618`。
+- 线上检查通过：根目录 `index.html`、release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。

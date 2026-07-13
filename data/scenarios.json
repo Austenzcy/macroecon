@@ -1,137 +1,262 @@
 [
   {
     "id": "consumer_confidence_drop_basic",
+    "level_group": "consumer_confidence_drop",
     "title": "消费信心下滑：基础教学关",
     "selection_mode": "single",
     "settlement_mode": "demo",
     "model_type": "IS_LM",
     "policy_point_limit": null,
-    "available_policies": [
-      {
-        "id": "increase_government_purchase"
-      },
-      {
-        "id": "expansionary_monetary_policy"
-      },
-      {
-        "id": "tax_cut"
-      }
-    ],
+    "shock_type": "IS_LEFT",
     "problem_title": "消费信心下降",
-    "problem_description": "居民消费不足，经济面临需求偏弱压力。",
-    "model_hint": "核心变量：C ↓，总需求下降",
+    "problem_description": "居民消费意愿下降，消费支出减少，经济面临需求偏弱压力。",
+    "model_hint": "核心变量：C ↓，总需求下降，IS 曲线左移",
     "body": "居民对未来收入预期下降，消费支出明显减少，经济出现需求不足迹象。",
     "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"C": "偏低", "Y": "100.0", "u": "5.0%", "π": "2.0%", "i": "4.00%", "Debt": "60.0%"},
+    "available_policies": [
+      {"id": "increase_government_purchase"},
+      {"id": "expansionary_monetary_policy"},
+      {"id": "tax_cut"}
+    ],
     "story_steps": [
-      {
-        "title": "新闻快讯：商场客流减少",
-        "body": "近期多地商场和餐饮门店客流下降，零售企业反馈销售额明显低于预期。",
-        "button": "继续调查"
-      },
-      {
-        "title": "居民访谈：先少花一点",
-        "body": "一些居民表示，对未来收入和就业形势感到不确定，因此推迟了大额消费，减少了非必要支出。",
-        "button": "召开政策会议"
-      },
-      {
-        "title": "顾问判断：消费信心下降",
-        "body": "居民消费意愿下降会导致消费 C 减少，总需求走弱。在短期价格刚性的封闭经济中，这会带来产出下降压力。",
-        "button": "进入政策桌面"
-      }
+      {"title": "新闻快讯：商场客流减少", "body": "近期多地商场和餐饮门店客流下降，零售企业反馈销售额明显低于预期。", "button": "继续调查"},
+      {"title": "居民访谈：先少花一点", "body": "一些居民表示，对未来收入和就业形势感到不确定，因此推迟了大额消费，减少了非必要支出。", "button": "召开政策会议"},
+      {"title": "顾问判断：消费信心下降", "body": "居民消费意愿下降会导致消费 C 减少，总需求走弱。在短期价格刚性的封闭经济中，这会带来产出下降压力。", "button": "进入政策桌面"}
     ]
   },
   {
-    "id": "consumer_confidence_drop_budget",
+    "id": "consumer_confidence_drop_training",
+    "level_group": "consumer_confidence_drop",
     "title": "消费信心下滑：组合训练关",
     "selection_mode": "budget",
     "settlement_mode": "model",
     "model_type": "IS_LM",
     "policy_point_limit": 5,
+    "shock_type": "IS_LEFT",
+    "problem_title": "消费信心下降",
+    "problem_description": "居民消费意愿下降，消费支出减少，经济面临需求偏弱压力。",
+    "model_hint": "核心变量：C ↓，总需求下降，IS 曲线左移",
+    "body": "居民对未来收入预期下降，消费支出明显减少，经济出现需求不足迹象。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"C": "偏低", "Y": "100.0", "u": "5.0%", "π": "2.0%", "i": "4.00%", "Debt": "60.0%"},
+    "model_params": {
+      "IS_LM": {"A": 132, "b": 8, "c": 0.04, "d": 0, "Y_potential": 110, "u_base": 5.0, "pi_base": 2.0, "debt_base": 60.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
+    },
     "score_config": {
       "enabled": true,
       "score_type": "short_run_is_lm",
-      "weights": {
-        "output_stability": 40,
-        "employment": 15,
-        "inflation_control": 15,
-        "debt_control": 15,
-        "policy_efficiency": 15
-      },
-      "targets": {
-        "Y_target": 110,
-        "u_target": 4.5,
-        "pi_target": 2.0
-      },
-      "bands": {
-        "Y_ideal_band": 2,
-        "Y_zero_band": 15,
-        "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
-        "pi_ideal_band": 0.3,
-        "pi_zero_band": 2.5
-      },
-      "limits": {
-        "debt_soft_limit": 65,
-        "debt_hard_limit": 75
-      },
-      "policy_efficiency": {
-        "use_policy_points": true
-      },
-      "scope_notes": {
-        "time_horizon": "short_run",
-        "model_scope": "IS_LM",
-        "long_run_effects_counted": false
-      }
-    },
-    "model_params": {
-      "IS_LM": {
-        "A": 132,
-        "b": 8,
-        "c": 0.04,
-        "d": 0,
-        "Y_potential": 110,
-        "u_base": 5.0,
-        "pi_base": 2.0,
-        "debt_base": 60.0,
-        "okun_beta": 0.04,
-        "pi_sensitivity": 0.03
-      }
+      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
+      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
+      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
+      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
+      "policy_efficiency": {"use_policy_points": true},
+      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
     },
     "available_policies": [
-      {
-        "id": "increase_government_purchase",
-        "cost": 3
-      },
-      {
-        "id": "expansionary_monetary_policy",
-        "cost": 2
-      },
-      {
-        "id": "tax_cut",
-        "cost": 2
-      }
+      {"id": "increase_government_purchase", "cost": 3},
+      {"id": "expansionary_monetary_policy", "cost": 2},
+      {"id": "tax_cut", "cost": 2}
     ],
-    "problem_title": "消费信心下降",
-    "problem_description": "居民消费不足，经济面临需求偏弱压力。",
-    "model_hint": "核心变量：C ↓，总需求下降",
-    "body": "居民对未来收入预期下降，消费支出明显减少，经济出现需求不足迹象。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
     "story_steps": [
-      {
-        "title": "新闻快讯：商场客流减少",
-        "body": "近期多地商场和餐饮门店客流下降，零售企业反馈销售额明显低于预期。",
-        "button": "继续调查"
-      },
-      {
-        "title": "居民访谈：先少花一点",
-        "body": "一些居民表示，对未来收入和就业形势感到不确定，因此推迟了大额消费，减少了非必要支出。",
-        "button": "召开政策会议"
-      },
-      {
-        "title": "顾问判断：消费信心下降",
-        "body": "居民消费意愿下降会导致消费 C 减少，总需求走弱。在短期价格刚性的封闭经济中，这会带来产出下降压力。",
-        "button": "进入政策桌面"
-      }
+      {"title": "新闻快讯：商场客流减少", "body": "近期多地商场和餐饮门店客流下降，零售企业反馈销售额明显低于预期。", "button": "继续调查"},
+      {"title": "居民访谈：先少花一点", "body": "一些居民表示，对未来收入和就业形势感到不确定，因此推迟了大额消费，减少了非必要支出。", "button": "召开政策会议"},
+      {"title": "顾问判断：消费信心下降", "body": "居民消费意愿下降会导致消费 C 减少，总需求走弱。在短期价格刚性的封闭经济中，这会带来产出下降压力。", "button": "进入政策桌面"}
+    ]
+  },
+  {
+    "id": "investment_confidence_drop_basic",
+    "level_group": "investment_confidence_drop",
+    "title": "投资信心下降：基础教学关",
+    "selection_mode": "single",
+    "settlement_mode": "demo",
+    "model_type": "IS_LM",
+    "policy_point_limit": null,
+    "shock_type": "IS_LEFT",
+    "problem_title": "投资信心下降",
+    "problem_description": "企业对未来市场前景更谨慎，投资支出下降，经济面临需求不足和产出下降压力。",
+    "model_hint": "核心变量：I ↓，总需求下降，IS 曲线左移",
+    "body": "企业推迟投资计划，融资需求走弱，短期产出面临下行压力。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"I": "偏低", "Y": "97.0", "u": "5.5%", "π": "1.9%", "i": "3.88%", "Debt": "60.0%"},
+    "available_policies": [
+      {"id": "increase_government_purchase"},
+      {"id": "expansionary_monetary_policy"},
+      {"id": "tax_cut"}
+    ],
+    "story_steps": [
+      {"title": "企业调查：扩产计划推迟", "body": "多家企业表示，市场前景不明朗，原计划的设备采购和扩产项目被暂缓。", "button": "继续调查"},
+      {"title": "金融观察：投资需求转弱", "body": "银行反馈企业贷款需求下降，部分企业开始压缩资本开支。", "button": "召开政策会议"},
+      {"title": "顾问判断：投资信心下降", "body": "投资 I 减少会压低总需求，使 IS 曲线左移，并带来产出下降压力。", "button": "进入政策桌面"}
+    ]
+  },
+  {
+    "id": "investment_confidence_drop_training",
+    "level_group": "investment_confidence_drop",
+    "title": "投资信心下降：组合训练关",
+    "selection_mode": "budget",
+    "settlement_mode": "model",
+    "model_type": "IS_LM",
+    "policy_point_limit": 5,
+    "shock_type": "IS_LEFT",
+    "problem_title": "投资信心下降",
+    "problem_description": "企业对未来市场前景更谨慎，投资支出下降，经济面临需求不足和产出下降压力。",
+    "model_hint": "核心变量：I ↓，总需求下降，IS 曲线左移",
+    "body": "企业推迟投资计划，融资需求走弱，短期产出面临下行压力。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"I": "偏低", "Y": "97.0", "u": "5.5%", "π": "1.9%", "i": "3.88%", "Debt": "60.0%"},
+    "model_params": {
+      "IS_LM": {"A": 128, "b": 8, "c": 0.04, "d": 0, "Y_potential": 110, "u_base": 5.5, "pi_base": 1.9, "debt_base": 60.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
+    },
+    "score_config": {
+      "enabled": true,
+      "score_type": "short_run_is_lm",
+      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
+      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
+      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
+      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
+      "policy_efficiency": {"use_policy_points": true},
+      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
+    },
+    "available_policies": [
+      {"id": "increase_government_purchase", "cost": 3},
+      {"id": "expansionary_monetary_policy", "cost": 2},
+      {"id": "tax_cut", "cost": 2}
+    ],
+    "story_steps": [
+      {"title": "企业调查：扩产计划推迟", "body": "多家企业表示，市场前景不明朗，原计划的设备采购和扩产项目被暂缓。", "button": "继续调查"},
+      {"title": "金融观察：投资需求转弱", "body": "银行反馈企业贷款需求下降，部分企业开始压缩资本开支。", "button": "召开政策会议"},
+      {"title": "顾问判断：投资信心下降", "body": "投资 I 减少会压低总需求，使 IS 曲线左移，并带来产出下降压力。", "button": "进入政策桌面"}
+    ]
+  },
+  {
+    "id": "money_demand_rise_basic",
+    "level_group": "money_demand_rise",
+    "title": "货币需求上升：基础教学关",
+    "selection_mode": "single",
+    "settlement_mode": "demo",
+    "model_type": "IS_LM",
+    "policy_point_limit": null,
+    "shock_type": "LM_LEFT",
+    "problem_title": "货币需求上升",
+    "problem_description": "居民和企业更偏好持有流动性，货币需求上升，金融条件趋紧，利率上升压力加大。",
+    "model_hint": "核心变量：货币需求 ↑，LM 曲线左移 / 上移",
+    "body": "市场不确定性提高，流动性偏好上升，利率和产出同时承压。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"M_d": "偏高", "Y": "97.6", "u": "5.5%", "π": "1.9%", "i": "4.30%", "Debt": "60.0%"},
+    "available_policies": [
+      {"id": "expansionary_monetary_policy"},
+      {"id": "increase_government_purchase"},
+      {"id": "tax_cut"}
+    ],
+    "story_steps": [
+      {"title": "金融市场：流动性偏好上升", "body": "市场不确定性提高，居民和企业更愿意持有现金或高流动性资产。", "button": "继续调查"},
+      {"title": "银行反馈：资金面趋紧", "body": "银行间资金利率上行，企业融资成本出现上升压力。", "button": "召开政策会议"},
+      {"title": "顾问判断：货币需求上升", "body": "在货币供给不变时，货币需求增加会推高利率，使 LM 曲线左移或上移，进而抑制投资和产出。", "button": "进入政策桌面"}
+    ]
+  },
+  {
+    "id": "money_demand_rise_training",
+    "level_group": "money_demand_rise",
+    "title": "货币需求上升：组合训练关",
+    "selection_mode": "budget",
+    "settlement_mode": "model",
+    "model_type": "IS_LM",
+    "policy_point_limit": 5,
+    "shock_type": "LM_LEFT",
+    "problem_title": "货币需求上升",
+    "problem_description": "居民和企业更偏好持有流动性，货币需求上升，金融条件趋紧，利率上升压力加大。",
+    "model_hint": "核心变量：货币需求 ↑，LM 曲线左移 / 上移",
+    "body": "市场不确定性提高，流动性偏好上升，利率和产出同时承压。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"M_d": "偏高", "Y": "97.6", "u": "5.5%", "π": "1.9%", "i": "4.30%", "Debt": "60.0%"},
+    "model_params": {
+      "IS_LM": {"A": 132, "b": 8, "c": 0.04, "d": -0.4, "Y_potential": 110, "u_base": 5.5, "pi_base": 1.9, "debt_base": 60.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
+    },
+    "score_config": {
+      "enabled": true,
+      "score_type": "short_run_is_lm",
+      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
+      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
+      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
+      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
+      "policy_efficiency": {"use_policy_points": true},
+      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
+    },
+    "available_policies": [
+      {"id": "expansionary_monetary_policy", "cost": 2},
+      {"id": "increase_government_purchase", "cost": 3},
+      {"id": "tax_cut", "cost": 2}
+    ],
+    "story_steps": [
+      {"title": "金融市场：流动性偏好上升", "body": "市场不确定性提高，居民和企业更愿意持有现金或高流动性资产。", "button": "继续调查"},
+      {"title": "银行反馈：资金面趋紧", "body": "银行间资金利率上行，企业融资成本出现上升压力。", "button": "召开政策会议"},
+      {"title": "顾问判断：货币需求上升", "body": "在货币供给不变时，货币需求增加会推高利率，使 LM 曲线左移或上移，进而抑制投资和产出。", "button": "进入政策桌面"}
+    ]
+  },
+  {
+    "id": "government_spending_expansion_basic",
+    "level_group": "government_spending_expansion",
+    "title": "政府支出扩张：基础教学关",
+    "selection_mode": "single",
+    "settlement_mode": "demo",
+    "model_type": "IS_LM",
+    "policy_point_limit": null,
+    "shock_type": "IS_RIGHT",
+    "problem_title": "政府支出扩张",
+    "problem_description": "政府启动大规模支出计划，短期总需求增强，但可能带来利率上升和债务压力。",
+    "model_hint": "核心变量：G ↑，总需求上升，IS 曲线右移",
+    "body": "公共支出扩大带来总需求上升，也让利率和财政压力成为政策会议重点。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"G": "偏高", "Y": "114.0", "u": "4.4%", "π": "2.3%", "i": "4.56%", "Debt": "66.0%"},
+    "available_policies": [
+      {"id": "contractionary_fiscal_policy"},
+      {"id": "contractionary_monetary_policy"},
+      {"id": "keep_policy_unchanged"}
+    ],
+    "story_steps": [
+      {"title": "政策新闻：公共投资计划启动", "body": "政府宣布扩大基础设施和公共服务支出，以支持经济活动。", "button": "继续调查"},
+      {"title": "市场反应：需求明显增强", "body": "企业订单改善，就业需求回升，但金融市场开始关注利率和债务压力。", "button": "召开政策会议"},
+      {"title": "顾问判断：政府支出扩张", "body": "政府购买 G 增加会提高总需求，使 IS 曲线右移。短期产出上升，但利率和债务压力也可能上升。", "button": "进入政策桌面"}
+    ]
+  },
+  {
+    "id": "government_spending_expansion_training",
+    "level_group": "government_spending_expansion",
+    "title": "政府支出扩张：组合训练关",
+    "selection_mode": "budget",
+    "settlement_mode": "model",
+    "model_type": "IS_LM",
+    "policy_point_limit": 5,
+    "shock_type": "IS_RIGHT",
+    "problem_title": "政府支出扩张",
+    "problem_description": "政府启动大规模支出计划，短期总需求增强，但可能带来利率上升和债务压力。",
+    "model_hint": "核心变量：G ↑，总需求上升，IS 曲线右移",
+    "body": "公共支出扩大带来总需求上升，也让利率和财政压力成为政策会议重点。",
+    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
+    "initial_state": {"G": "偏高", "Y": "114.0", "u": "4.4%", "π": "2.3%", "i": "4.56%", "Debt": "66.0%"},
+    "model_params": {
+      "IS_LM": {"A": 150.48, "b": 8, "c": 0.04, "d": 0, "Y_potential": 110, "u_base": 4.4, "pi_base": 2.3, "debt_base": 66.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
+    },
+    "score_config": {
+      "enabled": true,
+      "score_type": "short_run_is_lm",
+      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
+      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
+      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
+      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
+      "policy_efficiency": {"use_policy_points": true},
+      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
+    },
+    "available_policies": [
+      {"id": "contractionary_fiscal_policy", "cost": 3},
+      {"id": "contractionary_monetary_policy", "cost": 2},
+      {"id": "keep_policy_unchanged", "cost": 0}
+    ],
+    "story_steps": [
+      {"title": "政策新闻：公共投资计划启动", "body": "政府宣布扩大基础设施和公共服务支出，以支持经济活动。", "button": "继续调查"},
+      {"title": "市场反应：需求明显增强", "body": "企业订单改善，就业需求回升，但金融市场开始关注利率和债务压力。", "button": "召开政策会议"},
+      {"title": "顾问判断：政府支出扩张", "body": "政府购买 G 增加会提高总需求，使 IS 曲线右移。短期产出上升，但利率和债务压力也可能上升。", "button": "进入政策桌面"}
     ]
   }
 ]
