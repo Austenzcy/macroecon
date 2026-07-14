@@ -443,3 +443,16 @@ IS-LM 关卡库 v1 记录：
 - 本轮未接入完整剧情 JSON，未修改 ISLMSolver、ScoreEngine、国家地图、右侧状态条或理论面板逻辑。
 - 已重新导出并部署 CloudBase，BuildId：`20260715-022100`。
 - `latest.json` 已指向 `/releases/20260715-022100/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+
+剧情 Overlay 点击推进与输入阻断修复记录：
+- 已暂停完整剧情 JSON 和新内容接入，仅修复 DialogueOverlay 点击推进与引导期间底层输入穿透问题。
+- 已确认问题根因：DialogueOverlay 只依赖 `_gui_input`，子 Control 可能拦截鼠标事件；同时 PolicyDesk 状态变更入口未检查剧情输入锁。
+- DialogueOverlay 新增 `_input(event)`，统一处理鼠标左键、触摸、Enter 和 Space，点击任意 Overlay 区域都会逐句推进。
+- DialogueOverlay 推进后调用 `get_viewport().set_input_as_handled()`，避免点击传到底层 UI。
+- DialogueOverlay 子 Control 统一设置 `mouse_filter = IGNORE`，避免头像、文字、Panel 等吃掉点击。
+- NarrativeManager 新增 `is_dialogue_active()`、`is_modal_active()`、`is_blocking_game_input()`。
+- PolicyDesk 已在政策卡选择、确认政策、模型回放、本轮总结、理论面板、提示按钮和缩放按钮等入口加入剧情输入锁防御。
+- HintConfirmModal 打开时 DialogueOverlay 不响应点击，避免确认弹窗背景点击误推进剧情。
+- 本轮未接入完整剧情 JSON，未修改 ISLMSolver、ScoreEngine、国家地图、右侧状态条或剧情文案。
+- 已重新导出并部署 CloudBase，BuildId：`20260715-023600`。
+- `latest.json` 已指向 `/releases/20260715-023600/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。

@@ -134,3 +134,42 @@ UI 脚本不应硬编码正式剧情，只负责调用 `NarrativeManager` 播放
 - 当前高亮为矩形框，不支持不规则镂空遮罩。
 - 若目标节点滚动到 viewport 外，高亮框会按目标全局位置绘制，后续可增加“自动滚动到目标”。
 - Ctrl+滚轮缩放由 PolicyDesk 处理；Overlay 位于独立 CanvasLayer，不会随 PolicyDesk 内容缩放或被 `_build_ui()` 重建删除。
+
+## 点击推进与输入阻断
+
+人工验收时发现 DialogueOverlay 可见但无法点击进入下一句，同时底层 PolicyDesk 仍能选择政策卡和确认政策。当前修复采用两层防护：
+
+### DialogueOverlay 输入处理
+
+- `DialogueOverlay` 根 Control 覆盖整个 viewport，并保持 `mouse_filter = STOP`。
+- Overlay 使用 `_input(event)` 统一监听鼠标左键、触摸、Enter 和 Space。
+- 任意 Overlay 区域点击都会调用 `_advance()`，每次只推进一条 dialogue step。
+- 推进后调用 `get_viewport().set_input_as_handled()`，避免同一次点击继续传到底层 PolicyDesk。
+- 对话框、头像、文本、提示小字等子 Control 统一设置 `mouse_filter = IGNORE`，避免子节点吃掉点击但不推进。
+- 如果 `HintConfirmModal` 正在显示，DialogueOverlay 不响应点击，避免点击确认弹窗背景时误推进剧情。
+
+### NarrativeManager 输入锁
+
+`NarrativeManager` 提供：
+
+- `is_dialogue_active()`
+- `is_modal_active()`
+- `is_blocking_game_input()`
+
+当剧情 Overlay 或提示确认弹窗存在时，`is_blocking_game_input()` 返回 true。
+
+### PolicyDesk 防穿透入口
+
+以下操作入口已加入 `NarrativeManager.is_blocking_game_input()` 防御：
+
+- 政策卡选择 `_on_policy_selected`
+- 确认政策 `_on_confirm_policy`
+- 本轮总结 `_on_round_summary_pressed`
+- 打开模型回放 `_on_open_replay_pressed`
+- 关闭模型回放 `_on_replay_closed`
+- 理论面板开关 `_on_toggle_theory_panel`
+- 缩放按钮 `_on_zoom_out` / `_on_zoom_in` / `_on_zoom_reset`
+- 请求提示 `_on_request_hint_pressed`
+- 回看提示 `_on_review_hint_pressed`
+
+当前所有新手引导 step 都是“点击继续”模式，不允许玩家在高亮区域直接操作底层 UI。后续如果需要“允许指定目标点击”的教程步骤，将单独设计交互模式。

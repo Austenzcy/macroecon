@@ -19,7 +19,28 @@ func _ready() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_ui()
+	_set_non_interactive_children(self)
 	_show_current_step()
+
+
+func _input(event: InputEvent) -> void:
+	if not visible or _is_modal_active():
+		return
+	if event is InputEventMouseButton:
+		var mouse_event: InputEventMouseButton = event
+		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			_advance()
+			get_viewport().set_input_as_handled()
+	elif event is InputEventScreenTouch:
+		var touch_event: InputEventScreenTouch = event
+		if touch_event.pressed:
+			_advance()
+			get_viewport().set_input_as_handled()
+	elif event is InputEventKey:
+		var key_event: InputEventKey = event
+		if key_event.pressed and not key_event.echo and (key_event.keycode == KEY_ENTER or key_event.keycode == KEY_SPACE):
+			_advance()
+			get_viewport().set_input_as_handled()
 
 
 func setup(steps: Array, target_map: Dictionary = {}) -> void:
@@ -46,6 +67,7 @@ func _gui_input(event: InputEvent) -> void:
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
 			_advance()
 			accept_event()
+			get_viewport().set_input_as_handled()
 
 
 func _draw() -> void:
@@ -180,6 +202,20 @@ func _target_rect(target: Control) -> Rect2:
 	var target_rect: Rect2 = target.get_global_rect()
 	var origin: Vector2 = get_global_rect().position
 	return Rect2(target_rect.position - origin, target_rect.size)
+
+
+func _is_modal_active() -> bool:
+	if has_node("/root/NarrativeManager"):
+		return bool(NarrativeManager.is_modal_active())
+	return false
+
+
+func _set_non_interactive_children(node: Node) -> void:
+	for child: Node in node.get_children():
+		if child is Control:
+			var control: Control = child as Control
+			control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_set_non_interactive_children(child)
 
 
 func _avatar_initial(name: String) -> String:

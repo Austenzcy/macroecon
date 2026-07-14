@@ -802,6 +802,9 @@ func _parse_state_number(value: String) -> Dictionary:
 
 
 func _on_policy_selected(policy_id: String, policy_name: String) -> void:
+	if _is_gameplay_input_blocked():
+		_refresh_card_selection()
+		return
 	if _is_policy_confirmed:
 		for card: Node in _policy_cards:
 			card.call("set_selected", _is_policy_selected(str(card.get("policy_id"))))
@@ -836,6 +839,8 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 	)
 
 func _on_confirm_policy() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	if _is_policy_confirmed:
 		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
 		return
@@ -865,6 +870,8 @@ func _on_confirm_policy() -> void:
 		)
 
 func _on_round_summary_pressed() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	if _last_result.is_empty():
 		_advisor_panel.call("set_advisor", "会议记录", "请先确认政策，再进入本轮总结。")
 		return
@@ -872,6 +879,8 @@ func _on_round_summary_pressed() -> void:
 
 
 func _on_open_replay_pressed() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	if not _has_islm_graph_result(_last_result):
 		_advisor_panel.call("set_advisor", "会议记录", "当前关卡为基础教学演示，暂不提供模型图形回放。")
 		return
@@ -919,6 +928,8 @@ func _open_replay_overlay() -> void:
 
 
 func _on_replay_closed() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	_is_replay_open = false
 	if _replay_overlay != null:
 		_replay_overlay.queue_free()
@@ -927,6 +938,8 @@ func _on_replay_closed() -> void:
 
 
 func _on_toggle_theory_panel() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	_is_theory_open = not _is_theory_open
 	if _theory_panel != null:
 		_theory_panel.visible = _is_theory_open
@@ -936,14 +949,20 @@ func _on_toggle_theory_panel() -> void:
 
 
 func _on_zoom_out() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	_set_ui_scale(_ui_scale - SCALE_STEP)
 
 
 func _on_zoom_in() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	_set_ui_scale(_ui_scale + SCALE_STEP)
 
 
 func _on_zoom_reset() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	_set_ui_scale(1.0)
 
 
@@ -1028,14 +1047,22 @@ func _refresh_wisdom_ui() -> void:
 
 
 func _on_request_hint_pressed() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	_register_guide_targets()
 	NarrativeManager.request_hint(self, GameState.current_scenario_id, _guide_targets)
 	_refresh_wisdom_ui()
 
 
 func _on_review_hint_pressed() -> void:
+	if _is_gameplay_input_blocked():
+		return
 	_register_guide_targets()
 	NarrativeManager.replay_unlocked_hints(self, GameState.current_scenario_id, _guide_targets)
+
+
+func _is_gameplay_input_blocked() -> bool:
+	return NarrativeManager.is_blocking_game_input()
 
 
 func _clear_right_panel() -> void:

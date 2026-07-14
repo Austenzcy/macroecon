@@ -112,6 +112,18 @@ func refresh_target_map(target_map: Dictionary) -> void:
 		_active_overlay.call("update_target_map", target_map)
 
 
+func is_dialogue_active() -> bool:
+	return _active_overlay != null and is_instance_valid(_active_overlay)
+
+
+func is_modal_active() -> bool:
+	return _active_modal_layer != null and is_instance_valid(_active_modal_layer)
+
+
+func is_blocking_game_input() -> bool:
+	return is_dialogue_active() or is_modal_active()
+
+
 func replay_unlocked_hints(host: Control, scenario_id: String, target_map: Dictionary = {}) -> void:
 	var unlocked: Array = _unlocked_hint_indices(scenario_id)
 	if unlocked.is_empty():
