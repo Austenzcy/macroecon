@@ -395,3 +395,16 @@ IS-LM 关卡库 v1 记录：
 - 本轮未修改理论面板、模型回放、ScoreEngine 公式或 CloudBase 自动部署脚本。
 - 已重新导出并部署 CloudBase，BuildId：`20260714-045320`。
 - `latest.json` 已指向 `/releases/20260714-045320/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+
+理论面板 v1 记录：
+- 已完成理论面板 v1。
+- 理论面板继续从当前 scenario 动态读取 `problem_title`、`model_hint`、`model_tags`、`shock_type` 和 `model_type`。
+- 已显示当前冲击、机制提示和当前模型标签。
+- 已用真实 IS-LM 冲击示意图替换原占位框，不再显示“后续将加入动态图表”。
+- 新增 `scripts/ui/TheoryISLMGraph.gd`，支持 `IS_LEFT`、`IS_RIGHT`、`LM_LEFT`、`LM_RIGHT` 的冲击方向展示。
+- 使用红色箭头表示外生冲击导致的曲线移动方向。
+- 理论面板只解释决策前外生冲击，不读取 selected_policies，不读取 MacroEngine result，不提前展示政策卡执行结果。
+- 本轮未修改模型回放、ScoreEngine、国家地图和右侧状态条。
+- 已通过 Godot 4.7 headless 项目加载检查，并直接加载 PolicyDesk 场景检查通过。
+- 已重新导出并部署 CloudBase，BuildId：`20260714-134523`。
+- `latest.json` 已指向 `/releases/20260714-134523/index.html`，release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。

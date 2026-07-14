@@ -3,6 +3,7 @@ extends Control
 const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
 const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
 const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
+const TheoryISLMGraphScript = preload("res://scripts/ui/TheoryISLMGraph.gd")
 const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
@@ -366,32 +367,16 @@ func _build_theory_panel() -> PanelContainer:
 	_add_wrapped_label(box, "当前冲击：%s" % str(scenario.get("problem_title", "当前宏观冲击")), Color(0.88, 0.94, 1.0), 17)
 	_add_wrapped_label(box, "机制提示：%s" % str(scenario.get("model_hint", "请结合当前模型标签观察 IS-LM 传导。")), Color(0.84, 0.90, 0.94), 16)
 	_add_wrapped_label(box, "当前模型：%s" % _tag_text(scenario.get("model_tags", [])), Color(0.72, 0.86, 1.0), 16)
-	box.add_child(_build_chart_placeholder())
+	box.add_child(_build_theory_graph(scenario))
 	_add_wrapped_label(box, "这里只解释当前冲击的传导机制，不提前展示任何政策卡的执行结果。", Color(0.82, 0.86, 0.90), 15)
 
 	return panel
 
 
-func _build_chart_placeholder() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0, _dim(140))
-	panel.add_theme_stylebox_override("panel", _make_chart_style())
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(14))
-	margin.add_theme_constant_override("margin_top", _dim(12))
-	margin.add_theme_constant_override("margin_right", _dim(14))
-	margin.add_theme_constant_override("margin_bottom", _dim(12))
-	panel.add_child(margin)
-
-	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", _dim(8))
-	margin.add_child(box)
-
-	_add_wrapped_label(box, "i-Y 坐标框", Color(0.72, 0.86, 1.0), 15)
-	_add_wrapped_label(box, "IS 左移示意图", Color(0.96, 0.98, 1.0), 20)
-	_add_wrapped_label(box, "后续将加入动态图表", Color(0.70, 0.78, 0.84), 15)
-	return panel
+func _build_theory_graph(scenario: Dictionary) -> Control:
+	var graph: Control = TheoryISLMGraphScript.new() as Control
+	graph.call("setup", scenario, _ui_scale)
+	return graph
 
 
 func _build_right_column() -> PanelContainer:
