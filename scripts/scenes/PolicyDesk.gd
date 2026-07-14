@@ -982,6 +982,7 @@ func _register_guide_targets() -> void:
 	}
 	if _replay_overlay != null:
 		_guide_targets["model_replay_window"] = _replay_overlay
+	NarrativeManager.refresh_target_map(_guide_targets)
 
 
 func _maybe_start_policy_desk_guides() -> void:

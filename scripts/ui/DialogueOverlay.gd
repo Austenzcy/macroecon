@@ -10,11 +10,13 @@ var _speaker_label: Label
 var _text_label: RichTextLabel
 var _avatar_label: Label
 var _continue_label: Label
-var _current_target: Control
+var _current_target_id: String = ""
 
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_ui()
 	_show_current_step()
@@ -28,6 +30,16 @@ func setup(steps: Array, target_map: Dictionary = {}) -> void:
 		_show_current_step()
 
 
+func update_target_map(target_map: Dictionary) -> void:
+	_target_map = target_map.duplicate()
+	queue_redraw()
+
+
+func _process(_delta: float) -> void:
+	if visible:
+		queue_redraw()
+
+
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
@@ -38,9 +50,10 @@ func _gui_input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.0, 0.0, 0.0, 0.58), true)
-	if _current_target == null or not is_instance_valid(_current_target) or not _current_target.visible:
+	var current_target: Control = _lookup_target(_current_target_id)
+	if current_target == null or not current_target.visible:
 		return
-	var rect: Rect2 = _target_rect(_current_target)
+	var rect: Rect2 = _target_rect(current_target)
 	if rect.size.x <= 2.0 or rect.size.y <= 2.0:
 		return
 	var padding: float = 8.0
@@ -51,15 +64,30 @@ func _draw() -> void:
 
 
 func _build_ui() -> void:
+	var bottom_layout: MarginContainer = MarginContainer.new()
+	bottom_layout.name = "DialogueBottomLayout"
+	bottom_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bottom_layout.add_theme_constant_override("margin_left", 56)
+	bottom_layout.add_theme_constant_override("margin_top", 24)
+	bottom_layout.add_theme_constant_override("margin_right", 56)
+	bottom_layout.add_theme_constant_override("margin_bottom", 32)
+	add_child(bottom_layout)
+
+	var vertical_layout: VBoxContainer = VBoxContainer.new()
+	vertical_layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vertical_layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bottom_layout.add_child(vertical_layout)
+
+	var spacer: Control = Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vertical_layout.add_child(spacer)
+
 	_dialogue_panel = PanelContainer.new()
 	_dialogue_panel.name = "DialogueBox"
-	_dialogue_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	_dialogue_panel.offset_left = 56.0
-	_dialogue_panel.offset_right = -56.0
-	_dialogue_panel.offset_top = -180.0
-	_dialogue_panel.offset_bottom = -32.0
+	_dialogue_panel.custom_minimum_size = Vector2(0.0, 164.0)
+	_dialogue_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_dialogue_panel.add_theme_stylebox_override("panel", _panel_style())
-	add_child(_dialogue_panel)
+	vertical_layout.add_child(_dialogue_panel)
 
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 20)
@@ -91,10 +119,11 @@ func _build_ui() -> void:
 	text_box.add_child(_speaker_label)
 
 	_text_label = RichTextLabel.new()
-	_text_label.fit_content = true
+	_text_label.custom_minimum_size = Vector2(0.0, 62.0)
 	_text_label.scroll_active = false
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_text_label.add_theme_font_size_override("normal_font_size", 20)
 	_text_label.modulate = Color(0.95, 0.98, 1.0)
 	text_box.add_child(_text_label)
@@ -124,7 +153,7 @@ func _show_current_step() -> void:
 	_text_label.text = text
 	_continue_label.text = continue_text
 	_avatar_label.text = _avatar_initial(speaker)
-	_current_target = _lookup_target(target_id)
+	_current_target_id = target_id
 	queue_redraw()
 
 

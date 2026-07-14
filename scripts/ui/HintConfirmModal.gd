@@ -8,6 +8,8 @@ var _message: String = ""
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_ui()
 
@@ -22,16 +24,16 @@ func _build_ui() -> void:
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(center)
+
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "HintConfirmBox"
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.custom_minimum_size = Vector2(430, 210)
-	panel.offset_left = -215.0
-	panel.offset_top = -105.0
-	panel.offset_right = 215.0
-	panel.offset_bottom = 105.0
+	panel.custom_minimum_size = Vector2(460, 230)
 	panel.add_theme_stylebox_override("panel", _panel_style())
-	add_child(panel)
+	center.add_child(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 24)

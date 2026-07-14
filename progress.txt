@@ -430,3 +430,16 @@ IS-LM 关卡库 v1 记录：
 - 已将本机 `deploy.local.ps1` 的 `$GodotExe` 改为 console 版 Godot 路径，避免命令行导出误启 GUI 版；该本机配置不提交。
 - 已重新导出并部署 CloudBase，BuildId：`20260715-020012`。
 - `latest.json` 已指向 `/releases/20260715-020012/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+
+剧情 Overlay 稳定性修复记录：
+- 已暂停后续剧情 JSON 和新内容接入，仅修复 DialogueOverlay / 高亮遮罩 / 智慧提示弹窗的显示层级、锚点和坐标问题。
+- 已确认问题根因：DialogueOverlay 和 HintConfirmModal 作为 PolicyDesk 普通子节点挂载，会受到 ScrollContainer、UI 缩放重建和父容器裁切影响。
+- DialogueOverlay 改为由 NarrativeManager 创建 `DialogueOverlayLayer` CanvasLayer 并挂到 SceneTree root。
+- HintConfirmModal 改为由 NarrativeManager 创建 `HintConfirmModalLayer` CanvasLayer 并挂到 SceneTree root。
+- 底部对话框改为 full rect + MarginContainer + VBoxContainer + spacer 的底部固定布局，不再依赖易跑偏的局部锚点偏移。
+- 提示确认弹窗改为 full rect + CenterContainer 居中布局。
+- 高亮框继续使用目标 Control 的 `get_global_rect()`，并在 Overlay 本地坐标中绘制。
+- Overlay 可见时每帧刷新高亮；PolicyDesk 缩放重建 UI 后会同步刷新 target map，避免 Ctrl+滚轮缩放后 Overlay 消失。
+- 本轮未接入完整剧情 JSON，未修改 ISLMSolver、ScoreEngine、国家地图、右侧状态条或理论面板逻辑。
+- 已重新导出并部署 CloudBase，BuildId：`20260715-022100`。
+- `latest.json` 已指向 `/releases/20260715-022100/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。

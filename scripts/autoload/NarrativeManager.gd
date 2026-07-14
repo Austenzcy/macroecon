@@ -16,6 +16,8 @@ var seen_tutorials: Dictionary = {}
 var unlocked_hints: Dictionary = {}
 
 var _active_overlay: Control
+var _active_overlay_layer: CanvasLayer
+var _active_modal_layer: CanvasLayer
 var _pending_sequences: Array[Dictionary] = []
 
 var characters: Dictionary = {
@@ -34,8 +36,11 @@ func reset_runtime_state() -> void:
 	unlocked_hints.clear()
 	_pending_sequences.clear()
 	if _active_overlay != null and is_instance_valid(_active_overlay):
-		_active_overlay.queue_free()
+		_free_overlay_layer()
 	_active_overlay = null
+	if _active_modal_layer != null and is_instance_valid(_active_modal_layer):
+		_active_modal_layer.queue_free()
+	_active_modal_layer = null
 	wisdom_points_changed.emit()
 
 
@@ -95,9 +100,16 @@ func request_hint(host: Control, scenario_id: String, target_map: Dictionary = {
 	var message: String = "查看第 %d 条提示将消耗 %d 点智慧点数。是否确认？" % [next_index + 1, HINT_COST]
 	var modal: Control = HintConfirmModalScript.new() as Control
 	modal.call("setup", message)
-	modal.connect("confirmed", _on_hint_confirmed.bind(host, scenario_id, next_index, target_map))
-	modal.connect("cancelled", _on_hint_cancelled.bind(host, target_map))
-	host.add_child(modal)
+	var layer: CanvasLayer = _create_canvas_layer(host, "HintConfirmModalLayer", 101)
+	_active_modal_layer = layer
+	modal.connect("confirmed", _on_hint_confirmed.bind(layer, host, scenario_id, next_index, target_map))
+	modal.connect("cancelled", _on_hint_cancelled.bind(layer, host, target_map))
+	layer.add_child(modal)
+
+
+func refresh_target_map(target_map: Dictionary) -> void:
+	if _active_overlay != null and is_instance_valid(_active_overlay):
+		_active_overlay.call("update_target_map", target_map)
 
 
 func replay_unlocked_hints(host: Control, scenario_id: String, target_map: Dictionary = {}) -> void:
@@ -177,13 +189,16 @@ func _start_sequence(request: Dictionary) -> void:
 		return
 	var overlay: Control = DialogueOverlayScript.new() as Control
 	_active_overlay = overlay
+	var layer: CanvasLayer = _create_canvas_layer(host, "DialogueOverlayLayer", 100)
+	_active_overlay_layer = layer
 	overlay.call("setup", request.get("steps", []), request.get("target_map", {}))
 	overlay.connect("finished", _on_overlay_finished.bind(request.get("on_finished", Callable())))
-	host.add_child(overlay)
+	layer.add_child(overlay)
 
 
 func _on_overlay_finished(on_finished: Callable) -> void:
 	_active_overlay = null
+	_free_overlay_layer()
 	if on_finished.is_valid():
 		on_finished.call()
 	_start_next_pending()
@@ -196,7 +211,33 @@ func _start_next_pending() -> void:
 	_start_sequence(next_request)
 
 
-func _on_hint_confirmed(host: Control, scenario_id: String, hint_index: int, target_map: Dictionary) -> void:
+func _create_canvas_layer(host: Control, layer_name: String, layer_index: int) -> CanvasLayer:
+	var layer: CanvasLayer = CanvasLayer.new()
+	layer.name = layer_name
+	layer.layer = layer_index
+	var tree: SceneTree = host.get_tree()
+	if tree != null and tree.root != null:
+		tree.root.add_child(layer)
+	else:
+		add_child(layer)
+	return layer
+
+
+func _free_overlay_layer() -> void:
+	if _active_overlay_layer != null and is_instance_valid(_active_overlay_layer):
+		_active_overlay_layer.queue_free()
+	_active_overlay_layer = null
+
+
+func _free_modal_layer(layer: CanvasLayer) -> void:
+	if layer != null and is_instance_valid(layer):
+		layer.queue_free()
+	if _active_modal_layer == layer:
+		_active_modal_layer = null
+
+
+func _on_hint_confirmed(layer: CanvasLayer, host: Control, scenario_id: String, hint_index: int, target_map: Dictionary) -> void:
+	_free_modal_layer(layer)
 	wisdom_points = max(0, wisdom_points - HINT_COST)
 	wisdom_points_changed.emit()
 	var unlocked: Array = _unlocked_hint_indices(scenario_id)
@@ -208,7 +249,8 @@ func _on_hint_confirmed(host: Control, scenario_id: String, hint_index: int, tar
 	play_steps(host, [hint], target_map)
 
 
-func _on_hint_cancelled(host: Control, target_map: Dictionary) -> void:
+func _on_hint_cancelled(layer: CanvasLayer, host: Control, target_map: Dictionary) -> void:
+	_free_modal_layer(layer)
 	play_steps(host, [_step("首席经济顾问", "已取消查看提示，智慧点数没有变化。")], target_map)
 
 

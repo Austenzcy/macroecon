@@ -114,3 +114,23 @@ UI 脚本不应硬编码正式剧情，只负责调用 `NarrativeManager` 播放
 - 不做长期存档，当前状态只在一次运行流程中保存。
 - 智慧点数不进入评分。
 - LevelSelect 入口已具名但当前未启用入口引导。
+
+## Overlay 稳定性修复记录
+
+人工验收时发现底部对话框、提示弹窗和高亮框曾受到 PolicyDesk 滚动 / UI 缩放 / 父容器裁切影响，表现为对话框跑到左上角、文字被裁切、Ctrl+滚轮缩放后 Overlay 消失。
+
+当前修复方案：
+
+- `DialogueOverlay` 不再挂到 `PolicyDesk` 普通 Control 子节点下，而是由 `NarrativeManager` 创建 `DialogueOverlayLayer` (`CanvasLayer.layer = 100`) 并挂到当前 `SceneTree.root`。
+- `HintConfirmModal` 不再挂到 `PolicyDesk` 普通 Control 子节点下，而是由 `NarrativeManager` 创建 `HintConfirmModalLayer` (`CanvasLayer.layer = 101`) 并挂到当前 `SceneTree.root`。
+- `DialogueOverlay` 根节点使用 full rect anchors；底部对话框使用全屏 `MarginContainer + VBoxContainer + spacer + PanelContainer` 固定在 viewport 底部，不依赖写死屏幕坐标。
+- `HintConfirmModal` 使用 full rect 根节点和 `CenterContainer` 居中显示，避免被 ScrollContainer / Panel / MarginContainer 裁切。
+- 高亮框仍基于目标 Control 的 `get_global_rect()` 计算；Overlay 位于全屏 CanvasLayer 后，用目标全局矩形减去 Overlay 全局原点，转换到 Overlay 本地坐标绘制。
+- `DialogueOverlay` 在可见时每帧 `queue_redraw()`，因此页面滚动、窗口尺寸变化或 UI 缩放后，高亮框会重新读取目标 Control 的当前屏幕位置。
+- PolicyDesk 缩放会重建主界面；重建后 `_register_guide_targets()` 会调用 `NarrativeManager.refresh_target_map(...)`，把新的运行时节点引用同步给当前 Overlay。若目标暂时不存在，只隐藏高亮框，不关闭底部对话框。
+
+已知限制：
+
+- 当前高亮为矩形框，不支持不规则镂空遮罩。
+- 若目标节点滚动到 viewport 外，高亮框会按目标全局位置绘制，后续可增加“自动滚动到目标”。
+- Ctrl+滚轮缩放由 PolicyDesk 处理；Overlay 位于独立 CanvasLayer，不会随 PolicyDesk 内容缩放或被 `_build_ui()` 重建删除。
