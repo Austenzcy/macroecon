@@ -408,3 +408,25 @@ IS-LM 关卡库 v1 记录：
 - 已通过 Godot 4.7 headless 项目加载检查，并直接加载 PolicyDesk 场景检查通过。
 - 已重新导出并部署 CloudBase，BuildId：`20260714-134523`。
 - `latest.json` 已指向 `/releases/20260714-134523/index.html`，release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+剧情引导系统功能框架 v1 记录：
+- 已阅读《IS-LM章节剧情引导系统设计文档_v1.docx》，并按本轮需求优先实现功能框架。
+- 已完成剧情引导系统功能框架 v1。
+- 新增底部 DialogueOverlay，支持单句轮流发言和“单击以继续”。
+- DialogueOverlay 支持画面整体变暗，并根据真实 Control 节点位置绘制 UI 区域高亮。
+- 已完成新手引导 target mapping 审计，并记录在 `docs/Narrative_Guide_System_v1.md`。
+- 新增 `NarrativeManager.gd` 作为 Autoload，管理已播放引导、智慧点数、已解锁提示和季度标签。
+- 新增智慧点数系统：初始 10 点，每次解锁新提示消耗 2 点。
+- 新增提示确认机制：确认后才扣点，取消不扣点。
+- 已解锁提示可通过“回看”重复查看，不重复扣点。
+- PolicyDesk 顶部新增季度时间标签和智慧点数 / 请求提示入口。
+- 新增基础角色配置与占位头像显示。
+- 当前仅使用 mock 文案测试框架，未接入完整剧情 JSON。
+- basic/demo 未新增评分系统；training/model 评分启用时 FinalSummary 才触发评分引导。
+- 本轮未修改 ISLMSolver、ScoreEngine 公式、国家地图逻辑、右侧状态条逻辑、理论面板逻辑或 CloudBase 自动部署脚本。
+- 因 Godot 4.7 在无头检查阶段弹出 Win32 崩溃窗口，已暂停反复运行 `build_and_deploy.ps1` 并完成排查；后续使用 console 版 Godot 完成一次正式导出。
+- 已检查新增 `NarrativeManager`、`DialogueOverlay`、`HintConfirmModal`、季度标签和引导触发逻辑，未发现缺失资源路径或硬编码节点路径。
+- 已修复 `DialogueOverlay` 初始化顺序：先注入 steps / target_map 并连接 finished 信号，再加入场景树，避免空步骤 Overlay 在 `_ready` 时立即结束。
+- 已修复 `HintConfirmModal` 信号连接顺序：先连接确认 / 取消信号，再加入场景树。
+- 已将本机 `deploy.local.ps1` 的 `$GodotExe` 改为 console 版 Godot 路径，避免命令行导出误启 GUI 版；该本机配置不提交。
+- 已重新导出并部署 CloudBase，BuildId：`20260715-020012`。
+- `latest.json` 已指向 `/releases/20260715-020012/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。

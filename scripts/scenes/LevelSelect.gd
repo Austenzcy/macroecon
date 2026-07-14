@@ -150,10 +150,12 @@ func _build_level_card(level: Dictionary) -> PanelContainer:
 	box.add_child(actions)
 
 	var basic_button: Button = _build_action_button("基础教学", "single + demo")
+	basic_button.name = "BasicEntryButton"
 	basic_button.pressed.connect(_on_scenario_pressed.bind(str(level.get("basic_id", ""))))
 	actions.add_child(basic_button)
 
 	var training_button: Button = _build_action_button("组合训练", "budget + model")
+	training_button.name = "TrainingEntryButton"
 	training_button.pressed.connect(_on_scenario_pressed.bind(str(level.get("training_id", ""))))
 	actions.add_child(training_button)
 

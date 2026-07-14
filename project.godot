@@ -24,6 +24,7 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 GameState="*res://scripts/autoload/GameState.gd"
 AudioManager="*res://scripts/autoload/AudioManager.gd"
 DataLoader="*res://scripts/autoload/DataLoader.gd"
+NarrativeManager="*res://scripts/autoload/NarrativeManager.gd"
 
 [display]
 

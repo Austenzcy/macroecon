@@ -44,6 +44,8 @@ func start_scenario(scenario_id: String) -> void:
 	round_history.clear()
 	return_to_confirmed_policy_desk = false
 	clear_selection()
+	if has_node("/root/NarrativeManager"):
+		NarrativeManager.reset_runtime_state()
 
 
 func reset_for_new_game() -> void:
@@ -55,6 +57,8 @@ func reset_for_new_game() -> void:
 	round_history.clear()
 	return_to_confirmed_policy_desk = false
 	clear_selection()
+	if has_node("/root/NarrativeManager"):
+		NarrativeManager.reset_runtime_state()
 
 
 func get_current_scenario() -> Dictionary:

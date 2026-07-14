@@ -31,11 +31,20 @@ var _outer_margin: MarginContainer
 var _content_margin: MarginContainer
 var _scale_label: Label
 var _right_panel_box: VBoxContainer
+var _right_panel: PanelContainer
+var _problem_panel: PanelContainer
+var _policy_column: VBoxContainer
+var _map_panel: PanelContainer
 var _theory_panel: PanelContainer
 var _theory_button: Button
 var _replay_overlay: Control
 var _confirm_button: Button
+var _model_replay_button: Button
+var _summary_button: Button
 var _policy_points_label: Label
+var _wisdom_label: Label
+var _request_hint_button: Button
+var _review_hint_button: Button
 var _scenario: Dictionary = {}
 var _selected_policies: Array[Dictionary] = []
 var _last_result: Dictionary = {}
@@ -43,10 +52,13 @@ var _is_policy_confirmed: bool = false
 var _is_theory_open: bool = false
 var _is_replay_open: bool = false
 var _ui_scale: float = 1.0
+var _guide_targets: Dictionary = {}
 
 
 func _ready() -> void:
 	_scenario = _get_current_scenario()
+	if not NarrativeManager.wisdom_points_changed.is_connected(_refresh_wisdom_ui):
+		NarrativeManager.wisdom_points_changed.connect(_refresh_wisdom_ui)
 	_selected_policies.clear()
 	if GameState.consume_return_to_confirmed_policy_desk() and not GameState.last_result.is_empty():
 		_last_result = GameState.last_result.duplicate(true)
@@ -60,6 +72,7 @@ func _ready() -> void:
 	GameState.set_ui_scale(_ui_scale)
 	_build_ui()
 	call_deferred("_refresh_initial_layout")
+	call_deferred("_maybe_start_policy_desk_guides")
 
 
 func _input(event: InputEvent) -> void:
@@ -79,14 +92,24 @@ func _build_ui() -> void:
 	_policy_cards.clear()
 	_advisor_panel = null
 	_right_panel_box = null
+	_right_panel = null
+	_problem_panel = null
+	_policy_column = null
+	_map_panel = null
 	_theory_panel = null
 	_theory_button = null
 	_replay_overlay = null
 	_confirm_button = null
+	_model_replay_button = null
+	_summary_button = null
 	_policy_points_label = null
+	_wisdom_label = null
+	_request_hint_button = null
+	_review_hint_button = null
 	_scale_label = null
 	_outer_margin = null
 	_content_margin = null
+	_guide_targets.clear()
 
 	for child: Node in get_children():
 		remove_child(child)
@@ -147,6 +170,7 @@ func _build_ui() -> void:
 	_set_default_advisor()
 
 	_confirm_button = Button.new()
+	_confirm_button.name = "ConfirmPolicyButton"
 	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "确认政策"
 	_confirm_button.disabled = _is_policy_confirmed
 	_confirm_button.custom_minimum_size = Vector2(_dim(160), _dim(64))
@@ -161,6 +185,7 @@ func _build_ui() -> void:
 
 	if _is_replay_open:
 		_open_replay_overlay()
+	_register_guide_targets()
 
 
 func _build_top_row() -> HBoxContainer:
@@ -175,8 +200,73 @@ func _build_top_row() -> HBoxContainer:
 	var default_tags: Variant = _scenario.get("model_tags", ["封闭经济", "短期", "价格刚性", "IS-LM"])
 	tag_bar.call("set_tags", default_tags)
 
+	top_row.add_child(_build_time_label())
+	top_row.add_child(_build_wisdom_panel())
 	top_row.add_child(_build_scale_controls())
 	return top_row
+
+
+func _build_time_label() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "QuarterTimeLabel"
+	panel.add_theme_stylebox_override("panel", _make_compact_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(12))
+	margin.add_theme_constant_override("margin_top", _dim(7))
+	margin.add_theme_constant_override("margin_right", _dim(12))
+	margin.add_theme_constant_override("margin_bottom", _dim(7))
+	panel.add_child(margin)
+
+	var label: Label = Label.new()
+	label.text = NarrativeManager.get_current_quarter_label(GameState.current_scenario_id)
+	label.add_theme_font_size_override("font_size", _font(15))
+	label.modulate = Color(0.92, 0.80, 0.46)
+	margin.add_child(label)
+	return panel
+
+
+func _build_wisdom_panel() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "WisdomPanel"
+	panel.add_theme_stylebox_override("panel", _make_compact_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(10))
+	margin.add_theme_constant_override("margin_top", _dim(6))
+	margin.add_theme_constant_override("margin_right", _dim(10))
+	margin.add_theme_constant_override("margin_bottom", _dim(6))
+	panel.add_child(margin)
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(8))
+	margin.add_child(row)
+
+	_wisdom_label = Label.new()
+	_wisdom_label.name = "WisdomPointsLabel"
+	_wisdom_label.custom_minimum_size = Vector2(_dim(86), _dim(30))
+	_wisdom_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_wisdom_label.add_theme_font_size_override("font_size", _font(14))
+	row.add_child(_wisdom_label)
+
+	_request_hint_button = Button.new()
+	_request_hint_button.name = "RequestHintButton"
+	_request_hint_button.text = "请求提示"
+	_request_hint_button.custom_minimum_size = Vector2(_dim(82), _dim(32))
+	_request_hint_button.add_theme_font_size_override("font_size", _font(14))
+	_request_hint_button.pressed.connect(_on_request_hint_pressed)
+	row.add_child(_request_hint_button)
+
+	_review_hint_button = Button.new()
+	_review_hint_button.name = "ReviewHintButton"
+	_review_hint_button.text = "回看"
+	_review_hint_button.custom_minimum_size = Vector2(_dim(54), _dim(32))
+	_review_hint_button.add_theme_font_size_override("font_size", _font(14))
+	_review_hint_button.pressed.connect(_on_review_hint_pressed)
+	row.add_child(_review_hint_button)
+
+	_refresh_wisdom_ui()
+	return panel
 
 
 func _build_scale_controls() -> PanelContainer:
@@ -229,6 +319,8 @@ func _build_scale_controls() -> PanelContainer:
 func _build_problem_banner() -> PanelContainer:
 	var scenario: Dictionary = _get_current_scenario()
 	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "ProblemPanel"
+	_problem_panel = panel
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _make_problem_panel_style())
 
@@ -256,6 +348,8 @@ func _build_problem_banner() -> PanelContainer:
 
 func _build_policy_column() -> VBoxContainer:
 	var column: VBoxContainer = VBoxContainer.new()
+	column.name = "PolicyCardsArea"
+	_policy_column = column
 	column.custom_minimum_size = Vector2(_dim(250), 0)
 	column.add_theme_constant_override("separation", _dim(12))
 
@@ -263,6 +357,7 @@ func _build_policy_column() -> VBoxContainer:
 	_add_wrapped_label(column, _selection_mode_text(), Color(0.72, 0.86, 1.0), 15)
 	if _is_budget_mode():
 		_policy_points_label = Label.new()
+		_policy_points_label.name = "PolicyPointsArea"
 		_policy_points_label.text = _policy_points_text()
 		_policy_points_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_policy_points_label.modulate = Color(0.92, 0.80, 0.46)
@@ -286,6 +381,8 @@ func _build_policy_column() -> VBoxContainer:
 
 func _build_map_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "MacroMapPanel"
+	_map_panel = panel
 	panel.custom_minimum_size = Vector2(_dim(560), _dim(520))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _make_map_panel_style())
@@ -312,6 +409,7 @@ func _build_map_panel() -> PanelContainer:
 	title_row.add_child(title)
 
 	_theory_button = Button.new()
+	_theory_button.name = "TheoryPanelButton"
 	_theory_button.text = "关闭理论" if _is_theory_open else "图表/理论"
 	_theory_button.custom_minimum_size = Vector2(_dim(112), _dim(38))
 	_theory_button.add_theme_font_size_override("font_size", _font(16))
@@ -341,6 +439,7 @@ func _build_map_panel() -> PanelContainer:
 		grid.add_child(region)
 
 	_theory_panel = _build_theory_panel()
+	_theory_panel.name = "TheoryPanel"
 	_theory_panel.visible = _is_theory_open
 	box.add_child(_theory_panel)
 
@@ -381,6 +480,8 @@ func _build_theory_graph(scenario: Dictionary) -> Control:
 
 func _build_right_column() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "RightInfoPanel"
+	_right_panel = panel
 	panel.custom_minimum_size = Vector2(_dim(282), _dim(520))
 	panel.add_theme_stylebox_override("panel", _make_right_panel_style())
 
@@ -400,6 +501,8 @@ func _build_right_column() -> PanelContainer:
 
 func _show_current_state_panel() -> void:
 	_clear_right_panel()
+	_model_replay_button = null
+	_summary_button = null
 	var scenario: Dictionary = _get_current_scenario()
 	var variables: Dictionary = GameState.get_current_state()
 
@@ -442,6 +545,8 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		_add_stat_row(_right_panel_box, key, after, before)
 	if _has_islm_graph_result(result):
 		var replay_button: Button = Button.new()
+		replay_button.name = "ModelReplayButton"
+		_model_replay_button = replay_button
 		replay_button.text = "查看模型回放"
 		replay_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
 		replay_button.add_theme_font_size_override("font_size", _font(16))
@@ -449,11 +554,14 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		_right_panel_box.add_child(replay_button)
 
 	var summary_button: Button = Button.new()
+	summary_button.name = "RoundSummaryButton"
+	_summary_button = summary_button
 	summary_button.text = "本轮总结"
 	summary_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
 	summary_button.add_theme_font_size_override("font_size", _font(16))
 	summary_button.pressed.connect(_on_round_summary_pressed)
 	_right_panel_box.add_child(summary_button)
+	_register_guide_targets()
 
 
 func _set_default_advisor() -> void:
@@ -719,7 +827,13 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 	_refresh_card_selection()
 	AudioManager.play_sfx(&"card_play")
 	_advisor_panel.call("set_advisor", "政策秘书", _selection_message(policy_name))
-
+	_register_guide_targets()
+	NarrativeManager.play_tutorial_once(
+		self,
+		"confirm_policy_intro_v1",
+		NarrativeManager.confirm_policy_steps(),
+		_guide_targets
+	)
 
 func _on_confirm_policy() -> void:
 	if _is_policy_confirmed:
@@ -735,13 +849,20 @@ func _on_confirm_policy() -> void:
 	_last_result = MacroEngine.calculate_result(_scenario, _selected_policies, _current_state())
 	GameState.set_last_result(_last_result)
 	_show_policy_result_panel(_last_result)
+	_register_guide_targets()
 	_confirm_button.text = "政策已确认"
 	_confirm_button.disabled = true
 
 	var summary: String = str(_last_result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
 	_advisor_panel.call("set_advisor", "会议记录", _confirmed_meeting_log(summary))
 	AudioManager.play_sfx(&"card_play")
-
+	if _model_replay_button != null:
+		NarrativeManager.play_tutorial_once(
+			self,
+			"model_replay_button_intro_v1",
+			NarrativeManager.replay_button_steps(),
+			_guide_targets
+		)
 
 func _on_round_summary_pressed() -> void:
 	if _last_result.is_empty():
@@ -782,11 +903,19 @@ func _open_replay_overlay() -> void:
 	_replay_overlay.add_child(overlay_margin)
 
 	var replay_panel: PanelContainer = ISLMReplayPanelScene.instantiate() as PanelContainer
+	replay_panel.name = "ModelReplayWindow"
 	replay_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	replay_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	replay_panel.call("setup", _last_result, _scenario, _ui_scale)
 	replay_panel.connect("closed", _on_replay_closed)
 	overlay_margin.add_child(replay_panel)
+	_register_guide_targets()
+	NarrativeManager.play_tutorial_once(
+		self,
+		"model_replay_window_intro_v1",
+		NarrativeManager.replay_window_steps(),
+		_guide_targets
+	)
 
 
 func _on_replay_closed() -> void:
@@ -833,6 +962,79 @@ func _refresh_initial_layout() -> void:
 		_content_margin.queue_sort()
 	if _outer_margin != null:
 		_outer_margin.queue_sort()
+	_register_guide_targets()
+
+
+func _register_guide_targets() -> void:
+	_guide_targets = {
+		"problem_panel": _problem_panel,
+		"theory_panel": _theory_button,
+		"theory_button": _theory_button,
+		"macro_map": _map_panel,
+		"map_panel": _map_panel,
+		"policy_cards": _policy_column,
+		"policy_points_area": _policy_points_label,
+		"right_info_panel": _right_panel,
+		"confirm_policy_button": _confirm_button,
+		"model_replay_button": _model_replay_button,
+		"round_summary_button": _summary_button,
+		"wisdom_panel": _wisdom_label
+	}
+	if _replay_overlay != null:
+		_guide_targets["model_replay_window"] = _replay_overlay
+
+
+func _maybe_start_policy_desk_guides() -> void:
+	_register_guide_targets()
+	if GameState.current_round != 1 or _is_policy_confirmed:
+		return
+	if _is_first_level_scenario():
+		NarrativeManager.play_tutorial_once(
+			self,
+			"policy_desk_intro_v1",
+			NarrativeManager.basic_policy_desk_steps(),
+			_guide_targets,
+			Callable(self, "_on_policy_desk_intro_finished")
+		)
+	if _is_budget_mode():
+		NarrativeManager.play_tutorial_once(
+			self,
+			"budget_mode_intro_v1",
+			NarrativeManager.budget_intro_steps(),
+			_guide_targets
+		)
+
+
+func _on_policy_desk_intro_finished() -> void:
+	NarrativeManager.play_tutorial_once(
+		self,
+		"wisdom_points_intro_v1",
+		NarrativeManager.wisdom_intro_steps(),
+		_guide_targets
+	)
+
+
+func _is_first_level_scenario() -> bool:
+	return GameState.current_scenario_id.begins_with("consumer_confidence_drop")
+
+
+func _refresh_wisdom_ui() -> void:
+	if _wisdom_label != null:
+		_wisdom_label.text = "智慧点数：%d" % NarrativeManager.get_wisdom_points()
+	if _review_hint_button != null:
+		var unlocked_variant: Variant = NarrativeManager.unlocked_hints.get(GameState.current_scenario_id, [])
+		_review_hint_button.disabled = not (unlocked_variant is Array and (unlocked_variant as Array).size() > 0)
+
+
+func _on_request_hint_pressed() -> void:
+	_register_guide_targets()
+	NarrativeManager.request_hint(self, GameState.current_scenario_id, _guide_targets)
+	_refresh_wisdom_ui()
+
+
+func _on_review_hint_pressed() -> void:
+	_register_guide_targets()
+	NarrativeManager.replay_unlocked_hints(self, GameState.current_scenario_id, _guide_targets)
 
 
 func _clear_right_panel() -> void:

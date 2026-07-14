@@ -3,9 +3,13 @@ extends Control
 const ScoreEngine = preload("res://scripts/engine/ScoreEngine.gd")
 const CONTENT_WIDTH: float = 1100.0
 
+var _score_panel: PanelContainer
+var _guide_targets: Dictionary = {}
+
 
 func _ready() -> void:
 	_build_ui()
+	call_deferred("_maybe_start_score_guide")
 
 
 func _build_ui() -> void:
@@ -138,6 +142,8 @@ func _build_learning_summary_panel() -> PanelContainer:
 
 func _build_score_panel() -> PanelContainer:
 	var panel: PanelContainer = _new_panel(Vector2(0, 380))
+	panel.name = "ScorePanel"
+	_score_panel = panel
 	var box: VBoxContainer = _panel_content(panel, "评分系统")
 	var scenario: Dictionary = GameState.get_current_scenario()
 	var score_result: Dictionary = ScoreEngine.calculate_score(scenario, GameState.round_history, GameState.get_initial_state(), _final_state())
@@ -168,7 +174,18 @@ func _build_score_panel() -> PanelContainer:
 	_add_section_label(box, "评分边界")
 	_add_paragraph(box, str(score_result.get("scope_note", "")), Color(0.70, 0.78, 0.84), 14)
 	return panel
-
+func _maybe_start_score_guide() -> void:
+	_guide_targets = {"score_panel": _score_panel}
+	var scenario: Dictionary = GameState.get_current_scenario()
+	var score_result: Dictionary = ScoreEngine.calculate_score(scenario, GameState.round_history, GameState.get_initial_state(), _final_state())
+	if not bool(score_result.get("enabled", false)):
+		return
+	NarrativeManager.play_tutorial_once(
+		self,
+		"score_panel_intro_v1",
+		NarrativeManager.score_steps(),
+		_guide_targets
+	)
 
 func _build_long_term_panel() -> PanelContainer:
 	var panel: PanelContainer = _new_panel()
