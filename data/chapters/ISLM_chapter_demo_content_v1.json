@@ -1,0 +1,561 @@
+{
+  "schema_version": "islm_chapter_content_v1",
+  "generated_for": "Macro Policy Manager / 宏观政策管理器",
+  "chapter": {
+    "chapter_id": "chapter_01_islm",
+    "chapter_title": "第一章：短期需求管理与 IS-LM 模型",
+    "chapter_position": 1,
+    "chapter_description": "玩家作为国家治理者，在封闭经济、短期价格粘性背景下，通过财政政策与货币政策处理短期宏观波动。",
+    "common_model_type": "IS_LM",
+    "common_model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM"
+    ],
+    "common_assumptions": [
+      "本章使用封闭经济短期 IS-LM 框架。",
+      "本章默认价格具有粘性，短期内不会充分调整。",
+      "本章重点解释产出 Y 与利率 i 的短期均衡变化。",
+      "本章中的“通胀压力”不是标准 IS-LM 模型内生的实际通胀率，而是根据产出缺口和需求强弱推断出的价格压力指标。",
+      "实际价格水平和通胀率的完整调整机制将在 AD-AS 章节中讨论。"
+    ],
+    "content_stage": "stage_2_demo_text",
+    "implementation_note": "本文件用于给 Codex 合并进现有 scenarios.json。字段名尽量贴近当前项目中的 scenario 字段，但不要求直接覆盖现有文件；请让 Codex 根据现有数据结构进行合并、拆分 basic/training scenario，并保留当前已可用的模型参数、政策卡、评分配置。"
+  },
+  "recommended_policy_ids": {
+    "expansionary": [
+      "increase_government_purchase",
+      "expansionary_monetary_policy",
+      "tax_cut",
+      "keep_policy_unchanged"
+    ],
+    "contractionary": [
+      "contractionary_fiscal_policy",
+      "contractionary_monetary_policy",
+      "keep_policy_unchanged"
+    ],
+    "mixed": [
+      "increase_government_purchase",
+      "expansionary_monetary_policy",
+      "tax_cut",
+      "contractionary_fiscal_policy",
+      "contractionary_monetary_policy",
+      "keep_policy_unchanged"
+    ]
+  },
+  "levels": [
+    {
+      "level_order": 1,
+      "level_id": "consumer_confidence_drop",
+      "level_name": "消费信心下滑",
+      "scenario_ids": {
+        "basic": "consumer_confidence_drop_basic",
+        "training": "consumer_confidence_drop_training"
+      },
+      "level_type": "新手教学关 / 基础训练关",
+      "difficulty": 1,
+      "hint_strength": "高",
+      "enabled_modes": {
+        "basic": true,
+        "training": true
+      },
+      "model_type": "IS_LM",
+      "model_tags": [
+        "封闭经济",
+        "短期",
+        "价格粘性",
+        "IS-LM",
+        "需求不足"
+      ],
+      "shock_source": "居民消费信心下降",
+      "core_variables": [
+        "C ↓"
+      ],
+      "shock_type": "IS_LEFT",
+      "curve_shift": "IS 左移",
+      "main_problem": "消费不足导致总需求下降，产出和就业承压。",
+      "governance_goal": "恢复总需求，使产出接近参考水平，同时避免债务和通胀压力过高。",
+      "problem_title": "消费信心下滑",
+      "problem_description": "近期，N市居民消费意愿明显转弱。商场客流、餐饮订单和耐用品消费同步下降，居民更倾向于增加储蓄、推迟大额消费。消费支出下降使总需求不足，经济面临产出下滑和就业承压的风险。",
+      "story_steps": [
+        {
+          "step": 1,
+          "title": "新闻快讯：商圈客流转弱",
+          "body": "N市宏观运行监测中心发布报告：过去两周，河西商圈、南港购物中心等重点商业区客流量较上月下降。TCP智能家电、云禾餐饮、岚桥文旅等企业反馈，家电、外出就餐和短途旅游订单均出现不同程度回落。"
+        },
+        {
+          "step": 2,
+          "title": "居民访谈：先把钱存下来",
+          "body": "N市部分居民在采访中表示，虽然当前收入还算稳定，但对未来就业和收入增长存在不确定感。一位居民说：“本来打算换一台新冰箱，但最近还是先缓一缓，把钱存下来更安心。”"
+        },
+        {
+          "step": 3,
+          "title": "顾问判断：消费信心下降",
+          "body": "消费是总需求的重要组成部分。居民推迟消费、增加储蓄，会导致消费 C 下降，总需求走弱。在短期价格粘性条件下，这会推动 IS 曲线左移，并带来产出下降和就业压力。"
+        }
+      ],
+      "model_hint": "核心变量：C ↓，总需求下降，IS 曲线左移。",
+      "theory_panel_note": "本面板展示消费信心下降这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+      "learning_points": [
+        "消费信心下降会导致消费 C 减少，总需求走弱，IS 曲线左移。",
+        "扩张性财政政策可以通过提高自主支出 A 缓解需求不足。",
+        "扩张性货币政策可以降低利率压力，支持投资和产出恢复。",
+        "政策目标不是单纯让产出越高越好，而是让产出接近参考水平，同时控制债务和通胀压力。"
+      ],
+      "suggested_available_policies": [
+        "increase_government_purchase",
+        "expansionary_monetary_policy",
+        "tax_cut"
+      ],
+      "scoring_focus": [
+        "产出是否接近参考水平",
+        "失业是否改善",
+        "通胀压力是否可控",
+        "债务压力是否可控",
+        "政策点数使用效率"
+      ]
+    },
+    {
+      "level_order": 2,
+      "level_id": "investment_confidence_drop",
+      "level_name": "投资信心下降",
+      "scenario_ids": {
+        "basic": "investment_confidence_drop_basic",
+        "training": "investment_confidence_drop_training"
+      },
+      "level_type": "基础训练关",
+      "difficulty": 1,
+      "hint_strength": "中高",
+      "enabled_modes": {
+        "basic": true,
+        "training": true
+      },
+      "model_type": "IS_LM",
+      "model_tags": [
+        "封闭经济",
+        "短期",
+        "价格粘性",
+        "IS-LM",
+        "投资不足"
+      ],
+      "shock_source": "企业投资意愿下降",
+      "core_variables": [
+        "I ↓"
+      ],
+      "shock_type": "IS_LEFT",
+      "curve_shift": "IS 左移",
+      "main_problem": "投资下降导致需求不足，产出下降，并可能影响未来生产扩张。",
+      "governance_goal": "恢复投资与产出，使 Y 和 I 回到较合理水平，同时控制债务和政策成本。",
+      "problem_title": "投资信心下降",
+      "problem_description": "企业对未来订单和市场需求转为谨慎，部分龙头企业推迟扩产计划，设备采购和中长期贷款需求下降。投资支出减少削弱了当前总需求，也可能影响未来生产能力和就业吸纳。",
+      "story_steps": [
+        {
+          "step": 1,
+          "title": "企业调查：扩产项目推迟",
+          "body": "最新企业景气调查显示，江麓装备、东曜电子、宁星汽车零部件等多家企业推迟了原定扩产计划。部分企业表示，海外订单和国内需求都存在不确定性，短期内更倾向于保留现金流。"
+        },
+        {
+          "step": 2,
+          "title": "银行反馈：中长期贷款需求下降",
+          "body": "华东城市银行和N市商业银行反馈，企业设备贷款和项目融资申请减少。某制造企业负责人表示：“现在不是完全没有订单，而是看不清未来半年需求，所以新的生产线暂时不敢上。”"
+        },
+        {
+          "step": 3,
+          "title": "顾问判断：投资信心下降",
+          "body": "投资 I 是总需求的重要组成部分。企业投资意愿下降会直接压低总需求，使 IS 曲线左移。虽然它和消费信心下降的现实来源不同，但在 IS-LM 模型中都会表现为需求不足和产出下行压力。"
+        }
+      ],
+      "model_hint": "核心变量：I ↓，总需求下降，IS 曲线左移。",
+      "theory_panel_note": "本面板展示投资信心下降这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+      "learning_points": [
+        "投资信心下降会导致投资 I 减少，总需求走弱，IS 曲线左移。",
+        "消费下降和投资下降的现实来源不同，但在 IS-LM 图中都可能表现为 IS 左移。",
+        "扩张性货币政策可以通过降低利率压力支持投资恢复。",
+        "财政扩张可以提高总需求，但需要注意债务压力和政策效率。"
+      ],
+      "suggested_available_policies": [
+        "increase_government_purchase",
+        "expansionary_monetary_policy",
+        "tax_cut"
+      ],
+      "scoring_focus": [
+        "产出恢复程度",
+        "投资恢复程度",
+        "失业改善程度",
+        "债务压力控制",
+        "政策点数使用效率"
+      ]
+    },
+    {
+      "level_order": 3,
+      "level_id": "money_market_tightening",
+      "level_name": "货币市场紧张",
+      "scenario_ids": {
+        "basic": "money_market_tightening_basic",
+        "training": "money_market_tightening_training"
+      },
+      "level_type": "基础训练关",
+      "difficulty": 2,
+      "hint_strength": "中高",
+      "enabled_modes": {
+        "basic": true,
+        "training": true
+      },
+      "model_type": "IS_LM",
+      "model_tags": [
+        "封闭经济",
+        "短期",
+        "价格粘性",
+        "IS-LM",
+        "货币市场紧张"
+      ],
+      "shock_source": "居民和企业流动性偏好上升，货币需求增加",
+      "core_variables": [
+        "L ↑"
+      ],
+      "shock_type": "LM_LEFT",
+      "curve_shift": "LM 左移 / 上移",
+      "main_problem": "利率上升，投资受抑制，产出下降。",
+      "governance_goal": "缓解利率上行压力，恢复投资和产出，避免因融资紧张导致经济进一步下滑。",
+      "problem_title": "货币市场紧张",
+      "problem_description": "市场不确定性上升后，居民和企业更愿意持有现金与高流动性资产，货币需求明显增加。资金面趋紧推高利率，企业融资成本上升，投资和产出受到抑制。",
+      "story_steps": [
+        {
+          "step": 1,
+          "title": "金融市场：流动性偏好上升",
+          "body": "安澜证券发布市场观察称，近期企业和居民部门的流动性偏好明显增强。企业更愿意保留现金头寸，居民也增加了活期存款和短期理财配置。"
+        },
+        {
+          "step": 2,
+          "title": "银行反馈：资金面开始偏紧",
+          "body": "华东城市银行资金部报告显示，短期资金利率出现上行。部分中小企业反映，贷款审批更加谨慎，融资成本较前期有所抬升。"
+        },
+        {
+          "step": 3,
+          "title": "顾问判断：货币需求增加",
+          "body": "在货币供给不变的情况下，货币需求上升会推高均衡利率，使 LM 曲线左移或上移。利率上升会抑制投资，并通过投资渠道压低产出。"
+        }
+      ],
+      "model_hint": "核心变量：L ↑，利率上升压力增加，LM 曲线左移 / 上移。",
+      "theory_panel_note": "本面板展示货币需求上升这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+      "learning_points": [
+        "不是所有产出下降都来自商品市场需求不足。",
+        "货币需求上升会使 LM 曲线左移或上移，推高利率。",
+        "利率上升会抑制投资，进一步影响产出和就业。",
+        "当问题主要来自货币市场紧张时，扩张性货币政策通常更有针对性。"
+      ],
+      "suggested_available_policies": [
+        "expansionary_monetary_policy",
+        "increase_government_purchase",
+        "tax_cut"
+      ],
+      "scoring_focus": [
+        "利率是否回落",
+        "投资是否恢复",
+        "产出是否恢复",
+        "是否避免不必要的债务上升",
+        "政策点数使用效率"
+      ]
+    },
+    {
+      "level_order": 4,
+      "level_id": "overheating_and_cooling",
+      "level_name": "经济过热与政策降温",
+      "scenario_ids": {
+        "basic": "overheating_and_cooling_basic",
+        "training": "overheating_and_cooling_training"
+      },
+      "level_type": "反向政策训练关",
+      "difficulty": 3,
+      "hint_strength": "中",
+      "enabled_modes": {
+        "basic": true,
+        "training": true
+      },
+      "model_type": "IS_LM",
+      "model_tags": [
+        "封闭经济",
+        "短期",
+        "价格粘性",
+        "IS-LM",
+        "经济过热",
+        "收缩政策"
+      ],
+      "shock_source": "需求扩张过快，可能来自消费繁荣、投资繁荣或前期政策刺激过度",
+      "core_variables": [
+        "A ↑",
+        "Y 高于参考水平"
+      ],
+      "shock_type": "IS_RIGHT",
+      "curve_shift": "IS 右移",
+      "main_problem": "产出高于参考水平，通胀压力上升，经济存在过热风险。",
+      "governance_goal": "让产出回到参考水平附近，降低通胀压力，同时避免过度收缩导致经济重新下滑。",
+      "problem_title": "经济过热与政策降温",
+      "problem_description": "前期消费和投资持续升温，部分行业订单快速增加，产出已经高于参考水平。经济表面繁荣，但劳动力、原材料和融资需求同步紧张，通胀压力开始积累。政策目标从刺激转向适度降温。",
+      "story_steps": [
+        {
+          "step": 1,
+          "title": "市场观察：需求持续升温",
+          "body": "N市统计局快报显示，近期消费、房地产相关服务和制造业投资均保持较快增长。宁星汽车、东曜电子等企业订单排期延长，部分行业出现加班生产和用工紧张。"
+        },
+        {
+          "step": 2,
+          "title": "价格信号：成本压力抬头",
+          "body": "宏观运行监测中心发现，原材料采购价格、部分服务价格和企业用工成本开始上升。虽然价格具有粘性，不会立刻充分调整，但多个部门已经出现通胀压力信号。"
+        },
+        {
+          "step": 3,
+          "title": "顾问判断：经济可能过热",
+          "body": "总需求扩张会推动 IS 曲线右移，使产出高于参考水平。短期内这会表现为经济繁荣，但如果超过合理区间，可能带来通胀压力和政策降温需求。"
+        }
+      ],
+      "model_hint": "核心变量：A ↑，总需求扩张，IS 曲线右移，产出高于参考水平。",
+      "theory_panel_note": "本面板展示需求扩张过快这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+      "learning_points": [
+        "IS 曲线右移会提高短期产出，但产出过高并不一定是好事。",
+        "宏观政策目标是稳定经济，而不是让产出无限上升。",
+        "当经济出现过热风险时，收缩性财政政策或收缩性货币政策可以帮助降温。",
+        "政策收缩也需要适度，过度收缩可能导致产出重新下滑。"
+      ],
+      "suggested_available_policies": [
+        "contractionary_fiscal_policy",
+        "contractionary_monetary_policy",
+        "keep_policy_unchanged"
+      ],
+      "scoring_focus": [
+        "产出是否回到参考水平附近",
+        "通胀压力是否下降",
+        "是否避免过度收缩",
+        "债务压力是否可控",
+        "政策点数使用效率"
+      ]
+    },
+    {
+      "level_order": 5,
+      "level_id": "fiscal_expansion_crowding_out",
+      "level_name": "财政扩张与挤出效应",
+      "scenario_ids": {
+        "training": "fiscal_expansion_crowding_out_training"
+      },
+      "level_type": "机制深化关",
+      "difficulty": 4,
+      "hint_strength": "低",
+      "enabled_modes": {
+        "basic": false,
+        "training": true
+      },
+      "model_type": "IS_LM",
+      "model_tags": [
+        "封闭经济",
+        "短期",
+        "价格粘性",
+        "IS-LM",
+        "财政扩张",
+        "挤出效应"
+      ],
+      "shock_source": "政府支出扩张或前期财政刺激",
+      "core_variables": [
+        "G ↑",
+        "i ↑",
+        "I 承压"
+      ],
+      "shock_type": "IS_RIGHT",
+      "curve_shift": "IS 右移",
+      "main_problem": "财政扩张提升了产出，但利率上升挤压私人投资。",
+      "governance_goal": "在保持产出稳定的同时，缓解私人投资偏低问题，并控制债务压力。",
+      "problem_title": "财政扩张与挤出效应",
+      "problem_description": "政府此前推出了较大规模公共支出计划，短期内产出得到支撑。但随着总需求扩张，利率出现上行，部分企业的融资成本提高，私人投资恢复不及预期。当前治理目标不只是维持产出，还要缓解私人投资偏低问题。",
+      "story_steps": [
+        {
+          "step": 1,
+          "title": "政策新闻：公共投资快速推进",
+          "body": "国家发展署通报，南港交通枢纽、江北产业园配套工程等公共项目加快推进。基建、建筑材料和设备采购需求明显增加，短期内带动了产出回升。"
+        },
+        {
+          "step": 2,
+          "title": "企业反馈：融资成本挤压投资",
+          "body": "江麓装备和星河机器人等企业反馈，虽然公共项目带动了订单，但市场利率上升后，企业扩产融资成本提高。一些原本计划中的设备更新项目被推迟。"
+        },
+        {
+          "step": 3,
+          "title": "顾问判断：财政扩张可能挤出私人投资",
+          "body": "政府购买 G 增加会提高总需求，使 IS 曲线右移，产出上升。但在货币市场条件给定时，产出扩张会推高利率，可能挤出部分私人投资。"
+        }
+      ],
+      "model_hint": "核心变量：G ↑，IS 曲线右移；利率 i 上升，私人投资 I 承压。",
+      "theory_panel_note": "本面板展示财政扩张冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+      "learning_points": [
+        "财政扩张可以提高短期产出，但也可能推高利率。",
+        "利率上升会增加企业融资成本，从而挤出部分私人投资。",
+        "这一关的治理目标不是简单压低利率，而是在稳定产出的同时让私人投资恢复到较好水平。",
+        "财政政策和货币政策的组合会影响产出、利率、投资和债务压力之间的权衡。"
+      ],
+      "suggested_available_policies": [
+        "expansionary_monetary_policy",
+        "contractionary_fiscal_policy",
+        "contractionary_monetary_policy",
+        "keep_policy_unchanged"
+      ],
+      "scoring_focus": [
+        "私人投资是否恢复",
+        "产出是否稳定",
+        "利率是否过度上升",
+        "债务压力是否可控",
+        "政策点数使用效率"
+      ]
+    },
+    {
+      "level_order": 6,
+      "level_id": "double_shock_investment_and_money_demand",
+      "level_name": "双重冲击：投资下降与货币需求上升",
+      "scenario_ids": {
+        "training": "double_shock_investment_and_money_demand_training"
+      },
+      "level_type": "综合挑战关",
+      "difficulty": 5,
+      "hint_strength": "低",
+      "enabled_modes": {
+        "basic": false,
+        "training": true
+      },
+      "model_type": "IS_LM",
+      "model_tags": [
+        "封闭经济",
+        "短期",
+        "价格粘性",
+        "IS-LM",
+        "双重冲击",
+        "政策组合"
+      ],
+      "shock_source": "企业投资信心下降 + 货币需求上升",
+      "core_variables": [
+        "I ↓",
+        "L ↑"
+      ],
+      "shock_type": "IS_LEFT_AND_LM_LEFT",
+      "curve_shift": "IS 左移 + LM 左移 / 上移",
+      "main_problem": "产出明显下降，投资偏弱，利率压力复杂。",
+      "governance_goal": "恢复产出和投资，同时缓解货币市场紧张，避免单一政策造成债务、利率或通胀压力副作用。",
+      "problem_title": "双重冲击：投资下降与货币需求上升",
+      "problem_description": "经济同时受到商品市场和货币市场冲击。一方面，企业投资信心下降，扩产计划收缩；另一方面，居民和企业流动性偏好上升，货币需求增加。两个冲击叠加，使产出、投资和利率同时承压。",
+      "story_steps": [
+        {
+          "step": 1,
+          "title": "企业部门：投资计划明显收缩",
+          "body": "江麓装备、宁星汽车零部件、东曜电子等企业相继下调年度资本开支计划。企业普遍表示，未来订单能见度下降，新增产线和设备更新计划暂缓。"
+        },
+        {
+          "step": 2,
+          "title": "金融市场：资金避险需求上升",
+          "body": "安澜证券和华东城市银行同时报告，企业和居民部门短期流动性需求上升。更多资金流向现金、短期存款和安全资产，融资市场出现偏紧迹象。"
+        },
+        {
+          "step": 3,
+          "title": "顾问判断：IS 与 LM 同时承压",
+          "body": "投资下降会导致 IS 曲线左移；货币需求上升会导致 LM 曲线左移或上移。两类冲击叠加后，产出下行压力更强，单一政策可能难以同时解决所有问题。"
+        }
+      ],
+      "model_hint": "核心变量：I ↓，L ↑；IS 曲线左移，LM 曲线左移 / 上移。",
+      "theory_panel_note": "本面板展示双重外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+      "learning_points": [
+        "现实经济中可能同时出现商品市场和货币市场冲击。",
+        "投资下降会压低总需求，使 IS 曲线左移。",
+        "货币需求上升会推高利率，使 LM 曲线左移或上移。",
+        "组合政策可以同时作用于 IS 和 LM，但也需要控制债务、通胀压力和政策点数。"
+      ],
+      "suggested_available_policies": [
+        "increase_government_purchase",
+        "expansionary_monetary_policy",
+        "tax_cut",
+        "keep_policy_unchanged"
+      ],
+      "scoring_focus": [
+        "产出是否恢复",
+        "投资是否恢复",
+        "利率压力是否缓解",
+        "债务压力是否可控",
+        "政策点数使用效率"
+      ]
+    },
+    {
+      "level_order": 7,
+      "level_id": "two_round_stabilization_challenge",
+      "level_name": "两回合综合治理挑战",
+      "scenario_ids": {
+        "training": "two_round_stabilization_challenge_training"
+      },
+      "level_type": "最终挑战关",
+      "difficulty": 5,
+      "hint_strength": "低或无",
+      "enabled_modes": {
+        "basic": false,
+        "training": true
+      },
+      "model_type": "IS_LM",
+      "model_tags": [
+        "封闭经济",
+        "短期",
+        "价格粘性",
+        "IS-LM",
+        "多回合治理",
+        "综合挑战"
+      ],
+      "shock_source": "初始经济偏弱，后续政策可能导致过热、债务压力或利率压力",
+      "core_variables": [
+        "Y",
+        "I",
+        "u",
+        "i",
+        "Debt",
+        "通胀压力"
+      ],
+      "shock_type": "COMPREHENSIVE_WEAK_DEMAND",
+      "curve_shift": "初始需求偏弱；后续曲线移动根据玩家政策组合变化",
+      "main_problem": "需要在产出、就业、投资、利率、债务和通胀压力之间权衡。",
+      "governance_goal": "经过两回合治理后，使产出接近参考水平，投资和就业改善，通胀压力与债务压力保持可控。",
+      "problem_title": "两回合综合治理挑战",
+      "problem_description": "国家经济进入复杂治理阶段。当前产出仍低于参考水平，投资和就业恢复不稳，但政策空间已经有限。刺激不足会导致恢复乏力，刺激过度又可能带来通胀压力、债务压力或利率压力。你需要在两回合内制定政策组合，让经济回到稳定区间。",
+      "story_steps": [
+        {
+          "step": 1,
+          "title": "综合报告：经济恢复仍不稳固",
+          "body": "国家宏观运行监测中心发布综合报告：产出仍低于参考水平，投资恢复偏弱，就业市场尚未完全稳定。部分行业订单改善，但企业信心仍然不足。"
+        },
+        {
+          "step": 2,
+          "title": "政策约束：财政和货币空间有限",
+          "body": "财政部门提醒，前期政策已经推高债务压力；中央银行也提示，过度宽松可能累积通胀压力和金融风险。政策资源有限，不能简单依赖单一路径。"
+        },
+        {
+          "step": 3,
+          "title": "顾问判断：进入综合治理阶段",
+          "body": "当前问题不能只看单一指标。你需要同时观察产出、投资、失业、利率、债务和通胀压力，在两回合内选择政策组合，实现稳定恢复。"
+        }
+      ],
+      "model_hint": "核心变量：Y、I、u、i、Debt、通胀压力；需要在多目标之间权衡。",
+      "theory_panel_note": "本面板展示本关初始经济压力和治理重点；政策效果将在执行后通过模型回放查看。",
+      "learning_points": [
+        "宏观治理不是单一变量最大化，而是在多个目标之间寻找平衡。",
+        "两回合治理中，第一回合政策会影响第二回合的起点。",
+        "刺激不足会导致恢复不充分，刺激过度也可能带来通胀压力、债务压力或利率压力。",
+        "最终目标是让经济回到相对稳定的参考区间。"
+      ],
+      "suggested_available_policies": [
+        "increase_government_purchase",
+        "expansionary_monetary_policy",
+        "tax_cut",
+        "contractionary_fiscal_policy",
+        "contractionary_monetary_policy",
+        "keep_policy_unchanged"
+      ],
+      "scoring_focus": [
+        "最终产出是否接近参考值",
+        "投资和就业是否改善",
+        "通胀压力是否可控",
+        "债务压力是否可控",
+        "政策点数使用效率"
+      ]
+    }
+  ]
+}

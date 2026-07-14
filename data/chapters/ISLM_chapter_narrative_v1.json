@@ -1,0 +1,1171 @@
+{
+  "schema_version": "1.0",
+  "file_name": "ISLM_chapter_narrative_v1.json",
+  "purpose": "IS-LM章节剧情引导、按需新手引导、智慧点数提示、季度推进的可实现数据草案。用于在剧情系统框架完成后接入游戏。",
+  "integration_notes": [
+    "本文件只提供剧情与引导数据，不替代关卡基础内容文件 ISLM_chapter_demo_content_v1.json。",
+    "建议 Codex 先完成 NarrativeManager、DialogueOverlay、WisdomPointSystem、UIHighlightManager 后再接入本文件。",
+    "dialogue step 中的 target 为抽象 UI 目标名，Codex 需要根据当前 Godot 场景节点做 target mapping；找不到目标时应 fallback 为无高亮对话。",
+    "多人争论第一版采用单句轮流发言，不做双人同屏。",
+    "所有对话均使用底部对话框，显示当前说话人头像/占位头像、说话人名称、发言文本和小字“单击以继续”。",
+    "章节内专业术语主要由首席经济顾问自然引入，大臣主要负责现实汇报，避免所有角色都用教材式语言。"
+  ],
+  "chapter": {
+    "chapter_id": "islm_chapter_1",
+    "title": "第一章：短期需求管理与 IS-LM 模型",
+    "start_time": {
+      "year": 1000,
+      "quarter": 1,
+      "display_format": "公元{year}年 第{quarter_cn}季度"
+    },
+    "time_progression_rule": {
+      "type": "quarterly",
+      "rule": "每个关卡推进一个季度；第1关为公元1000年第一季度，第2关为公元1000年第二季度，第5关为公元1001年第一季度，依此类推。",
+      "avoid_future_spoiler": true,
+      "transition_style": "关卡结束不预告下一关内容；进入新季度后，由首席大臣或相关大臣汇报本季度新发现的问题。"
+    },
+    "assumption_intro_policy": {
+      "speaker_responsibility": "首席经济顾问负责把世界设定自然解释成模型前提。",
+      "terms": [
+        {
+          "term": "封闭经济",
+          "natural_explanation": "暂时只考虑我们这个国家，不考虑对外贸易、汇率和资本流动。"
+        },
+        {
+          "term": "价格粘性",
+          "natural_explanation": "根据以往数据，国内大多数商品和服务价格在短期内不会立刻剧烈调整，因此需求变化会先反映在产出、就业和利率上。"
+        }
+      ],
+      "inflation_pressure_note": "本章中的“通胀压力”不是标准 IS-LM 模型内生的已实现通胀率，而是根据产出缺口和需求强弱推断出的价格压力指标；实际价格水平和通胀率调整留到 AD-AS 章节。"
+    },
+    "dialogue_display_rules": {
+      "mode": "bottom_overlay",
+      "one_step_at_a_time": true,
+      "continue_hint": "单击以继续",
+      "dim_background": true,
+      "highlight_target_region": true,
+      "speaker_avatar_position": "bottom_left",
+      "multi_speaker_mode_v1": "single_sentence_turn_taking",
+      "fallback_if_target_missing": "显示底部对话框和遮罩，但不高亮目标区域。"
+    },
+    "wisdom_points": {
+      "initial_points": 10,
+      "hint_cost": 2,
+      "max_hints_per_level": 3,
+      "hint_levels": [
+        "轻提示",
+        "模型提示",
+        "政策方向提示"
+      ],
+      "confirm_before_unlock": true,
+      "confirm_message_template": "查看第{hint_index}条提示将消耗{cost}点智慧点数。是否确认？",
+      "cancel_behavior": "不扣点，不显示新提示。",
+      "reopen_unlocked_hint_cost": 0,
+      "insufficient_points_message": "智慧点数不足，无法解锁新的提示。",
+      "score_impact_v1": "暂不参与 ScoreEngine 评分；可在最终总结或章节总结中展示剩余点数。"
+    }
+  },
+  "characters": {
+    "chief_minister": {
+      "name": "首席大臣",
+      "avatar": "placeholder_chief_minister",
+      "style": "稳重、统筹、负责季度汇报和治理目标，不频繁使用模型术语。"
+    },
+    "fiscal_minister": {
+      "name": "财政大臣",
+      "avatar": "placeholder_fiscal_minister",
+      "style": "关注财政支出、税收、债务压力和政策空间。"
+    },
+    "central_bank_governor": {
+      "name": "中央银行行长",
+      "avatar": "placeholder_central_bank_governor",
+      "style": "关注利率、货币政策、流动性、通胀压力和金融风险。"
+    },
+    "industry_minister": {
+      "name": "产业大臣",
+      "avatar": "placeholder_industry_minister",
+      "style": "关注企业投资、订单、产出、工业产区和融资环境。"
+    },
+    "livelihood_minister": {
+      "name": "民生大臣",
+      "avatar": "placeholder_livelihood_minister",
+      "style": "关注居民消费、就业、收入预期和社会感受。"
+    },
+    "economic_advisor": {
+      "name": "首席经济顾问",
+      "avatar": "placeholder_economic_advisor",
+      "style": "负责把现实问题直接解释成 IS-LM 模型机制；前期讲得清楚，后期逐渐减少提示。"
+    }
+  },
+  "chapter_opening": [
+    {
+      "speaker_id": "chief_minister",
+      "speaker_name": "首席大臣",
+      "avatar": "placeholder_chief_minister",
+      "text": "陛下，恭喜您正式接管这个国家。眼下，国家经济正在经历一系列短期波动：有时居民不愿消费，有时企业不敢投资，有时金融市场突然紧张，也有时经济过热、价格压力上升。"
+    },
+    {
+      "speaker_id": "fiscal_minister",
+      "speaker_name": "财政大臣",
+      "avatar": "placeholder_fiscal_minister",
+      "text": "国库可以动用财政支出和税收工具，但财政空间不是无限的。每一次扩张，都可能留下债务压力。"
+    },
+    {
+      "speaker_id": "central_bank_governor",
+      "speaker_name": "中央银行行长",
+      "avatar": "placeholder_central_bank_governor",
+      "text": "货币政策可以影响利率和融资环境，但过度宽松也可能积累价格压力和金融风险。"
+    },
+    {
+      "speaker_id": "economic_advisor",
+      "speaker_name": "首席经济顾问",
+      "avatar": "placeholder_economic_advisor",
+      "text": "陛下，在这一章中，我们先把世界简化一下：暂时只考虑我们这个国家，不考虑对外贸易、汇率和资本流动。用经济学语言说，这相当于一个封闭经济。"
+    },
+    {
+      "speaker_id": "economic_advisor",
+      "speaker_name": "首席经济顾问",
+      "avatar": "placeholder_economic_advisor",
+      "text": "另外，根据以往数据，国内大多数商品和服务价格在短期内不会立刻剧烈调整。因此，短期内需求变化通常会先反映在产出、就业和利率上。这个假设叫作价格粘性。"
+    },
+    {
+      "speaker_id": "chief_minister",
+      "speaker_name": "首席大臣",
+      "avatar": "placeholder_chief_minister",
+      "text": "接下来，顾问团会陪您处理第一批宏观经济挑战。前几次我们会给出较多解释，等您熟悉之后，提示会逐步减少。"
+    }
+  ],
+  "tutorial_sequences": {
+    "first_policy_desk_basic_intro": {
+      "trigger": "第一次进入第1关PolicyDesk时触发",
+      "steps": [
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这里会显示本关正在处理的经济问题。先看清问题来自哪里，再决定政策。",
+          "target": "problem_panel"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这里是理论面板。它解释的是当前冲击本身会怎样影响 IS-LM 曲线，不展示您的政策结果。",
+          "target": "theory_panel"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这里是政策卡牌区。您可以选择本轮要执行的政策。不同政策会影响不同变量和曲线。",
+          "target": "policy_cards"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这里是抽象国家地图。不同区域会用亮度和箭头展示相关变量状态。",
+          "target": "macro_map"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这里是右侧信息面板。箭头表示变量变化方向，状态条显示变量距离参考位置有多远。",
+          "target": "right_info_panel"
+        }
+      ]
+    },
+    "after_first_card_selected": {
+      "trigger": "玩家第一次选择政策卡后触发",
+      "steps": [
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "您已经选择了一张政策卡。确认政策后，本回合将进入结算，系统会根据模型计算政策效果。",
+          "target": "confirm_policy_button"
+        }
+      ]
+    },
+    "after_first_policy_confirmed": {
+      "trigger": "玩家第一次确认政策且模型回放按钮出现后触发",
+      "steps": [
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "政策已经执行。现在可以查看模型回放，看看这项政策如何移动 IS 或 LM 曲线。",
+          "target": "model_replay_button"
+        }
+      ]
+    },
+    "first_model_replay_opened": {
+      "trigger": "玩家第一次打开模型回放窗口时触发",
+      "steps": [
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "模型回放展示的是您的政策执行后，曲线和均衡点如何变化。它不同于理论面板：理论面板讲冲击，模型回放讲政策结果。",
+          "target": "model_replay_panel"
+        }
+      ]
+    },
+    "after_basic_intro_wisdom_system": {
+      "trigger": "第1关基础界面引导结束后触发",
+      "steps": [
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，如果您一时拿不准，可以请求顾问提示。每次解锁提示会消耗 2 点智慧点数。",
+          "target": "wisdom_points_display"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "提示会从浅到深：第一条只提醒观察方向，第二条解释模型机制，第三条会给出较明确的政策方向。智慧点数有限，请谨慎使用。",
+          "target": "hint_button"
+        }
+      ]
+    },
+    "first_budget_mode_intro": {
+      "trigger": "第一次进入selection_mode=budget或training/model组合训练关时触发",
+      "steps": [
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "陛下，组合训练关中，政策资源有限。每张政策卡都会消耗政策点数。",
+          "target": "policy_points_area"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "请在点数限制内选择政策组合。不能无限叠加政策，也不能只看单一变量。",
+          "target": "policy_cards"
+        }
+      ]
+    },
+    "first_scored_final_summary_intro": {
+      "trigger": "第一次进入启用评分的FinalSummary时触发",
+      "condition": "仅当当前关卡 score_config.enabled == true 或 ScoreEngine 返回 enabled == true 时触发；若 basic/demo 未启用评分则不触发。",
+      "steps": [
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这里是本关评分。它评价的是当前短期 IS-LM 情境下的治理效果，不代表长期影响。",
+          "target": "score_panel"
+        }
+      ]
+    }
+  },
+  "levels": [
+    {
+      "level_id": "consumer_confidence_drop",
+      "level_order": 1,
+      "quarter_label": "公元1000年 第一季度",
+      "title": "消费信心下滑",
+      "guide_strength": "high",
+      "opening_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "公元1000年第一季度，新的宏观运行报告已经送达。陛下，N市最近的消费情况不太乐观。"
+        },
+        {
+          "speaker_id": "livelihood_minister",
+          "speaker_name": "民生大臣",
+          "avatar": "placeholder_livelihood_minister",
+          "text": "河西商圈和南港购物中心的客流明显减少，几家大型零售企业都说订单不如预期。"
+        },
+        {
+          "speaker_id": "livelihood_minister",
+          "speaker_name": "民生大臣",
+          "avatar": "placeholder_livelihood_minister",
+          "text": "TCP智能家电反馈，原本准备换新家电的居民变少了；云禾餐饮也说，周末堂食和家庭聚餐订单都在下降。"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "这会影响不少行业。餐饮、零售、旅游、家电，背后都连着就业和企业收入。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这次问题的起点是居民消费。居民推迟购买家电、旅游和餐饮服务，在模型中对应消费 C 下降。消费是总需求的一部分，因此总需求会走弱，IS 曲线会向左移动。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "如果不采取措施，产出会承压，就业状况也可能恶化。本关的治理目标是恢复总需求，使产出接近参考水平，同时避免债务和通胀压力过高。"
+        }
+      ],
+      "hints": [
+        {
+          "hint_index": 1,
+          "label": "轻提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，请先关注居民部门。当前问题主要来自居民不愿消费，而不是货币市场突然紧张。"
+        },
+        {
+          "hint_index": 2,
+          "label": "模型提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "居民减少消费，在模型中对应 C 下降。消费是总需求的一部分，因此 IS 曲线会左移。"
+        },
+        {
+          "hint_index": 3,
+          "label": "政策方向提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的关键是缓解需求不足。增加政府购买、减税或扩张性货币政策都可能帮助产出恢复，但要注意债务和通胀压力。"
+        }
+      ],
+      "after_result_comments": [
+        {
+          "speaker_id": "livelihood_minister",
+          "speaker_name": "民生大臣",
+          "avatar": "placeholder_livelihood_minister",
+          "text": "居民消费和就业状况有所改善，市场信心正在恢复。",
+          "condition": "if_Y_or_C_improved"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "如果本轮使用了较强财政刺激，也请留意债务压力。国库不是取之不尽的。",
+          "condition": "if_debt_increased"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的核心机制是：消费下降导致 IS 左移，政策的作用是把需求重新托回参考区间附近。",
+          "condition": "always"
+        }
+      ],
+      "level_end_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "本季度治理告一段落。请查看本关总结，确认经济是否已经回到较稳定的区间。"
+        }
+      ]
+    },
+    {
+      "level_id": "investment_confidence_drop",
+      "level_order": 2,
+      "quarter_label": "公元1000年 第二季度",
+      "title": "投资信心下降",
+      "guide_strength": "medium_high",
+      "opening_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "公元1000年第二季度，新的企业运行报告送达。陛下，这次我们发现问题来自企业投资部门。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "江麓装备、东曜电子、宁星汽车零部件等多家企业推迟了扩产计划。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "企业不是完全没有订单，而是看不清未来半年需求。很多负责人都说，眼下更愿意保留现金流，不敢贸然上新产线。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "银行这边也观察到了类似情况。企业中长期贷款需求下降，设备贷款和项目融资申请明显减少。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这次问题来自企业投资。企业减少设备采购和扩产计划，在模型中对应投资 I 下降。投资也是总需求的一部分，因此 IS 曲线同样会向左移动。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "它和上一季度的消费下降来源不同，但在 IS-LM 图中都会表现为需求不足。本关的目标是恢复投资与产出，使 Y 和 I 回到较合理水平。"
+        }
+      ],
+      "policy_debate": [
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "如果企业不敢投资，未来生产能力和就业都会受影响。我建议尽快采取措施恢复企业信心。"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "财政可以出手，但如果继续扩大支出，债务压力也会上升。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "如果主要问题是企业融资和投资意愿，货币政策可能更有针对性，但过度宽松也不能忽视价格压力。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "各位的分歧说明了本关的重点：投资不足需要政策支持，但政策工具不同，带来的利率、债务和价格压力也不同。"
+        }
+      ],
+      "hints": [
+        {
+          "hint_index": 1,
+          "label": "轻提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，请注意，这次首先变化的不是居民消费，而是企业投资。"
+        },
+        {
+          "hint_index": 2,
+          "label": "模型提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "企业减少投资，在模型中对应 I 下降。投资下降会削弱总需求，因此 IS 曲线会左移。"
+        },
+        {
+          "hint_index": 3,
+          "label": "政策方向提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关可以考虑用扩张性政策恢复需求。货币宽松有助于缓解融资压力，财政扩张或减税也能支持总需求，但都要注意副作用。"
+        }
+      ],
+      "after_result_comments": [
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "企业投资状态有所改善，工业产区的恢复迹象更明显了。",
+          "condition": "if_I_or_Y_improved"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "如果利率下降，企业融资压力会减轻；但仍需观察后续通胀压力。",
+          "condition": "if_i_decreased"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这一关说明：消费下降和投资下降现实来源不同，但都可能使 IS 曲线左移。",
+          "condition": "always"
+        }
+      ],
+      "level_end_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "本季度治理告一段落。企业部门的波动已经让我们看到，短期需求管理不只关乎居民消费，也关乎企业信心。"
+        }
+      ]
+    },
+    {
+      "level_id": "money_market_tension",
+      "level_order": 3,
+      "quarter_label": "公元1000年 第三季度",
+      "title": "货币市场紧张",
+      "guide_strength": "medium_high",
+      "opening_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "公元1000年第三季度，金融市场报告送达。陛下，这次问题首先出现在资金面。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "企业和居民都更愿意持有现金和短期安全资产，市场上的流动性需求明显上升。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "华东城市银行报告，短期资金利率正在上行。部分中小企业反映，贷款审批更谨慎，融资成本也比前期更高。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "企业投资已经受到影响。有些企业不是没有项目，而是觉得融资成本太高，不敢继续推进。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这次问题不是居民不愿消费，也不是企业一开始就减少投资，而是货币需求上升。大家更想持有流动性资产，在货币供给不变的情况下，会推高利率。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "在 IS-LM 模型中，这对应 LM 曲线向左或向上移动。利率上升后，投资会受到抑制，产出也会承压。"
+        }
+      ],
+      "hints": [
+        {
+          "hint_index": 1,
+          "label": "轻提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这次不要只盯着消费和投资。请注意金融市场中的流动性需求变化。"
+        },
+        {
+          "hint_index": 2,
+          "label": "模型提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "货币需求上升，会在货币供给不变时推高利率。在模型中，这意味着 LM 曲线左移或上移。"
+        },
+        {
+          "hint_index": 3,
+          "label": "政策方向提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的关键是缓解货币市场紧张。扩张性货币政策通常更有针对性；单纯财政刺激虽然能拉动产出，但可能加大利率压力。"
+        }
+      ],
+      "after_result_comments": [
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "如果本轮政策降低了利率压力，金融市场的紧张程度会有所缓解。",
+          "condition": "if_i_decreased"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "融资环境改善后，企业投资也会更容易恢复。",
+          "condition": "if_i_decreased_or_I_improved"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的核心是区分 IS 冲击和 LM 冲击。货币市场紧张首先移动的是 LM 曲线。",
+          "condition": "always"
+        }
+      ],
+      "level_end_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "本季度治理告一段落。金融市场的变化提醒我们，产出下滑不一定只来自商品市场。"
+        }
+      ]
+    },
+    {
+      "level_id": "overheating_policy_cooling",
+      "level_order": 4,
+      "quarter_label": "公元1000年 第四季度",
+      "title": "经济过热与政策降温",
+      "guide_strength": "medium_low",
+      "opening_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "公元1000年第四季度，新的宏观快报显示，经济运行开始偏热。陛下，这次问题不是太冷，而是可能过热。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "宁星汽车、东曜电子等企业订单排期延长，部分行业开始加班生产。"
+        },
+        {
+          "speaker_id": "livelihood_minister",
+          "speaker_name": "民生大臣",
+          "avatar": "placeholder_livelihood_minister",
+          "text": "居民消费也很旺，但我收到一些反馈：部分生活服务价格在上涨，居民开始感觉成本压力变大。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "金融市场也出现了过热迹象。融资需求很强，通胀压力正在积累。"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "经济繁荣当然是好事，但如果需求超过了经济承受能力，后面可能会更难处理。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这次总需求扩张过快，在模型中表现为 IS 曲线右移。短期内产出高于参考水平，看起来像繁荣，但如果偏离过大，就会带来通胀压力和资源紧张。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的目标不是继续刺激，而是让产出回到参考水平附近，降低通胀压力，同时避免过度收缩。"
+        }
+      ],
+      "policy_debate": [
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "现在企业订单不错，我担心如果收缩太快，会打击企业信心。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "但如果继续放任需求过热，价格压力会越来越大，后面收拾起来更困难。"
+        },
+        {
+          "speaker_id": "livelihood_minister",
+          "speaker_name": "民生大臣",
+          "avatar": "placeholder_livelihood_minister",
+          "text": "居民最怕的不是一时热闹，而是物价压力持续上升。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "各位说的都对。本关的关键不是“要不要增长”，而是增长是否已经超过了稳定区间。"
+        }
+      ],
+      "hints": [
+        {
+          "hint_index": 1,
+          "label": "轻提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，请注意，本关的问题不是经济太弱，而是经济可能已经过热。"
+        },
+        {
+          "hint_index": 2,
+          "label": "模型提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "需求扩张过快会使 IS 曲线右移，产出高于参考水平。产出过高可能带来通胀压力。"
+        },
+        {
+          "hint_index": 3,
+          "label": "政策方向提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关可以考虑收缩性财政政策、收缩性货币政策，或者保持政策不变。关键是降温要适度，不能把经济重新压低。"
+        }
+      ],
+      "after_result_comments": [
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "如果产出回到参考附近，通胀压力会有所缓解。",
+          "condition": "if_Y_closer_to_reference"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "只要没有过度收缩，企业部门仍然可以保持相对稳定。",
+          "condition": "if_Y_not_too_low"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这一关说明：宏观治理不是让 Y 越高越好，而是让经济保持在合理区间。",
+          "condition": "always"
+        }
+      ],
+      "level_end_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "本季度治理告一段落。经济过热提醒我们，稳定有时意味着适度降温。"
+        }
+      ]
+    },
+    {
+      "level_id": "fiscal_expansion_crowding_out",
+      "level_order": 5,
+      "quarter_label": "公元1001年 第一季度",
+      "title": "财政扩张与挤出效应",
+      "guide_strength": "low",
+      "opening_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "公元1001年第一季度，财政与产业部门联合报告送达。陛下，本季度的矛盾变得更微妙。"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "前期公共投资推进很快。南港交通枢纽、江北产业园配套工程等项目带动了建筑、设备和服务需求，产出确实得到了支撑。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "但企业部门也有压力。江麓装备和星河机器人反馈，利率上升后，扩产融资成本提高，一些设备更新项目被推迟。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "这正是我们担心的地方。财政扩张会拉动需求，但也可能推高利率，给私人投资造成压力。"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "公共投资不能简单撤掉，否则产出可能重新下滑。但私人投资如果一直偏弱，后劲也会不足。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，政府购买 G 增加，会使 IS 曲线右移，短期产出上升。但在货币市场条件给定时，产出扩张会推高利率，利率上升又会挤压私人投资 I。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的目标不是简单压低利率，而是在保持产出稳定的同时，让私人投资恢复到较好水平，并控制债务压力。"
+        }
+      ],
+      "policy_debate": [
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "现在公共项目仍然能稳住产出，我不建议立刻大幅收缩财政。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "可如果私人投资恢复不起来，企业部门会越来越依赖政府订单。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "适当的货币配合也许能缓解利率压力，但我们不能忽视通胀压力。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这就是挤出效应的治理难点：财政扩张能托底，但也可能通过利率渠道压低私人投资。"
+        }
+      ],
+      "hints": [
+        {
+          "hint_index": 1,
+          "label": "轻提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，请注意，本关的核心矛盾不是产出完全不足，而是公共支出和私人投资之间出现了压力。"
+        },
+        {
+          "hint_index": 2,
+          "label": "模型提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "财政扩张使 IS 曲线右移，产出上升，但也可能推高利率。利率上升会使私人投资 I 承压。"
+        },
+        {
+          "hint_index": 3,
+          "label": "政策方向提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "如果私人投资偏低，可以考虑缓解利率压力或调整财政力度。需要在产出、投资、利率和债务之间取得平衡。"
+        }
+      ],
+      "after_result_comments": [
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "如果私人投资改善，企业部门的自主恢复能力会更强。",
+          "condition": "if_I_improved"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "如果债务压力下降或保持可控，财政空间也会更稳。",
+          "condition": "if_debt_stable_or_decreased"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的重点是理解财政扩张的双面性：它能提高产出，也可能通过利率挤出私人投资。",
+          "condition": "always"
+        }
+      ],
+      "level_end_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "本季度治理告一段落。财政扩张的效果并不单一，产出、利率、投资和债务需要一起观察。"
+        }
+      ]
+    },
+    {
+      "level_id": "dual_shock_investment_and_money_demand",
+      "level_order": 6,
+      "quarter_label": "公元1001年 第二季度",
+      "title": "双重冲击：投资下降与货币需求上升",
+      "guide_strength": "very_low",
+      "opening_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "公元1001年第二季度，新的综合报告显示，商品市场和货币市场同时出现压力。陛下，这次情况更复杂。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "企业投资又开始转弱。江麓装备、宁星汽车零部件、东曜电子都下调了资本开支计划。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "同时，金融市场避险情绪上升。企业和居民都更愿意持有现金和短期安全资产，资金面开始偏紧。"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "也就是说，经济一边缺需求，一边融资又变贵。单靠一种政策恐怕不够。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这次是双重冲击。企业投资下降，对应 I 下降，会使 IS 曲线左移；货币需求上升，会推高利率，使 LM 曲线左移或上移。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "两类冲击叠加后，产出下行压力更强，利率变化也更复杂。本关目标是恢复产出和投资，同时缓解货币市场紧张，避免单一政策造成明显副作用。"
+        }
+      ],
+      "policy_debate": [
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "如果产出下滑明显，财政必须承担托底责任。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "但如果货币市场已经紧张，单靠财政刺激可能推高利率，进一步压制投资。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "企业现在最需要的是订单和融资环境都改善，否则投资难以恢复。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关的重点正是组合治理。单一政策可能解决一个问题，却放大另一个问题。"
+        }
+      ],
+      "hints": [
+        {
+          "hint_index": 1,
+          "label": "轻提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这次请同时看企业部门和金融市场。问题不只来自一个方向。"
+        },
+        {
+          "hint_index": 2,
+          "label": "模型提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "投资下降会让 IS 曲线左移；货币需求上升会让 LM 曲线左移或上移。两个市场同时承压，政策也需要更综合。"
+        },
+        {
+          "hint_index": 3,
+          "label": "政策方向提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "本关通常需要组合政策。财政或减税可以支持需求，货币宽松可以缓解利率压力，但要同时控制债务和通胀压力。"
+        }
+      ],
+      "after_result_comments": [
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "如果产出和投资都改善，同时利率压力没有明显恶化，本轮政策组合就比较有效。",
+          "condition": "if_Y_I_improved_and_i_not_worse"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "如果债务上升过快，后续政策空间会被压缩。",
+          "condition": "if_debt_increased"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "如果通胀压力开始累积，下一轮就要更加谨慎。",
+          "condition": "if_inflation_pressure_increased"
+        }
+      ],
+      "level_end_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "本季度治理告一段落。双重冲击证明，复杂局面下单一政策往往不够。"
+        }
+      ]
+    },
+    {
+      "level_id": "two_round_comprehensive_governance",
+      "level_order": 7,
+      "quarter_label": "公元1001年 第三季度",
+      "title": "两回合综合治理挑战",
+      "guide_strength": "minimal",
+      "opening_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "公元1001年第三季度，国家经济进入复杂治理阶段。产出仍低于参考水平，投资和就业恢复不稳，但政策空间已经有限。"
+        },
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "前期政策已经带来一定债务压力。如果继续依赖财政扩张，未来回旋空间会变小。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "货币政策也需要谨慎。过度宽松可能累积通胀压力和金融风险。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "企业部门仍然希望看到稳定的需求和合理的融资成本。政策摇摆太大，会影响投资信心。"
+        },
+        {
+          "speaker_id": "livelihood_minister",
+          "speaker_name": "民生大臣",
+          "avatar": "placeholder_livelihood_minister",
+          "text": "就业和居民收入也不能忽视。恢复太慢，居民信心会再次下降。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，这一关不再是单一变量问题。您需要同时观察产出、投资、失业、利率、债务和通胀压力。两回合内，第一回合的政策会影响第二回合的起点。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "最终目标是让经济回到相对稳定的参考区间：产出接近参考水平，投资和就业改善，通胀压力与债务压力保持可控。"
+        }
+      ],
+      "policy_debate": [
+        {
+          "speaker_id": "fiscal_minister",
+          "speaker_name": "财政大臣",
+          "avatar": "placeholder_fiscal_minister",
+          "text": "我仍然认为，经济没有完全恢复前，财政不能太快退出。"
+        },
+        {
+          "speaker_id": "central_bank_governor",
+          "speaker_name": "中央银行行长",
+          "avatar": "placeholder_central_bank_governor",
+          "text": "但如果所有问题都靠扩张解决，价格压力和金融风险会逐步累积。"
+        },
+        {
+          "speaker_id": "industry_minister",
+          "speaker_name": "产业大臣",
+          "avatar": "placeholder_industry_minister",
+          "text": "企业需要稳定预期。过度刺激和过度收缩都会影响投资计划。"
+        },
+        {
+          "speaker_id": "livelihood_minister",
+          "speaker_name": "民生大臣",
+          "avatar": "placeholder_livelihood_minister",
+          "text": "居民最关心的是就业和收入稳定。政策不能只盯着一个指标。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "这正是综合治理的核心：宏观政策不是单一目标最大化，而是在多个目标之间寻找平衡。"
+        }
+      ],
+      "hints": [
+        {
+          "hint_index": 1,
+          "label": "轻提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "陛下，请不要只看一个变量。产出、投资、失业、利率、债务和通胀压力都需要同时观察。"
+        },
+        {
+          "hint_index": 2,
+          "label": "模型提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "两回合治理中，第一回合的政策会改变第二回合的起点。刺激不足会恢复缓慢，刺激过度又可能带来新的压力。"
+        },
+        {
+          "hint_index": 3,
+          "label": "政策方向提示",
+          "cost": 2,
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "建议先判断当前经济偏冷还是偏热，再决定刺激或降温。如果第一回合刺激较强，第二回合可能需要观察是否出现过热、债务或利率压力。"
+        }
+      ],
+      "after_result_comments": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "两回合治理已经完成。请查看最终总结，判断经济是否回到了稳定区间。",
+          "condition": "after_final_round"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "如果产出接近参考水平，投资和就业改善，同时债务和通胀压力可控，那么本章的治理目标基本实现。",
+          "condition": "after_final_round"
+        }
+      ],
+      "level_end_dialogue": [
+        {
+          "speaker_id": "chief_minister",
+          "speaker_name": "首席大臣",
+          "avatar": "placeholder_chief_minister",
+          "text": "本章治理训练已经完成。从消费低迷、投资下降，到货币市场紧张和综合治理，您已经经历了短期需求管理的主要情境。"
+        },
+        {
+          "speaker_id": "economic_advisor",
+          "speaker_name": "首席经济顾问",
+          "avatar": "placeholder_economic_advisor",
+          "text": "之后，我们还会进入新的章节。届时，价格水平、通胀调整、开放经济和长期增长都会逐步加入。到那时，世界会比现在更加复杂。"
+        }
+      ]
+    }
+  ],
+  "abstract_ui_targets": {
+    "problem_panel": "当前问题栏；Codex需映射到实际节点路径",
+    "theory_panel": "理论面板：IS-LM分析；Codex需映射到实际节点路径",
+    "macro_map": "抽象国家地图/MacroMapView；Codex需映射到实际节点路径",
+    "policy_cards": "政策卡牌区；Codex需映射到实际节点路径",
+    "policy_points_area": "政策点数显示区；仅budget/training模式出现",
+    "confirm_policy_button": "确认政策按钮",
+    "right_info_panel": "右侧信息面板",
+    "model_replay_button": "模型回放按钮",
+    "model_replay_panel": "模型回放窗口",
+    "score_panel": "最终总结中的评分系统模块；仅启用评分时引导",
+    "wisdom_points_display": "智慧点数显示区",
+    "hint_button": "请求提示按钮"
+  }
+}

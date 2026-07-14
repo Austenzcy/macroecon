@@ -21,6 +21,7 @@ func _ready() -> void:
 	_load_scenario()
 	_build_ui()
 	_show_step(0, false)
+	call_deferred("_maybe_play_opening_dialogue")
 
 
 func _load_scenario() -> void:
@@ -196,6 +197,25 @@ func _on_next_pressed() -> void:
 		get_tree().change_scene_to_file("res://scenes/PolicyDesk.tscn")
 		return
 	_show_step(_step_index + 1, true)
+
+
+func _maybe_play_opening_dialogue() -> void:
+	if not has_node("/root/NarrativeManager"):
+		return
+	var chapter_steps: Array = NarrativeManager.chapter_opening_steps()
+	if not chapter_steps.is_empty():
+		NarrativeManager.play_tutorial_once(
+			self,
+			"islm_chapter_opening_v1",
+			chapter_steps
+		)
+	var level_steps: Array = NarrativeManager.level_opening_steps(GameState.current_scenario_id)
+	if not level_steps.is_empty():
+		NarrativeManager.play_tutorial_once(
+			self,
+			"level_opening_%s_v1" % GameState.current_scenario_id,
+			level_steps
+		)
 
 
 func _make_panel_style() -> StyleBoxFlat:

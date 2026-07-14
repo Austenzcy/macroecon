@@ -468,3 +468,18 @@ Web loading performance audit and fix:
 - Online retest: `index.html` 200 in about 0.95s; `index.js` 200 in about 1.22s; `index.wasm.gz` 200 in about 5.39s; `index.pck` 200 in about 0.78s.
 - Added `docs/Web_Loading_Performance_Audit.md` with diagnosis, fix details, size comparison, and follow-up notes.
 - Did not modify gameplay, narrative interaction details, ISLMSolver, ScoreEngine, macro map, right info panel, or CloudBase deployment route.
+Formal IS-LM chapter JSON integration:
+- Added `data/chapters/ISLM_chapter_demo_content_v1.json` and `data/chapters/ISLM_chapter_narrative_v1.json`.
+- Regenerated `data/scenarios.json` from the formal IS-LM chapter content while preserving runtime fields needed by selection mode, settlement mode, IS-LM v1, ScoreEngine, initial state, model params, and policy availability.
+- LevelSelect now reads scenario groups dynamically from `data/scenarios.json` instead of hardcoding the old 4-level list.
+- The IS-LM chapter now exposes 7 level groups: consumer confidence drop, investment confidence drop, money market tightening, overheating and cooling, fiscal expansion crowding out, double shock, and two-round stabilization challenge.
+- NarrativeManager now reads formal characters, chapter opening, tutorial sequences, level opening dialogue, hints, after-result comments, and level-end dialogue from `ISLM_chapter_narrative_v1.json`.
+- Wisdom hints now come from each level's formal narrative JSON hints while keeping confirm-before-cost, cancel-without-cost, and unlocked-hint replay without repeat cost.
+- ScenarioIntro plays chapter and level opening dialogue through the existing DialogueOverlay queue.
+- PolicyDesk plays formal after-result comments after policy confirmation without changing MacroEngine or ISLMSolver settlement logic.
+- Result can play level-end dialogue without changing round advancement or score logic.
+- Regenerated the Chinese font subset after adding the formal JSON; current `NotoSansSC-Regular.ttf` subset size is 493,992 bytes.
+- Did not rewrite DialogueOverlay mechanics, ISLMSolver, ScoreEngine, macro map, right status bars, or model replay logic.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260715-033716`.
+- Web build size check: `index.wasm` 39,509,339 bytes; `index.wasm.gz` 10,111,653 bytes; `index.pck` 704,400 bytes; `index.js` 279,815 bytes; total `web_build` file sum 50,661,736 bytes.
+- Online check passed: `latest.json` points to `/releases/20260715-033716/index.html`; release `index.html`, `index.js`, `index.pck`, and `index.wasm.gz` all return HTTP 200.

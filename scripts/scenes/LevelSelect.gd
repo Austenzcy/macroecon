@@ -3,44 +3,49 @@ extends Control
 const SCENARIO_INTRO_PATH: String = "res://scenes/ScenarioIntro.tscn"
 const MAIN_MENU_PATH: String = "res://scenes/MainMenu.tscn"
 
-const LEVELS: Array[Dictionary] = [
-	{
-		"title": "消费信心下滑",
-		"shock": "居民消费意愿下降，C 减少。",
-		"model_direction": "需求走弱，IS 曲线左移。",
-		"learning_goal": "练习用财政或货币政策稳定短期总需求。",
-		"basic_id": "consumer_confidence_drop_basic",
-		"training_id": "consumer_confidence_drop_training"
-	},
-	{
-		"title": "投资信心下降",
-		"shock": "企业推迟扩产，投资 I 减少。",
-		"model_direction": "投资需求下降，IS 曲线左移。",
-		"learning_goal": "比较刺激投资与宽松货币条件的短期效果。",
-		"basic_id": "investment_confidence_drop_basic",
-		"training_id": "investment_confidence_drop_training"
-	},
-	{
-		"title": "货币需求上升",
-		"shock": "市场避险情绪升温，货币需求上升。",
-		"model_direction": "利率上行，LM 曲线左移或上移。",
-		"learning_goal": "观察货币市场冲击如何影响利率与产出。",
-		"basic_id": "money_demand_rise_basic",
-		"training_id": "money_demand_rise_training"
-	},
-	{
-		"title": "政府支出扩张",
-		"shock": "财政支出快速扩张，总需求偏强。",
-		"model_direction": "自主支出上升，IS 曲线右移。",
-		"learning_goal": "练习在过热压力下使用收缩性政策或观望策略。",
-		"basic_id": "government_spending_expansion_basic",
-		"training_id": "government_spending_expansion_training"
-	}
-]
+var _levels: Array[Dictionary] = []
 
 
 func _ready() -> void:
+	_load_levels()
 	_build_ui()
+
+
+func _load_levels() -> void:
+	var scenarios: Array = DataLoader.load_array("res://data/scenarios.json")
+	var grouped: Dictionary = {}
+	var order: Array[String] = []
+	for item: Variant in scenarios:
+		if not (item is Dictionary):
+			continue
+		var scenario: Dictionary = item as Dictionary
+		var group_id: String = str(scenario.get("level_group", scenario.get("id", "")))
+		if group_id.is_empty():
+			continue
+		if not grouped.has(group_id):
+			grouped[group_id] = {
+				"group_id": group_id,
+				"level_order": int(scenario.get("level_order", order.size() + 1)),
+				"title": str(scenario.get("level_name", scenario.get("problem_title", "IS-LM 情境"))),
+				"shock": str(scenario.get("main_problem", scenario.get("problem_description", ""))),
+				"model_direction": str(scenario.get("model_hint", "")),
+				"learning_goal": str(scenario.get("governance_goal", scenario.get("policy_goal", ""))),
+				"basic_id": "",
+				"training_id": ""
+			}
+			order.append(group_id)
+		var level: Dictionary = grouped[group_id] as Dictionary
+		if str(scenario.get("selection_mode", "")) == "single":
+			level["basic_id"] = str(scenario.get("id", ""))
+		elif str(scenario.get("selection_mode", "")) == "budget":
+			level["training_id"] = str(scenario.get("id", ""))
+
+	_levels.clear()
+	for group_id: String in order:
+		_levels.append(grouped[group_id] as Dictionary)
+	_levels.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("level_order", 0)) < int(b.get("level_order", 0))
+	)
 
 
 func _build_ui() -> void:
@@ -73,7 +78,7 @@ func _build_ui() -> void:
 	grid.add_theme_constant_override("v_separation", 18)
 	root.add_child(grid)
 
-	for level: Dictionary in LEVELS:
+	for level: Dictionary in _levels:
 		grid.add_child(_build_level_card(level))
 
 	var back_button: Button = Button.new()
@@ -106,7 +111,7 @@ func _build_header() -> PanelContainer:
 	box.add_child(title)
 
 	var subtitle: Label = Label.new()
-	subtitle.text = "选择一个宏观冲击情境。每个情境都提供“基础教学”和“组合训练”两种入口。"
+	subtitle.text = "选择一个宏观冲击情境。基础教学关用于理解机制，组合训练关用于测试政策点数和模型结算。"
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	subtitle.modulate = Color(0.78, 0.88, 0.94)
 	subtitle.add_theme_font_size_override("font_size", 18)
@@ -117,7 +122,7 @@ func _build_header() -> PanelContainer:
 
 func _build_level_card(level: Dictionary) -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(520, 300)
+	panel.custom_minimum_size = Vector2(520, 320)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.045, 0.057, 0.072, 0.96), Color(0.18, 0.36, 0.46)))
 
@@ -133,13 +138,14 @@ func _build_level_card(level: Dictionary) -> PanelContainer:
 	margin.add_child(box)
 
 	var title: Label = Label.new()
-	title.text = str(level.get("title", "IS-LM 情境"))
+	title.text = "%02d  %s" % [int(level.get("level_order", 0)), str(level.get("title", "IS-LM 情境"))]
 	title.add_theme_font_size_override("font_size", 26)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(title)
 
-	_add_text(box, "冲击：" + str(level.get("shock", "")), Color(0.92, 0.96, 1.0), 17)
-	_add_text(box, "模型方向：" + str(level.get("model_direction", "")), Color(0.76, 0.88, 1.0), 16)
-	_add_text(box, "学习目标：" + str(level.get("learning_goal", "")), Color(0.82, 0.88, 0.86), 16)
+	_add_text(box, "问题：" + str(level.get("shock", "")), Color(0.92, 0.96, 1.0), 17)
+	_add_text(box, "机制：" + str(level.get("model_direction", "")), Color(0.76, 0.88, 1.0), 16)
+	_add_text(box, "治理目标：" + str(level.get("learning_goal", "")), Color(0.82, 0.88, 0.86), 16)
 
 	var spacer: Control = Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -149,15 +155,19 @@ func _build_level_card(level: Dictionary) -> PanelContainer:
 	actions.add_theme_constant_override("separation", 12)
 	box.add_child(actions)
 
-	var basic_button: Button = _build_action_button("基础教学", "single + demo")
-	basic_button.name = "BasicEntryButton"
-	basic_button.pressed.connect(_on_scenario_pressed.bind(str(level.get("basic_id", ""))))
-	actions.add_child(basic_button)
+	var basic_id: String = str(level.get("basic_id", ""))
+	if not basic_id.is_empty():
+		var basic_button: Button = _build_action_button("基础教学", "single + demo")
+		basic_button.name = "BasicEntryButton"
+		basic_button.pressed.connect(_on_scenario_pressed.bind(basic_id))
+		actions.add_child(basic_button)
 
-	var training_button: Button = _build_action_button("组合训练", "budget + model")
-	training_button.name = "TrainingEntryButton"
-	training_button.pressed.connect(_on_scenario_pressed.bind(str(level.get("training_id", ""))))
-	actions.add_child(training_button)
+	var training_id: String = str(level.get("training_id", ""))
+	if not training_id.is_empty():
+		var training_button: Button = _build_action_button("组合训练", "budget + model")
+		training_button.name = "TrainingEntryButton"
+		training_button.pressed.connect(_on_scenario_pressed.bind(training_id))
+		actions.add_child(training_button)
 
 	return panel
 

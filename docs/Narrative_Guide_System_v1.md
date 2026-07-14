@@ -173,3 +173,46 @@ UI 脚本不应硬编码正式剧情，只负责调用 `NarrativeManager` 播放
 - 回看提示 `_on_review_hint_pressed`
 
 当前所有新手引导 step 都是“点击继续”模式，不允许玩家在高亮区域直接操作底层 UI。后续如果需要“允许指定目标点击”的教程步骤，将单独设计交互模式。
+## Formal JSON Integration v1
+
+本轮已接入两份正式 IS-LM 章节 JSON：
+
+- `data/chapters/ISLM_chapter_demo_content_v1.json`
+- `data/chapters/ISLM_chapter_narrative_v1.json`
+
+接入方式：
+
+- `ISLM_chapter_demo_content_v1.json` 作为正式关卡内容来源，已合并生成运行用的 `data/scenarios.json`。
+- `data/scenarios.json` 保留现有运行字段，包括 `selection_mode`、`settlement_mode`、`model_type`、`shock_type`、`model_tags`、`available_policies`、`score_config`、`initial_state`、`model_params` 和 `round_count`。
+- `ISLM_chapter_narrative_v1.json` 作为剧情来源，由 `NarrativeManager` 动态读取。
+- `NarrativeManager` 会从 JSON 读取 `characters`、`chapter_opening`、`tutorial_sequences`、每关 `opening_dialogue`、`hints`、`after_result_comments` 和 `level_end_dialogue`。
+- JSON 中的 `speaker_id`、`speaker_name`、`avatar`、`text`、`target` 会被适配成 `DialogueOverlay` 使用的 step 结构。
+- 如果某个字段缺失，则使用原有 fallback 文案，不让关卡流程崩溃。
+
+当前 7 个正式 IS-LM 关卡已接入 LevelSelect：
+
+1. 消费信心下滑
+2. 投资信心下降
+3. 货币市场紧张
+4. 经济过热与政策降温
+5. 财政扩张与挤出效应
+6. 双重冲击：投资下降与货币需求上升
+7. 两回合综合治理挑战
+
+前 4 关提供 `basic + training` 两个入口；第 5-7 关按正式内容仅提供 `training` 入口。
+
+智慧点数提示现在从每关 narrative JSON 的 `hints` 字段读取，仍保留：
+
+- 查看前确认扣点；
+- 取消不扣点；
+- 已解锁提示回看不重复扣点；
+- 智慧点数暂不参与评分。
+
+字体子集已根据当前项目文本、两份正式 JSON、fallback 文案和经济学符号重新生成。正式剧情接入后仍使用子集字体，不恢复完整 17 MB 字体。
+
+当前限制：
+
+- 本轮未接入更复杂的剧情分支系统。
+- `after_result_comments` 当前按 JSON 顺序播放，`condition` 字段暂不做精细判定。
+- 正式角色头像仍使用占位头像。
+- 本轮未修改 DialogueOverlay 底层输入和高亮机制。

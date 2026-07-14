@@ -5,6 +5,8 @@ signal wisdom_points_changed
 const DialogueOverlayScript = preload("res://scripts/ui/DialogueOverlay.gd")
 const HintConfirmModalScript = preload("res://scripts/ui/HintConfirmModal.gd")
 
+const NARRATIVE_PATH: String = "res://data/chapters/ISLM_chapter_narrative_v1.json"
+
 const INITIAL_WISDOM_POINTS: int = 10
 const HINT_COST: int = 2
 const MAX_HINTS_PER_LEVEL: int = 3
@@ -19,6 +21,7 @@ var _active_overlay: Control
 var _active_overlay_layer: CanvasLayer
 var _active_modal_layer: CanvasLayer
 var _pending_sequences: Array[Dictionary] = []
+var _narrative_cache: Dictionary = {}
 
 var characters: Dictionary = {
 	"chief_minister": {"name": "首席大臣", "avatar": "placeholder_chief_minister"},
@@ -42,6 +45,14 @@ func reset_runtime_state() -> void:
 		_active_modal_layer.queue_free()
 	_active_modal_layer = null
 	wisdom_points_changed.emit()
+
+
+func get_characters() -> Dictionary:
+	var data: Dictionary = _narrative_data()
+	var value: Variant = data.get("characters", characters)
+	if value is Dictionary:
+		return value as Dictionary
+	return characters
 
 
 func get_wisdom_points() -> int:
@@ -148,50 +159,82 @@ func advance_quarter_for_level(level_index: int) -> String:
 
 
 func basic_policy_desk_steps() -> Array:
-	return [
+	return _tutorial_sequence_steps("first_policy_desk_basic_intro", [
 		_step("首席经济顾问", "陛下，这里是当前问题栏，会告诉您本关正在处理的经济冲击。", "problem_panel"),
 		_step("首席经济顾问", "需要模型背景时，可以打开图表/理论面板，先看外生冲击如何移动 IS 或 LM 曲线。", "theory_panel"),
 		_step("首席经济顾问", "左侧是政策卡牌区。您将在这里选择本回合要提交的政策。", "policy_cards"),
 		_step("首席经济顾问", "右侧是宏观状态面板，会显示当前已经发生的变量状态。", "right_info_panel")
-	]
+	])
 
 
 func wisdom_intro_steps() -> Array:
-	return [
+	return _tutorial_sequence_steps("after_basic_intro_wisdom_system", [
 		_step("首席经济顾问", "如果一时拿不准，可以使用智慧点数请求提示。每次解锁新提示会消耗 2 点。", "wisdom_panel"),
 		_step("首席经济顾问", "已解锁的提示可以重复查看，不会再次扣点。智慧点数暂时不计入治理评分。", "wisdom_panel")
-	]
+	])
 
 
 func budget_intro_steps() -> Array:
-	return [
+	return _tutorial_sequence_steps("first_budget_mode_intro", [
 		_step("财政大臣", "陛下，组合训练关中政策资源有限，每张政策卡都会消耗政策点数。", "policy_points_area"),
 		_step("首席经济顾问", "请在点数限制内选择政策组合，不能无限叠加政策。", "policy_cards")
-	]
+	])
 
 
 func confirm_policy_steps() -> Array:
-	return [
+	return _tutorial_sequence_steps("after_first_card_selected", [
 		_step("首席经济顾问", "您已经选择了政策。确认政策后，本回合将进入结算。", "confirm_policy_button")
-	]
+	])
 
 
 func replay_button_steps() -> Array:
-	return [
+	return _tutorial_sequence_steps("after_first_policy_confirmed", [
 		_step("首席经济顾问", "政策已经执行。现在可以查看模型回放，看看政策如何移动 IS 或 LM 曲线。", "model_replay_button")
-	]
+	])
 
 
 func replay_window_steps() -> Array:
-	return [
+	return _tutorial_sequence_steps("first_model_replay_opened", [
 		_step("首席经济顾问", "模型回放窗口会显示政策执行前后的曲线和均衡点，用来解释刚才的结算结果。", "model_replay_window")
-	]
+	])
 
 
 func score_steps() -> Array:
-	return [
+	return _tutorial_sequence_steps("first_scored_final_summary_intro", [
 		_step("首席经济顾问", "这里是本关评分。它评价的是当前短期 IS-LM 情境下的治理效果，不代表长期影响。", "score_panel")
-	]
+	])
+
+
+func chapter_opening_steps() -> Array:
+	var data: Dictionary = _narrative_data()
+	var steps_variant: Variant = data.get("chapter_opening", [])
+	if steps_variant is Array:
+		return _normalize_steps(steps_variant as Array)
+	return []
+
+
+func level_opening_steps(scenario_id: String = "") -> Array:
+	var level: Dictionary = _level_narrative_for_scenario(scenario_id)
+	var steps_variant: Variant = level.get("opening_dialogue", [])
+	if steps_variant is Array:
+		return _normalize_steps(steps_variant as Array)
+	return []
+
+
+func after_result_comment_steps(scenario_id: String = "") -> Array:
+	var level: Dictionary = _level_narrative_for_scenario(scenario_id)
+	var steps_variant: Variant = level.get("after_result_comments", [])
+	if steps_variant is Array:
+		return _normalize_steps(steps_variant as Array)
+	return []
+
+
+func level_end_steps(scenario_id: String = "") -> Array:
+	var level: Dictionary = _level_narrative_for_scenario(scenario_id)
+	var steps_variant: Variant = level.get("level_end_dialogue", [])
+	if steps_variant is Array:
+		return _normalize_steps(steps_variant as Array)
+	return []
 
 
 func _start_sequence(request: Dictionary) -> void:
@@ -279,6 +322,80 @@ func _show_unlocked_hints(host: Control, scenario_id: String, target_map: Dictio
 	play_steps(host, steps, target_map)
 
 
+func _narrative_data() -> Dictionary:
+	if _narrative_cache.is_empty():
+		_narrative_cache = DataLoader.load_dict(NARRATIVE_PATH)
+	return _narrative_cache
+
+
+func _tutorial_sequence_steps(sequence_id: String, fallback: Array) -> Array:
+	var data: Dictionary = _narrative_data()
+	var sequences_variant: Variant = data.get("tutorial_sequences", {})
+	if sequences_variant is Dictionary:
+		var sequence_variant: Variant = (sequences_variant as Dictionary).get(sequence_id, {})
+		if sequence_variant is Dictionary:
+			var steps_variant: Variant = (sequence_variant as Dictionary).get("steps", [])
+			if steps_variant is Array and not (steps_variant as Array).is_empty():
+				return _normalize_steps(steps_variant as Array)
+	return fallback
+
+
+func _level_narrative_for_scenario(scenario_id: String = "") -> Dictionary:
+	var id_to_find: String = scenario_id
+	if id_to_find.is_empty():
+		id_to_find = GameState.current_scenario_id
+	var scenario: Dictionary = DataLoader.get_scenario_by_id(id_to_find)
+	var narrative_id: String = str(scenario.get("narrative_level_id", scenario.get("level_group", "")))
+	var content_id: String = str(scenario.get("content_level_id", scenario.get("level_group", "")))
+	var data: Dictionary = _narrative_data()
+	var levels_variant: Variant = data.get("levels", [])
+	if levels_variant is Array:
+		var levels: Array = levels_variant as Array
+		for item: Variant in levels:
+			if not (item is Dictionary):
+				continue
+			var level: Dictionary = item as Dictionary
+			var level_id: String = str(level.get("level_id", ""))
+			if level_id == narrative_id or level_id == content_id:
+				return level
+	return {}
+
+
+func _normalize_steps(raw_steps: Array) -> Array:
+	var steps: Array = []
+	for item: Variant in raw_steps:
+		if item is Dictionary:
+			steps.append(_normalize_step(item as Dictionary))
+	return steps
+
+
+func _normalize_step(raw_step: Dictionary) -> Dictionary:
+	var speaker_name: String = str(raw_step.get("speaker_name", raw_step.get("speaker", "")))
+	var speaker_id: String = str(raw_step.get("speaker_id", ""))
+	var character_data: Dictionary = get_characters()
+	if speaker_name.is_empty() and not speaker_id.is_empty():
+		var character_variant: Variant = character_data.get(speaker_id, {})
+		if character_variant is Dictionary:
+			speaker_name = str((character_variant as Dictionary).get("name", speaker_id))
+	if speaker_name.is_empty():
+		speaker_name = "首席经济顾问"
+
+	var avatar: String = str(raw_step.get("avatar", "placeholder"))
+	if avatar == "placeholder" and not speaker_id.is_empty():
+		var avatar_character_variant: Variant = character_data.get(speaker_id, {})
+		if avatar_character_variant is Dictionary:
+			avatar = str((avatar_character_variant as Dictionary).get("avatar", avatar))
+
+	return {
+		"speaker": speaker_name,
+		"speaker_id": speaker_id,
+		"avatar": avatar,
+		"text": str(raw_step.get("text", "")),
+		"target": str(raw_step.get("target", "")),
+		"continue_text": str(raw_step.get("continue_text", "单击以继续"))
+	}
+
+
 func _unlocked_hint_indices(scenario_id: String) -> Array:
 	var value: Variant = unlocked_hints.get(scenario_id, [])
 	if value is Array:
@@ -287,12 +404,10 @@ func _unlocked_hint_indices(scenario_id: String) -> Array:
 
 
 func _hints_for_scenario(scenario_id: String) -> Array:
-	if scenario_id.begins_with("consumer_confidence_drop"):
-		return [
-			_step("首席经济顾问", "陛下，请先关注居民部门。当前问题主要来自消费意愿下降。", "problem_panel"),
-			_step("首席经济顾问", "居民减少消费，在模型中对应 C 下降。消费是总需求的一部分，因此 IS 曲线会左移。", "theory_panel"),
-			_step("首席经济顾问", "本关的关键是缓解需求不足。扩张性财政政策、减税或扩张性货币政策都可能帮助产出恢复，但要注意债务和通胀压力。", "policy_cards")
-		]
+	var level: Dictionary = _level_narrative_for_scenario(scenario_id)
+	var hints_variant: Variant = level.get("hints", [])
+	if hints_variant is Array and not (hints_variant as Array).is_empty():
+		return _normalize_steps(hints_variant as Array)
 	return [
 		_step("首席经济顾问", "本关的提示数据尚未接入，请先根据理论面板和当前状态判断政策方向。", "theory_panel")
 	]
@@ -312,6 +427,9 @@ func _level_index_for_scenario(scenario_id: String) -> int:
 	var id_to_find: String = scenario_id
 	if id_to_find == "":
 		id_to_find = GameState.current_scenario_id
+	var current_scenario: Dictionary = DataLoader.get_scenario_by_id(id_to_find)
+	if not current_scenario.is_empty() and current_scenario.has("level_order"):
+		return maxi(int(current_scenario.get("level_order", 1)) - 1, 0)
 	var scenarios: Array = DataLoader.load_array("res://data/scenarios.json")
 	var groups: Array[String] = []
 	for item: Variant in scenarios:

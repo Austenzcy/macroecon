@@ -1,302 +1,1427 @@
 [
   {
-    "id": "consumer_confidence_drop_basic",
     "level_group": "consumer_confidence_drop",
+    "content_level_id": "consumer_confidence_drop",
+    "narrative_level_id": "consumer_confidence_drop",
+    "level_order": 1,
+    "level_name": "消费信心下滑",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "需求不足"
+    ],
+    "shock_type": "IS_LEFT",
+    "curve_shift": "IS 左移",
+    "shock_source": "居民消费信心下降",
+    "core_variables": [
+      "C ↓"
+    ],
+    "main_problem": "消费不足导致总需求下降，产出和就业承压。",
+    "governance_goal": "恢复总需求，使产出接近参考水平，同时避免债务和通胀压力过高。",
+    "policy_goal": "恢复总需求，使产出接近参考水平，同时避免债务和通胀压力过高。",
+    "problem_title": "消费信心下滑",
+    "problem_description": "近期，N市居民消费意愿明显转弱。商场客流、餐饮订单和耐用品消费同步下降，居民更倾向于增加储蓄、推迟大额消费。消费支出下降使总需求不足，经济面临产出下滑和就业承压的风险。",
+    "body": "近期，N市居民消费意愿明显转弱。商场客流、餐饮订单和耐用品消费同步下降，居民更倾向于增加储蓄、推迟大额消费。消费支出下降使总需求不足，经济面临产出下滑和就业承压的风险。",
+    "model_hint": "核心变量：C ↓，总需求下降，IS 曲线左移。",
+    "theory_panel_note": "本面板展示消费信心下降这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "消费信心下降会导致消费 C 减少，总需求走弱，IS 曲线左移。",
+      "扩张性财政政策可以通过提高自主支出 A 缓解需求不足。",
+      "扩张性货币政策可以降低利率压力，支持投资和产出恢复。",
+      "政策目标不是单纯让产出越高越好，而是让产出接近参考水平，同时控制债务和通胀压力。"
+    ],
+    "scoring_focus": [
+      "产出是否接近参考水平",
+      "失业是否改善",
+      "通胀压力是否可控",
+      "债务压力是否可控",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "新闻快讯：商圈客流转弱",
+        "body": "N市宏观运行监测中心发布报告：过去两周，河西商圈、南港购物中心等重点商业区客流量较上月下降。TCP智能家电、云禾餐饮、岚桥文旅等企业反馈，家电、外出就餐和短途旅游订单均出现不同程度回落。",
+        "button": "继续调查"
+      },
+      {
+        "title": "居民访谈：先把钱存下来",
+        "body": "N市部分居民在采访中表示，虽然当前收入还算稳定，但对未来就业和收入增长存在不确定感。一位居民说：“本来打算换一台新冰箱，但最近还是先缓一缓，把钱存下来更安心。”",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：消费信心下降",
+        "body": "消费是总需求的重要组成部分。居民推迟消费、增加储蓄，会导致消费 C 下降，总需求走弱。在短期价格粘性条件下，这会推动 IS 曲线左移，并带来产出下降和就业压力。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "C": "偏低",
+      "Y": "100.0",
+      "u": "5.0%",
+      "π": "2.0%",
+      "i": "4.00%",
+      "Debt": "60.0%",
+      "G": "正常",
+      "I": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 132,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 5.0,
+        "pi_base": 2.0,
+        "debt_base": 60.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "consumer_confidence_drop_basic",
     "title": "消费信心下滑：基础教学关",
     "selection_mode": "single",
     "settlement_mode": "demo",
-    "model_type": "IS_LM",
     "policy_point_limit": null,
-    "shock_type": "IS_LEFT",
-    "problem_title": "消费信心下降",
-    "problem_description": "居民消费意愿下降，消费支出减少，经济面临需求偏弱压力。",
-    "model_hint": "核心变量：C ↓，总需求下降，IS 曲线左移",
-    "learning_points": [
-      "消费信心下降导致 C 下降，总需求走弱，IS 曲线左移。",
-      "扩张性财政政策可以通过提高自主支出 A 推动 IS 曲线右移。",
-      "扩张性货币政策可以通过提高流动性参数 d 推动 LM 曲线右移或下移。"
-    ],
-    "body": "居民对未来收入预期下降，消费支出明显减少，经济出现需求不足迹象。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"C": "偏低", "Y": "100.0", "u": "5.0%", "π": "2.0%", "i": "4.00%", "Debt": "60.0%"},
+    "score_config": {
+      "enabled": false,
+      "reason": "基础教学演示关暂不启用评分"
+    },
     "available_policies": [
-      {"id": "increase_government_purchase"},
-      {"id": "expansionary_monetary_policy"},
-      {"id": "tax_cut"}
-    ],
-    "story_steps": [
-      {"title": "新闻快讯：商场客流减少", "body": "近期多地商场和餐饮门店客流下降，零售企业反馈销售额明显低于预期。", "button": "继续调查"},
-      {"title": "居民访谈：先少花一点", "body": "一些居民表示，对未来收入和就业形势感到不确定，因此推迟了大额消费，减少了非必要支出。", "button": "召开政策会议"},
-      {"title": "顾问判断：消费信心下降", "body": "居民消费意愿下降会导致消费 C 减少，总需求走弱。在短期价格刚性的封闭经济中，这会带来产出下降压力。", "button": "进入政策桌面"}
+      {
+        "id": "increase_government_purchase"
+      },
+      {
+        "id": "expansionary_monetary_policy"
+      },
+      {
+        "id": "tax_cut"
+      }
     ]
   },
   {
-    "id": "consumer_confidence_drop_training",
     "level_group": "consumer_confidence_drop",
+    "content_level_id": "consumer_confidence_drop",
+    "narrative_level_id": "consumer_confidence_drop",
+    "level_order": 1,
+    "level_name": "消费信心下滑",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "需求不足"
+    ],
+    "shock_type": "IS_LEFT",
+    "curve_shift": "IS 左移",
+    "shock_source": "居民消费信心下降",
+    "core_variables": [
+      "C ↓"
+    ],
+    "main_problem": "消费不足导致总需求下降，产出和就业承压。",
+    "governance_goal": "恢复总需求，使产出接近参考水平，同时避免债务和通胀压力过高。",
+    "policy_goal": "恢复总需求，使产出接近参考水平，同时避免债务和通胀压力过高。",
+    "problem_title": "消费信心下滑",
+    "problem_description": "近期，N市居民消费意愿明显转弱。商场客流、餐饮订单和耐用品消费同步下降，居民更倾向于增加储蓄、推迟大额消费。消费支出下降使总需求不足，经济面临产出下滑和就业承压的风险。",
+    "body": "近期，N市居民消费意愿明显转弱。商场客流、餐饮订单和耐用品消费同步下降，居民更倾向于增加储蓄、推迟大额消费。消费支出下降使总需求不足，经济面临产出下滑和就业承压的风险。",
+    "model_hint": "核心变量：C ↓，总需求下降，IS 曲线左移。",
+    "theory_panel_note": "本面板展示消费信心下降这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "消费信心下降会导致消费 C 减少，总需求走弱，IS 曲线左移。",
+      "扩张性财政政策可以通过提高自主支出 A 缓解需求不足。",
+      "扩张性货币政策可以降低利率压力，支持投资和产出恢复。",
+      "政策目标不是单纯让产出越高越好，而是让产出接近参考水平，同时控制债务和通胀压力。"
+    ],
+    "scoring_focus": [
+      "产出是否接近参考水平",
+      "失业是否改善",
+      "通胀压力是否可控",
+      "债务压力是否可控",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "新闻快讯：商圈客流转弱",
+        "body": "N市宏观运行监测中心发布报告：过去两周，河西商圈、南港购物中心等重点商业区客流量较上月下降。TCP智能家电、云禾餐饮、岚桥文旅等企业反馈，家电、外出就餐和短途旅游订单均出现不同程度回落。",
+        "button": "继续调查"
+      },
+      {
+        "title": "居民访谈：先把钱存下来",
+        "body": "N市部分居民在采访中表示，虽然当前收入还算稳定，但对未来就业和收入增长存在不确定感。一位居民说：“本来打算换一台新冰箱，但最近还是先缓一缓，把钱存下来更安心。”",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：消费信心下降",
+        "body": "消费是总需求的重要组成部分。居民推迟消费、增加储蓄，会导致消费 C 下降，总需求走弱。在短期价格粘性条件下，这会推动 IS 曲线左移，并带来产出下降和就业压力。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "C": "偏低",
+      "Y": "100.0",
+      "u": "5.0%",
+      "π": "2.0%",
+      "i": "4.00%",
+      "Debt": "60.0%",
+      "G": "正常",
+      "I": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 132,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 5.0,
+        "pi_base": 2.0,
+        "debt_base": 60.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "consumer_confidence_drop_training",
     "title": "消费信心下滑：组合训练关",
     "selection_mode": "budget",
     "settlement_mode": "model",
-    "model_type": "IS_LM",
     "policy_point_limit": 5,
-    "shock_type": "IS_LEFT",
-    "problem_title": "消费信心下降",
-    "problem_description": "居民消费意愿下降，消费支出减少，经济面临需求偏弱压力。",
-    "model_hint": "核心变量：C ↓，总需求下降，IS 曲线左移",
-    "learning_points": [
-      "消费信心下降导致 C 下降，总需求走弱，IS 曲线左移。",
-      "扩张性财政政策可以通过提高自主支出 A 推动 IS 曲线右移。",
-      "扩张性货币政策可以通过提高流动性参数 d 推动 LM 曲线右移或下移。"
-    ],
-    "body": "居民对未来收入预期下降，消费支出明显减少，经济出现需求不足迹象。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"C": "偏低", "Y": "100.0", "u": "5.0%", "π": "2.0%", "i": "4.00%", "Debt": "60.0%"},
-    "model_params": {
-      "IS_LM": {"A": 132, "b": 8, "c": 0.04, "d": 0, "Y_potential": 110, "u_base": 5.0, "pi_base": 2.0, "debt_base": 60.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
-    },
     "score_config": {
       "enabled": true,
       "score_type": "short_run_is_lm",
-      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
-      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
-      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
-      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
-      "policy_efficiency": {"use_policy_points": true},
-      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
     },
     "available_policies": [
-      {"id": "increase_government_purchase", "cost": 3},
-      {"id": "expansionary_monetary_policy", "cost": 2},
-      {"id": "tax_cut", "cost": 2}
-    ],
-    "story_steps": [
-      {"title": "新闻快讯：商场客流减少", "body": "近期多地商场和餐饮门店客流下降，零售企业反馈销售额明显低于预期。", "button": "继续调查"},
-      {"title": "居民访谈：先少花一点", "body": "一些居民表示，对未来收入和就业形势感到不确定，因此推迟了大额消费，减少了非必要支出。", "button": "召开政策会议"},
-      {"title": "顾问判断：消费信心下降", "body": "居民消费意愿下降会导致消费 C 减少，总需求走弱。在短期价格刚性的封闭经济中，这会带来产出下降压力。", "button": "进入政策桌面"}
+      {
+        "id": "increase_government_purchase",
+        "cost": 3
+      },
+      {
+        "id": "expansionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "tax_cut",
+        "cost": 2
+      }
     ]
   },
   {
-    "id": "investment_confidence_drop_basic",
     "level_group": "investment_confidence_drop",
+    "content_level_id": "investment_confidence_drop",
+    "narrative_level_id": "investment_confidence_drop",
+    "level_order": 2,
+    "level_name": "投资信心下降",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "投资不足"
+    ],
+    "shock_type": "IS_LEFT",
+    "curve_shift": "IS 左移",
+    "shock_source": "企业投资意愿下降",
+    "core_variables": [
+      "I ↓"
+    ],
+    "main_problem": "投资下降导致需求不足，产出下降，并可能影响未来生产扩张。",
+    "governance_goal": "恢复投资与产出，使 Y 和 I 回到较合理水平，同时控制债务和政策成本。",
+    "policy_goal": "恢复投资与产出，使 Y 和 I 回到较合理水平，同时控制债务和政策成本。",
+    "problem_title": "投资信心下降",
+    "problem_description": "企业对未来订单和市场需求转为谨慎，部分龙头企业推迟扩产计划，设备采购和中长期贷款需求下降。投资支出减少削弱了当前总需求，也可能影响未来生产能力和就业吸纳。",
+    "body": "企业对未来订单和市场需求转为谨慎，部分龙头企业推迟扩产计划，设备采购和中长期贷款需求下降。投资支出减少削弱了当前总需求，也可能影响未来生产能力和就业吸纳。",
+    "model_hint": "核心变量：I ↓，总需求下降，IS 曲线左移。",
+    "theory_panel_note": "本面板展示投资信心下降这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "投资信心下降会导致投资 I 减少，总需求走弱，IS 曲线左移。",
+      "消费下降和投资下降的现实来源不同，但在 IS-LM 图中都可能表现为 IS 左移。",
+      "扩张性货币政策可以通过降低利率压力支持投资恢复。",
+      "财政扩张可以提高总需求，但需要注意债务压力和政策效率。"
+    ],
+    "scoring_focus": [
+      "产出恢复程度",
+      "投资恢复程度",
+      "失业改善程度",
+      "债务压力控制",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "企业调查：扩产项目推迟",
+        "body": "最新企业景气调查显示，江麓装备、东曜电子、宁星汽车零部件等多家企业推迟了原定扩产计划。部分企业表示，海外订单和国内需求都存在不确定性，短期内更倾向于保留现金流。",
+        "button": "继续调查"
+      },
+      {
+        "title": "银行反馈：中长期贷款需求下降",
+        "body": "华东城市银行和N市商业银行反馈，企业设备贷款和项目融资申请减少。某制造企业负责人表示：“现在不是完全没有订单，而是看不清未来半年需求，所以新的生产线暂时不敢上。”",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：投资信心下降",
+        "body": "投资 I 是总需求的重要组成部分。企业投资意愿下降会直接压低总需求，使 IS 曲线左移。虽然它和消费信心下降的现实来源不同，但在 IS-LM 模型中都会表现为需求不足和产出下行压力。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "I": "偏低",
+      "Y": "97.0",
+      "u": "5.5%",
+      "π": "1.9%",
+      "i": "3.88%",
+      "Debt": "60.0%",
+      "C": "正常",
+      "G": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 128,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 5.5,
+        "pi_base": 1.9,
+        "debt_base": 60.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "investment_confidence_drop_basic",
     "title": "投资信心下降：基础教学关",
     "selection_mode": "single",
     "settlement_mode": "demo",
-    "model_type": "IS_LM",
     "policy_point_limit": null,
-    "shock_type": "IS_LEFT",
-    "problem_title": "投资信心下降",
-    "problem_description": "企业对未来市场前景更谨慎，投资支出下降，经济面临需求不足和产出下降压力。",
-    "model_hint": "核心变量：I ↓，总需求下降，IS 曲线左移",
-    "learning_points": [
-      "投资信心下降导致 I 下降，总需求走弱，IS 曲线左移。",
-      "扩张性财政政策可以通过提高自主支出 A 缓解需求不足。",
-      "扩张性货币政策可以降低融资压力，支持投资和产出恢复。"
-    ],
-    "body": "企业推迟投资计划，融资需求走弱，短期产出面临下行压力。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"I": "偏低", "Y": "97.0", "u": "5.5%", "π": "1.9%", "i": "3.88%", "Debt": "60.0%"},
+    "score_config": {
+      "enabled": false,
+      "reason": "基础教学演示关暂不启用评分"
+    },
     "available_policies": [
-      {"id": "increase_government_purchase"},
-      {"id": "expansionary_monetary_policy"},
-      {"id": "tax_cut"}
-    ],
-    "story_steps": [
-      {"title": "企业调查：扩产计划推迟", "body": "多家企业表示，市场前景不明朗，原计划的设备采购和扩产项目被暂缓。", "button": "继续调查"},
-      {"title": "金融观察：投资需求转弱", "body": "银行反馈企业贷款需求下降，部分企业开始压缩资本开支。", "button": "召开政策会议"},
-      {"title": "顾问判断：投资信心下降", "body": "投资 I 减少会压低总需求，使 IS 曲线左移，并带来产出下降压力。", "button": "进入政策桌面"}
+      {
+        "id": "increase_government_purchase"
+      },
+      {
+        "id": "expansionary_monetary_policy"
+      },
+      {
+        "id": "tax_cut"
+      }
     ]
   },
   {
-    "id": "investment_confidence_drop_training",
     "level_group": "investment_confidence_drop",
+    "content_level_id": "investment_confidence_drop",
+    "narrative_level_id": "investment_confidence_drop",
+    "level_order": 2,
+    "level_name": "投资信心下降",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "投资不足"
+    ],
+    "shock_type": "IS_LEFT",
+    "curve_shift": "IS 左移",
+    "shock_source": "企业投资意愿下降",
+    "core_variables": [
+      "I ↓"
+    ],
+    "main_problem": "投资下降导致需求不足，产出下降，并可能影响未来生产扩张。",
+    "governance_goal": "恢复投资与产出，使 Y 和 I 回到较合理水平，同时控制债务和政策成本。",
+    "policy_goal": "恢复投资与产出，使 Y 和 I 回到较合理水平，同时控制债务和政策成本。",
+    "problem_title": "投资信心下降",
+    "problem_description": "企业对未来订单和市场需求转为谨慎，部分龙头企业推迟扩产计划，设备采购和中长期贷款需求下降。投资支出减少削弱了当前总需求，也可能影响未来生产能力和就业吸纳。",
+    "body": "企业对未来订单和市场需求转为谨慎，部分龙头企业推迟扩产计划，设备采购和中长期贷款需求下降。投资支出减少削弱了当前总需求，也可能影响未来生产能力和就业吸纳。",
+    "model_hint": "核心变量：I ↓，总需求下降，IS 曲线左移。",
+    "theory_panel_note": "本面板展示投资信心下降这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "投资信心下降会导致投资 I 减少，总需求走弱，IS 曲线左移。",
+      "消费下降和投资下降的现实来源不同，但在 IS-LM 图中都可能表现为 IS 左移。",
+      "扩张性货币政策可以通过降低利率压力支持投资恢复。",
+      "财政扩张可以提高总需求，但需要注意债务压力和政策效率。"
+    ],
+    "scoring_focus": [
+      "产出恢复程度",
+      "投资恢复程度",
+      "失业改善程度",
+      "债务压力控制",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "企业调查：扩产项目推迟",
+        "body": "最新企业景气调查显示，江麓装备、东曜电子、宁星汽车零部件等多家企业推迟了原定扩产计划。部分企业表示，海外订单和国内需求都存在不确定性，短期内更倾向于保留现金流。",
+        "button": "继续调查"
+      },
+      {
+        "title": "银行反馈：中长期贷款需求下降",
+        "body": "华东城市银行和N市商业银行反馈，企业设备贷款和项目融资申请减少。某制造企业负责人表示：“现在不是完全没有订单，而是看不清未来半年需求，所以新的生产线暂时不敢上。”",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：投资信心下降",
+        "body": "投资 I 是总需求的重要组成部分。企业投资意愿下降会直接压低总需求，使 IS 曲线左移。虽然它和消费信心下降的现实来源不同，但在 IS-LM 模型中都会表现为需求不足和产出下行压力。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "I": "偏低",
+      "Y": "97.0",
+      "u": "5.5%",
+      "π": "1.9%",
+      "i": "3.88%",
+      "Debt": "60.0%",
+      "C": "正常",
+      "G": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 128,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 5.5,
+        "pi_base": 1.9,
+        "debt_base": 60.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "investment_confidence_drop_training",
     "title": "投资信心下降：组合训练关",
     "selection_mode": "budget",
     "settlement_mode": "model",
-    "model_type": "IS_LM",
     "policy_point_limit": 5,
-    "shock_type": "IS_LEFT",
-    "problem_title": "投资信心下降",
-    "problem_description": "企业对未来市场前景更谨慎，投资支出下降，经济面临需求不足和产出下降压力。",
-    "model_hint": "核心变量：I ↓，总需求下降，IS 曲线左移",
-    "learning_points": [
-      "投资信心下降导致 I 下降，总需求走弱，IS 曲线左移。",
-      "扩张性财政政策可以通过提高自主支出 A 缓解需求不足。",
-      "扩张性货币政策可以降低融资压力，支持投资和产出恢复。"
-    ],
-    "body": "企业推迟投资计划，融资需求走弱，短期产出面临下行压力。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"I": "偏低", "Y": "97.0", "u": "5.5%", "π": "1.9%", "i": "3.88%", "Debt": "60.0%"},
-    "model_params": {
-      "IS_LM": {"A": 128, "b": 8, "c": 0.04, "d": 0, "Y_potential": 110, "u_base": 5.5, "pi_base": 1.9, "debt_base": 60.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
-    },
     "score_config": {
       "enabled": true,
       "score_type": "short_run_is_lm",
-      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
-      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
-      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
-      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
-      "policy_efficiency": {"use_policy_points": true},
-      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
     },
     "available_policies": [
-      {"id": "increase_government_purchase", "cost": 3},
-      {"id": "expansionary_monetary_policy", "cost": 2},
-      {"id": "tax_cut", "cost": 2}
-    ],
-    "story_steps": [
-      {"title": "企业调查：扩产计划推迟", "body": "多家企业表示，市场前景不明朗，原计划的设备采购和扩产项目被暂缓。", "button": "继续调查"},
-      {"title": "金融观察：投资需求转弱", "body": "银行反馈企业贷款需求下降，部分企业开始压缩资本开支。", "button": "召开政策会议"},
-      {"title": "顾问判断：投资信心下降", "body": "投资 I 减少会压低总需求，使 IS 曲线左移，并带来产出下降压力。", "button": "进入政策桌面"}
+      {
+        "id": "increase_government_purchase",
+        "cost": 3
+      },
+      {
+        "id": "expansionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "tax_cut",
+        "cost": 2
+      }
     ]
   },
   {
-    "id": "money_demand_rise_basic",
-    "level_group": "money_demand_rise",
-    "title": "货币需求上升：基础教学关",
+    "level_group": "money_market_tightening",
+    "content_level_id": "money_market_tightening",
+    "narrative_level_id": "money_market_tension",
+    "level_order": 3,
+    "level_name": "货币市场紧张",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "货币市场紧张"
+    ],
+    "shock_type": "LM_LEFT",
+    "curve_shift": "LM 左移 / 上移",
+    "shock_source": "居民和企业流动性偏好上升，货币需求增加",
+    "core_variables": [
+      "L ↑"
+    ],
+    "main_problem": "利率上升，投资受抑制，产出下降。",
+    "governance_goal": "缓解利率上行压力，恢复投资和产出，避免因融资紧张导致经济进一步下滑。",
+    "policy_goal": "缓解利率上行压力，恢复投资和产出，避免因融资紧张导致经济进一步下滑。",
+    "problem_title": "货币市场紧张",
+    "problem_description": "市场不确定性上升后，居民和企业更愿意持有现金与高流动性资产，货币需求明显增加。资金面趋紧推高利率，企业融资成本上升，投资和产出受到抑制。",
+    "body": "市场不确定性上升后，居民和企业更愿意持有现金与高流动性资产，货币需求明显增加。资金面趋紧推高利率，企业融资成本上升，投资和产出受到抑制。",
+    "model_hint": "核心变量：L ↑，利率上升压力增加，LM 曲线左移 / 上移。",
+    "theory_panel_note": "本面板展示货币需求上升这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "不是所有产出下降都来自商品市场需求不足。",
+      "货币需求上升会使 LM 曲线左移或上移，推高利率。",
+      "利率上升会抑制投资，进一步影响产出和就业。",
+      "当问题主要来自货币市场紧张时，扩张性货币政策通常更有针对性。"
+    ],
+    "scoring_focus": [
+      "利率是否回落",
+      "投资是否恢复",
+      "产出是否恢复",
+      "是否避免不必要的债务上升",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "金融市场：流动性偏好上升",
+        "body": "安澜证券发布市场观察称，近期企业和居民部门的流动性偏好明显增强。企业更愿意保留现金头寸，居民也增加了活期存款和短期理财配置。",
+        "button": "继续调查"
+      },
+      {
+        "title": "银行反馈：资金面开始偏紧",
+        "body": "华东城市银行资金部报告显示，短期资金利率出现上行。部分中小企业反映，贷款审批更加谨慎，融资成本较前期有所抬升。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：货币需求增加",
+        "body": "在货币供给不变的情况下，货币需求上升会推高均衡利率，使 LM 曲线左移或上移。利率上升会抑制投资，并通过投资渠道压低产出。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "M_d": "偏高",
+      "Y": "97.6",
+      "u": "5.5%",
+      "π": "1.9%",
+      "i": "4.30%",
+      "Debt": "60.0%",
+      "I": "偏低",
+      "G": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 132,
+        "b": 8,
+        "c": 0.04,
+        "d": -0.4,
+        "Y_potential": 110,
+        "u_base": 5.5,
+        "pi_base": 1.9,
+        "debt_base": 60.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "money_market_tightening_basic",
+    "title": "货币市场紧张：基础教学关",
     "selection_mode": "single",
     "settlement_mode": "demo",
-    "model_type": "IS_LM",
     "policy_point_limit": null,
-    "shock_type": "LM_LEFT",
-    "problem_title": "货币需求上升",
-    "problem_description": "居民和企业更偏好持有流动性，货币需求上升，金融条件趋紧，利率上升压力加大。",
-    "model_hint": "核心变量：货币需求 ↑，LM 曲线左移 / 上移",
-    "learning_points": [
-      "货币需求上升会在货币供给不变时推高利率，使 LM 曲线左移或上移。",
-      "扩张性货币政策可以缓解货币市场紧张，推动 LM 曲线右移或下移。",
-      "财政政策也可能影响产出，但不能直接解决货币市场流动性偏紧的问题。"
-    ],
-    "body": "市场不确定性提高，流动性偏好上升，利率和产出同时承压。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"M_d": "偏高", "Y": "97.6", "u": "5.5%", "π": "1.9%", "i": "4.30%", "Debt": "60.0%"},
+    "score_config": {
+      "enabled": false,
+      "reason": "基础教学演示关暂不启用评分"
+    },
     "available_policies": [
-      {"id": "expansionary_monetary_policy"},
-      {"id": "increase_government_purchase"},
-      {"id": "tax_cut"}
-    ],
-    "story_steps": [
-      {"title": "金融市场：流动性偏好上升", "body": "市场不确定性提高，居民和企业更愿意持有现金或高流动性资产。", "button": "继续调查"},
-      {"title": "银行反馈：资金面趋紧", "body": "银行间资金利率上行，企业融资成本出现上升压力。", "button": "召开政策会议"},
-      {"title": "顾问判断：货币需求上升", "body": "在货币供给不变时，货币需求增加会推高利率，使 LM 曲线左移或上移，进而抑制投资和产出。", "button": "进入政策桌面"}
+      {
+        "id": "expansionary_monetary_policy"
+      },
+      {
+        "id": "increase_government_purchase"
+      },
+      {
+        "id": "tax_cut"
+      }
     ]
   },
   {
-    "id": "money_demand_rise_training",
-    "level_group": "money_demand_rise",
-    "title": "货币需求上升：组合训练关",
+    "level_group": "money_market_tightening",
+    "content_level_id": "money_market_tightening",
+    "narrative_level_id": "money_market_tension",
+    "level_order": 3,
+    "level_name": "货币市场紧张",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "货币市场紧张"
+    ],
+    "shock_type": "LM_LEFT",
+    "curve_shift": "LM 左移 / 上移",
+    "shock_source": "居民和企业流动性偏好上升，货币需求增加",
+    "core_variables": [
+      "L ↑"
+    ],
+    "main_problem": "利率上升，投资受抑制，产出下降。",
+    "governance_goal": "缓解利率上行压力，恢复投资和产出，避免因融资紧张导致经济进一步下滑。",
+    "policy_goal": "缓解利率上行压力，恢复投资和产出，避免因融资紧张导致经济进一步下滑。",
+    "problem_title": "货币市场紧张",
+    "problem_description": "市场不确定性上升后，居民和企业更愿意持有现金与高流动性资产，货币需求明显增加。资金面趋紧推高利率，企业融资成本上升，投资和产出受到抑制。",
+    "body": "市场不确定性上升后，居民和企业更愿意持有现金与高流动性资产，货币需求明显增加。资金面趋紧推高利率，企业融资成本上升，投资和产出受到抑制。",
+    "model_hint": "核心变量：L ↑，利率上升压力增加，LM 曲线左移 / 上移。",
+    "theory_panel_note": "本面板展示货币需求上升这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "不是所有产出下降都来自商品市场需求不足。",
+      "货币需求上升会使 LM 曲线左移或上移，推高利率。",
+      "利率上升会抑制投资，进一步影响产出和就业。",
+      "当问题主要来自货币市场紧张时，扩张性货币政策通常更有针对性。"
+    ],
+    "scoring_focus": [
+      "利率是否回落",
+      "投资是否恢复",
+      "产出是否恢复",
+      "是否避免不必要的债务上升",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "金融市场：流动性偏好上升",
+        "body": "安澜证券发布市场观察称，近期企业和居民部门的流动性偏好明显增强。企业更愿意保留现金头寸，居民也增加了活期存款和短期理财配置。",
+        "button": "继续调查"
+      },
+      {
+        "title": "银行反馈：资金面开始偏紧",
+        "body": "华东城市银行资金部报告显示，短期资金利率出现上行。部分中小企业反映，贷款审批更加谨慎，融资成本较前期有所抬升。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：货币需求增加",
+        "body": "在货币供给不变的情况下，货币需求上升会推高均衡利率，使 LM 曲线左移或上移。利率上升会抑制投资，并通过投资渠道压低产出。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "M_d": "偏高",
+      "Y": "97.6",
+      "u": "5.5%",
+      "π": "1.9%",
+      "i": "4.30%",
+      "Debt": "60.0%",
+      "I": "偏低",
+      "G": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 132,
+        "b": 8,
+        "c": 0.04,
+        "d": -0.4,
+        "Y_potential": 110,
+        "u_base": 5.5,
+        "pi_base": 1.9,
+        "debt_base": 60.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "money_market_tightening_training",
+    "title": "货币市场紧张：组合训练关",
     "selection_mode": "budget",
     "settlement_mode": "model",
-    "model_type": "IS_LM",
     "policy_point_limit": 5,
-    "shock_type": "LM_LEFT",
-    "problem_title": "货币需求上升",
-    "problem_description": "居民和企业更偏好持有流动性，货币需求上升，金融条件趋紧，利率上升压力加大。",
-    "model_hint": "核心变量：货币需求 ↑，LM 曲线左移 / 上移",
-    "learning_points": [
-      "货币需求上升会在货币供给不变时推高利率，使 LM 曲线左移或上移。",
-      "扩张性货币政策可以缓解货币市场紧张，推动 LM 曲线右移或下移。",
-      "财政政策也可能影响产出，但不能直接解决货币市场流动性偏紧的问题。"
-    ],
-    "body": "市场不确定性提高，流动性偏好上升，利率和产出同时承压。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"M_d": "偏高", "Y": "97.6", "u": "5.5%", "π": "1.9%", "i": "4.30%", "Debt": "60.0%"},
-    "model_params": {
-      "IS_LM": {"A": 132, "b": 8, "c": 0.04, "d": -0.4, "Y_potential": 110, "u_base": 5.5, "pi_base": 1.9, "debt_base": 60.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
-    },
     "score_config": {
       "enabled": true,
       "score_type": "short_run_is_lm",
-      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
-      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
-      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
-      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
-      "policy_efficiency": {"use_policy_points": true},
-      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
     },
     "available_policies": [
-      {"id": "expansionary_monetary_policy", "cost": 2},
-      {"id": "increase_government_purchase", "cost": 3},
-      {"id": "tax_cut", "cost": 2}
-    ],
-    "story_steps": [
-      {"title": "金融市场：流动性偏好上升", "body": "市场不确定性提高，居民和企业更愿意持有现金或高流动性资产。", "button": "继续调查"},
-      {"title": "银行反馈：资金面趋紧", "body": "银行间资金利率上行，企业融资成本出现上升压力。", "button": "召开政策会议"},
-      {"title": "顾问判断：货币需求上升", "body": "在货币供给不变时，货币需求增加会推高利率，使 LM 曲线左移或上移，进而抑制投资和产出。", "button": "进入政策桌面"}
+      {
+        "id": "expansionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "increase_government_purchase",
+        "cost": 3
+      },
+      {
+        "id": "tax_cut",
+        "cost": 2
+      }
     ]
   },
   {
-    "id": "government_spending_expansion_basic",
-    "level_group": "government_spending_expansion",
-    "title": "政府支出扩张：基础教学关",
+    "level_group": "overheating_and_cooling",
+    "content_level_id": "overheating_and_cooling",
+    "narrative_level_id": "overheating_policy_cooling",
+    "level_order": 4,
+    "level_name": "经济过热与政策降温",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "经济过热",
+      "收缩政策"
+    ],
+    "shock_type": "IS_RIGHT",
+    "curve_shift": "IS 右移",
+    "shock_source": "需求扩张过快，可能来自消费繁荣、投资繁荣或前期政策刺激过度",
+    "core_variables": [
+      "A ↑",
+      "Y 高于参考水平"
+    ],
+    "main_problem": "产出高于参考水平，通胀压力上升，经济存在过热风险。",
+    "governance_goal": "让产出回到参考水平附近，降低通胀压力，同时避免过度收缩导致经济重新下滑。",
+    "policy_goal": "让产出回到参考水平附近，降低通胀压力，同时避免过度收缩导致经济重新下滑。",
+    "problem_title": "经济过热与政策降温",
+    "problem_description": "前期消费和投资持续升温，部分行业订单快速增加，产出已经高于参考水平。经济表面繁荣，但劳动力、原材料和融资需求同步紧张，通胀压力开始积累。政策目标从刺激转向适度降温。",
+    "body": "前期消费和投资持续升温，部分行业订单快速增加，产出已经高于参考水平。经济表面繁荣，但劳动力、原材料和融资需求同步紧张，通胀压力开始积累。政策目标从刺激转向适度降温。",
+    "model_hint": "核心变量：A ↑，总需求扩张，IS 曲线右移，产出高于参考水平。",
+    "theory_panel_note": "本面板展示需求扩张过快这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "IS 曲线右移会提高短期产出，但产出过高并不一定是好事。",
+      "宏观政策目标是稳定经济，而不是让产出无限上升。",
+      "当经济出现过热风险时，收缩性财政政策或收缩性货币政策可以帮助降温。",
+      "政策收缩也需要适度，过度收缩可能导致产出重新下滑。"
+    ],
+    "scoring_focus": [
+      "产出是否回到参考水平附近",
+      "通胀压力是否下降",
+      "是否避免过度收缩",
+      "债务压力是否可控",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "市场观察：需求持续升温",
+        "body": "N市统计局快报显示，近期消费、房地产相关服务和制造业投资均保持较快增长。宁星汽车、东曜电子等企业订单排期延长，部分行业出现加班生产和用工紧张。",
+        "button": "继续调查"
+      },
+      {
+        "title": "价格信号：成本压力抬头",
+        "body": "宏观运行监测中心发现，原材料采购价格、部分服务价格和企业用工成本开始上升。虽然价格具有粘性，不会立刻充分调整，但多个部门已经出现通胀压力信号。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：经济可能过热",
+        "body": "总需求扩张会推动 IS 曲线右移，使产出高于参考水平。短期内这会表现为经济繁荣，但如果超过合理区间，可能带来通胀压力和政策降温需求。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "G": "偏高",
+      "Y": "114.0",
+      "u": "4.4%",
+      "π": "2.3%",
+      "i": "4.56%",
+      "Debt": "66.0%",
+      "C": "偏高",
+      "I": "偏高"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 150.48,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 4.4,
+        "pi_base": 2.3,
+        "debt_base": 66.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "overheating_and_cooling_basic",
+    "title": "经济过热与政策降温：基础教学关",
     "selection_mode": "single",
     "settlement_mode": "demo",
-    "model_type": "IS_LM",
     "policy_point_limit": null,
-    "shock_type": "IS_RIGHT",
-    "problem_title": "政府支出扩张",
-    "problem_description": "政府启动大规模支出计划，短期总需求增强，但可能带来利率上升和债务压力。",
-    "model_hint": "核心变量：G ↑，总需求上升，IS 曲线右移",
-    "learning_points": [
-      "政府支出扩张会提高自主支出 A，推动 IS 曲线右移。",
-      "如果经济已经接近或高于潜在产出，继续刺激可能带来利率、通胀或债务压力。",
-      "收缩性政策或保持政策不变可以用于控制过热风险。"
-    ],
-    "body": "公共支出扩大带来总需求上升，也让利率和财政压力成为政策会议重点。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"G": "偏高", "Y": "114.0", "u": "4.4%", "π": "2.3%", "i": "4.56%", "Debt": "66.0%"},
+    "score_config": {
+      "enabled": false,
+      "reason": "基础教学演示关暂不启用评分"
+    },
     "available_policies": [
-      {"id": "contractionary_fiscal_policy"},
-      {"id": "contractionary_monetary_policy"},
-      {"id": "keep_policy_unchanged"}
-    ],
-    "story_steps": [
-      {"title": "政策新闻：公共投资计划启动", "body": "政府宣布扩大基础设施和公共服务支出，以支持经济活动。", "button": "继续调查"},
-      {"title": "市场反应：需求明显增强", "body": "企业订单改善，就业需求回升，但金融市场开始关注利率和债务压力。", "button": "召开政策会议"},
-      {"title": "顾问判断：政府支出扩张", "body": "政府购买 G 增加会提高总需求，使 IS 曲线右移。短期产出上升，但利率和债务压力也可能上升。", "button": "进入政策桌面"}
+      {
+        "id": "contractionary_fiscal_policy"
+      },
+      {
+        "id": "contractionary_monetary_policy"
+      },
+      {
+        "id": "keep_policy_unchanged"
+      }
     ]
   },
   {
-    "id": "government_spending_expansion_training",
-    "level_group": "government_spending_expansion",
-    "title": "政府支出扩张：组合训练关",
+    "level_group": "overheating_and_cooling",
+    "content_level_id": "overheating_and_cooling",
+    "narrative_level_id": "overheating_policy_cooling",
+    "level_order": 4,
+    "level_name": "经济过热与政策降温",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "经济过热",
+      "收缩政策"
+    ],
+    "shock_type": "IS_RIGHT",
+    "curve_shift": "IS 右移",
+    "shock_source": "需求扩张过快，可能来自消费繁荣、投资繁荣或前期政策刺激过度",
+    "core_variables": [
+      "A ↑",
+      "Y 高于参考水平"
+    ],
+    "main_problem": "产出高于参考水平，通胀压力上升，经济存在过热风险。",
+    "governance_goal": "让产出回到参考水平附近，降低通胀压力，同时避免过度收缩导致经济重新下滑。",
+    "policy_goal": "让产出回到参考水平附近，降低通胀压力，同时避免过度收缩导致经济重新下滑。",
+    "problem_title": "经济过热与政策降温",
+    "problem_description": "前期消费和投资持续升温，部分行业订单快速增加，产出已经高于参考水平。经济表面繁荣，但劳动力、原材料和融资需求同步紧张，通胀压力开始积累。政策目标从刺激转向适度降温。",
+    "body": "前期消费和投资持续升温，部分行业订单快速增加，产出已经高于参考水平。经济表面繁荣，但劳动力、原材料和融资需求同步紧张，通胀压力开始积累。政策目标从刺激转向适度降温。",
+    "model_hint": "核心变量：A ↑，总需求扩张，IS 曲线右移，产出高于参考水平。",
+    "theory_panel_note": "本面板展示需求扩张过快这一外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "IS 曲线右移会提高短期产出，但产出过高并不一定是好事。",
+      "宏观政策目标是稳定经济，而不是让产出无限上升。",
+      "当经济出现过热风险时，收缩性财政政策或收缩性货币政策可以帮助降温。",
+      "政策收缩也需要适度，过度收缩可能导致产出重新下滑。"
+    ],
+    "scoring_focus": [
+      "产出是否回到参考水平附近",
+      "通胀压力是否下降",
+      "是否避免过度收缩",
+      "债务压力是否可控",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "市场观察：需求持续升温",
+        "body": "N市统计局快报显示，近期消费、房地产相关服务和制造业投资均保持较快增长。宁星汽车、东曜电子等企业订单排期延长，部分行业出现加班生产和用工紧张。",
+        "button": "继续调查"
+      },
+      {
+        "title": "价格信号：成本压力抬头",
+        "body": "宏观运行监测中心发现，原材料采购价格、部分服务价格和企业用工成本开始上升。虽然价格具有粘性，不会立刻充分调整，但多个部门已经出现通胀压力信号。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：经济可能过热",
+        "body": "总需求扩张会推动 IS 曲线右移，使产出高于参考水平。短期内这会表现为经济繁荣，但如果超过合理区间，可能带来通胀压力和政策降温需求。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "G": "偏高",
+      "Y": "114.0",
+      "u": "4.4%",
+      "π": "2.3%",
+      "i": "4.56%",
+      "Debt": "66.0%",
+      "C": "偏高",
+      "I": "偏高"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 150.48,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 4.4,
+        "pi_base": 2.3,
+        "debt_base": 66.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "overheating_and_cooling_training",
+    "title": "经济过热与政策降温：组合训练关",
     "selection_mode": "budget",
     "settlement_mode": "model",
-    "model_type": "IS_LM",
     "policy_point_limit": 5,
-    "shock_type": "IS_RIGHT",
-    "problem_title": "政府支出扩张",
-    "problem_description": "政府启动大规模支出计划，短期总需求增强，但可能带来利率上升和债务压力。",
-    "model_hint": "核心变量：G ↑，总需求上升，IS 曲线右移",
-    "learning_points": [
-      "政府支出扩张会提高自主支出 A，推动 IS 曲线右移。",
-      "如果经济已经接近或高于潜在产出，继续刺激可能带来利率、通胀或债务压力。",
-      "收缩性政策或保持政策不变可以用于控制过热风险。"
-    ],
-    "body": "公共支出扩大带来总需求上升，也让利率和财政压力成为政策会议重点。",
-    "model_tags": ["封闭经济", "短期", "价格刚性", "IS-LM"],
-    "initial_state": {"G": "偏高", "Y": "114.0", "u": "4.4%", "π": "2.3%", "i": "4.56%", "Debt": "66.0%"},
-    "model_params": {
-      "IS_LM": {"A": 150.48, "b": 8, "c": 0.04, "d": 0, "Y_potential": 110, "u_base": 4.4, "pi_base": 2.3, "debt_base": 66.0, "okun_beta": 0.04, "pi_sensitivity": 0.03}
-    },
     "score_config": {
       "enabled": true,
       "score_type": "short_run_is_lm",
-      "weights": {"output_stability": 40, "employment": 15, "inflation_control": 15, "debt_control": 15, "policy_efficiency": 15},
-      "targets": {"Y_target": 110, "u_target": 4.5, "pi_target": 2.0},
-      "bands": {"Y_ideal_band": 2, "Y_zero_band": 15, "u_ideal_band": 0.3, "u_zero_band": 2.0, "pi_ideal_band": 0.3, "pi_zero_band": 2.5},
-      "limits": {"debt_soft_limit": 65, "debt_hard_limit": 75},
-      "policy_efficiency": {"use_policy_points": true},
-      "scope_notes": {"time_horizon": "short_run", "model_scope": "IS_LM", "long_run_effects_counted": false}
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
     },
     "available_policies": [
-      {"id": "contractionary_fiscal_policy", "cost": 3},
-      {"id": "contractionary_monetary_policy", "cost": 2},
-      {"id": "keep_policy_unchanged", "cost": 0}
+      {
+        "id": "contractionary_fiscal_policy",
+        "cost": 3
+      },
+      {
+        "id": "contractionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "keep_policy_unchanged",
+        "cost": 0
+      }
+    ]
+  },
+  {
+    "level_group": "fiscal_expansion_crowding_out",
+    "content_level_id": "fiscal_expansion_crowding_out",
+    "narrative_level_id": "fiscal_expansion_crowding_out",
+    "level_order": 5,
+    "level_name": "财政扩张与挤出效应",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "财政扩张",
+      "挤出效应"
+    ],
+    "shock_type": "IS_RIGHT",
+    "curve_shift": "IS 右移",
+    "shock_source": "政府支出扩张或前期财政刺激",
+    "core_variables": [
+      "G ↑",
+      "i ↑",
+      "I 承压"
+    ],
+    "main_problem": "财政扩张提升了产出，但利率上升挤压私人投资。",
+    "governance_goal": "在保持产出稳定的同时，缓解私人投资偏低问题，并控制债务压力。",
+    "policy_goal": "在保持产出稳定的同时，缓解私人投资偏低问题，并控制债务压力。",
+    "problem_title": "财政扩张与挤出效应",
+    "problem_description": "政府此前推出了较大规模公共支出计划，短期内产出得到支撑。但随着总需求扩张，利率出现上行，部分企业的融资成本提高，私人投资恢复不及预期。当前治理目标不只是维持产出，还要缓解私人投资偏低问题。",
+    "body": "政府此前推出了较大规模公共支出计划，短期内产出得到支撑。但随着总需求扩张，利率出现上行，部分企业的融资成本提高，私人投资恢复不及预期。当前治理目标不只是维持产出，还要缓解私人投资偏低问题。",
+    "model_hint": "核心变量：G ↑，IS 曲线右移；利率 i 上升，私人投资 I 承压。",
+    "theory_panel_note": "本面板展示财政扩张冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "财政扩张可以提高短期产出，但也可能推高利率。",
+      "利率上升会增加企业融资成本，从而挤出部分私人投资。",
+      "这一关的治理目标不是简单压低利率，而是在稳定产出的同时让私人投资恢复到较好水平。",
+      "财政政策和货币政策的组合会影响产出、利率、投资和债务压力之间的权衡。"
+    ],
+    "scoring_focus": [
+      "私人投资是否恢复",
+      "产出是否稳定",
+      "利率是否过度上升",
+      "债务压力是否可控",
+      "政策点数使用效率"
     ],
     "story_steps": [
-      {"title": "政策新闻：公共投资计划启动", "body": "政府宣布扩大基础设施和公共服务支出，以支持经济活动。", "button": "继续调查"},
-      {"title": "市场反应：需求明显增强", "body": "企业订单改善，就业需求回升，但金融市场开始关注利率和债务压力。", "button": "召开政策会议"},
-      {"title": "顾问判断：政府支出扩张", "body": "政府购买 G 增加会提高总需求，使 IS 曲线右移。短期产出上升，但利率和债务压力也可能上升。", "button": "进入政策桌面"}
+      {
+        "title": "政策新闻：公共投资快速推进",
+        "body": "国家发展署通报，南港交通枢纽、江北产业园配套工程等公共项目加快推进。基建、建筑材料和设备采购需求明显增加，短期内带动了产出回升。",
+        "button": "继续调查"
+      },
+      {
+        "title": "企业反馈：融资成本挤压投资",
+        "body": "江麓装备和星河机器人等企业反馈，虽然公共项目带动了订单，但市场利率上升后，企业扩产融资成本提高。一些原本计划中的设备更新项目被推迟。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：财政扩张可能挤出私人投资",
+        "body": "政府购买 G 增加会提高总需求，使 IS 曲线右移，产出上升。但在货币市场条件给定时，产出扩张会推高利率，可能挤出部分私人投资。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "G": "偏高",
+      "I": "偏低",
+      "Y": "113.0",
+      "u": "4.5%",
+      "π": "2.3%",
+      "i": "4.52%",
+      "Debt": "68.0%",
+      "C": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 149.16,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 4.5,
+        "pi_base": 2.3,
+        "debt_base": 68.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "fiscal_expansion_crowding_out_training",
+    "title": "财政扩张与挤出效应：组合训练关",
+    "selection_mode": "budget",
+    "settlement_mode": "model",
+    "policy_point_limit": 5,
+    "score_config": {
+      "enabled": true,
+      "score_type": "short_run_is_lm",
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
+    },
+    "available_policies": [
+      {
+        "id": "expansionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "contractionary_fiscal_policy",
+        "cost": 3
+      },
+      {
+        "id": "contractionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "keep_policy_unchanged",
+        "cost": 0
+      }
+    ]
+  },
+  {
+    "level_group": "double_shock_investment_and_money_demand",
+    "content_level_id": "double_shock_investment_and_money_demand",
+    "narrative_level_id": "dual_shock_investment_and_money_demand",
+    "level_order": 6,
+    "level_name": "双重冲击：投资下降与货币需求上升",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "双重冲击",
+      "政策组合"
+    ],
+    "shock_type": "IS_LEFT_AND_LM_LEFT",
+    "curve_shift": "IS 左移 + LM 左移 / 上移",
+    "shock_source": "企业投资信心下降 + 货币需求上升",
+    "core_variables": [
+      "I ↓",
+      "L ↑"
+    ],
+    "main_problem": "产出明显下降，投资偏弱，利率压力复杂。",
+    "governance_goal": "恢复产出和投资，同时缓解货币市场紧张，避免单一政策造成债务、利率或通胀压力副作用。",
+    "policy_goal": "恢复产出和投资，同时缓解货币市场紧张，避免单一政策造成债务、利率或通胀压力副作用。",
+    "problem_title": "双重冲击：投资下降与货币需求上升",
+    "problem_description": "经济同时受到商品市场和货币市场冲击。一方面，企业投资信心下降，扩产计划收缩；另一方面，居民和企业流动性偏好上升，货币需求增加。两个冲击叠加，使产出、投资和利率同时承压。",
+    "body": "经济同时受到商品市场和货币市场冲击。一方面，企业投资信心下降，扩产计划收缩；另一方面，居民和企业流动性偏好上升，货币需求增加。两个冲击叠加，使产出、投资和利率同时承压。",
+    "model_hint": "核心变量：I ↓，L ↑；IS 曲线左移，LM 曲线左移 / 上移。",
+    "theory_panel_note": "本面板展示双重外生冲击对 IS-LM 曲线的影响；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "现实经济中可能同时出现商品市场和货币市场冲击。",
+      "投资下降会压低总需求，使 IS 曲线左移。",
+      "货币需求上升会推高利率，使 LM 曲线左移或上移。",
+      "组合政策可以同时作用于 IS 和 LM，但也需要控制债务、通胀压力和政策点数。"
+    ],
+    "scoring_focus": [
+      "产出是否恢复",
+      "投资是否恢复",
+      "利率压力是否缓解",
+      "债务压力是否可控",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "企业部门：投资计划明显收缩",
+        "body": "江麓装备、宁星汽车零部件、东曜电子等企业相继下调年度资本开支计划。企业普遍表示，未来订单能见度下降，新增产线和设备更新计划暂缓。",
+        "button": "继续调查"
+      },
+      {
+        "title": "金融市场：资金避险需求上升",
+        "body": "安澜证券和华东城市银行同时报告，企业和居民部门短期流动性需求上升。更多资金流向现金、短期存款和安全资产，融资市场出现偏紧迹象。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：IS 与 LM 同时承压",
+        "body": "投资下降会导致 IS 曲线左移；货币需求上升会导致 LM 曲线左移或上移。两类冲击叠加后，产出下行压力更强，单一政策可能难以同时解决所有问题。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "I": "偏低",
+      "M_d": "偏高",
+      "Y": "94.0",
+      "u": "5.8%",
+      "π": "1.8%",
+      "i": "4.36%",
+      "Debt": "61.0%",
+      "C": "正常",
+      "G": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 128.88,
+        "b": 8,
+        "c": 0.04,
+        "d": -0.6,
+        "Y_potential": 110,
+        "u_base": 5.8,
+        "pi_base": 1.8,
+        "debt_base": 61.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "double_shock_investment_and_money_demand_training",
+    "title": "双重冲击：投资下降与货币需求上升：组合训练关",
+    "selection_mode": "budget",
+    "settlement_mode": "model",
+    "policy_point_limit": 5,
+    "score_config": {
+      "enabled": true,
+      "score_type": "short_run_is_lm",
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
+    },
+    "available_policies": [
+      {
+        "id": "increase_government_purchase",
+        "cost": 3
+      },
+      {
+        "id": "expansionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "tax_cut",
+        "cost": 2
+      },
+      {
+        "id": "keep_policy_unchanged",
+        "cost": 0
+      }
+    ]
+  },
+  {
+    "level_group": "two_round_stabilization_challenge",
+    "content_level_id": "two_round_stabilization_challenge",
+    "narrative_level_id": "two_round_comprehensive_governance",
+    "level_order": 7,
+    "level_name": "两回合综合治理挑战",
+    "model_type": "IS_LM",
+    "model_tags": [
+      "封闭经济",
+      "短期",
+      "价格粘性",
+      "IS-LM",
+      "多回合治理",
+      "综合挑战"
+    ],
+    "shock_type": "COMPREHENSIVE_WEAK_DEMAND",
+    "curve_shift": "初始需求偏弱；后续曲线移动根据玩家政策组合变化",
+    "shock_source": "初始经济偏弱，后续政策可能导致过热、债务压力或利率压力",
+    "core_variables": [
+      "Y",
+      "I",
+      "u",
+      "i",
+      "Debt",
+      "通胀压力"
+    ],
+    "main_problem": "需要在产出、就业、投资、利率、债务和通胀压力之间权衡。",
+    "governance_goal": "经过两回合治理后，使产出接近参考水平，投资和就业改善，通胀压力与债务压力保持可控。",
+    "policy_goal": "经过两回合治理后，使产出接近参考水平，投资和就业改善，通胀压力与债务压力保持可控。",
+    "problem_title": "两回合综合治理挑战",
+    "problem_description": "国家经济进入复杂治理阶段。当前产出仍低于参考水平，投资和就业恢复不稳，但政策空间已经有限。刺激不足会导致恢复乏力，刺激过度又可能带来通胀压力、债务压力或利率压力。你需要在两回合内制定政策组合，让经济回到稳定区间。",
+    "body": "国家经济进入复杂治理阶段。当前产出仍低于参考水平，投资和就业恢复不稳，但政策空间已经有限。刺激不足会导致恢复乏力，刺激过度又可能带来通胀压力、债务压力或利率压力。你需要在两回合内制定政策组合，让经济回到稳定区间。",
+    "model_hint": "核心变量：Y、I、u、i、Debt、通胀压力；需要在多目标之间权衡。",
+    "theory_panel_note": "本面板展示本关初始经济压力和治理重点；政策效果将在执行后通过模型回放查看。",
+    "learning_points": [
+      "宏观治理不是单一变量最大化，而是在多个目标之间寻找平衡。",
+      "两回合治理中，第一回合政策会影响第二回合的起点。",
+      "刺激不足会导致恢复不充分，刺激过度也可能带来通胀压力、债务压力或利率压力。",
+      "最终目标是让经济回到相对稳定的参考区间。"
+    ],
+    "scoring_focus": [
+      "最终产出是否接近参考值",
+      "投资和就业是否改善",
+      "通胀压力是否可控",
+      "债务压力是否可控",
+      "政策点数使用效率"
+    ],
+    "story_steps": [
+      {
+        "title": "综合报告：经济恢复仍不稳固",
+        "body": "国家宏观运行监测中心发布综合报告：产出仍低于参考水平，投资恢复偏弱，就业市场尚未完全稳定。部分行业订单改善，但企业信心仍然不足。",
+        "button": "继续调查"
+      },
+      {
+        "title": "政策约束：财政和货币空间有限",
+        "body": "财政部门提醒，前期政策已经推高债务压力；中央银行也提示，过度宽松可能累积通胀压力和金融风险。政策资源有限，不能简单依赖单一路径。",
+        "button": "召开政策会议"
+      },
+      {
+        "title": "顾问判断：进入综合治理阶段",
+        "body": "当前问题不能只看单一指标。你需要同时观察产出、投资、失业、利率、债务和通胀压力，在两回合内选择政策组合，实现稳定恢复。",
+        "button": "进入政策桌面"
+      }
+    ],
+    "initial_state": {
+      "I": "偏低",
+      "Y": "100.0",
+      "u": "5.2%",
+      "π": "2.0%",
+      "i": "4.00%",
+      "Debt": "62.0%",
+      "C": "偏低",
+      "G": "正常"
+    },
+    "model_params": {
+      "IS_LM": {
+        "A": 132,
+        "b": 8,
+        "c": 0.04,
+        "d": 0,
+        "Y_potential": 110,
+        "u_base": 5.2,
+        "pi_base": 2.0,
+        "debt_base": 62.0,
+        "okun_beta": 0.04,
+        "pi_sensitivity": 0.03
+      }
+    },
+    "round_count": 2,
+    "id": "two_round_stabilization_challenge_training",
+    "title": "两回合综合治理挑战：组合训练关",
+    "selection_mode": "budget",
+    "settlement_mode": "model",
+    "policy_point_limit": 5,
+    "score_config": {
+      "enabled": true,
+      "score_type": "short_run_is_lm",
+      "weights": {
+        "output_stability": 40,
+        "employment": 15,
+        "inflation_control": 15,
+        "debt_control": 15,
+        "policy_efficiency": 15
+      },
+      "targets": {
+        "Y_target": 110,
+        "u_target": 4.5,
+        "pi_target": 2.0
+      },
+      "bands": {
+        "Y_ideal_band": 2,
+        "Y_zero_band": 15,
+        "u_ideal_band": 0.3,
+        "u_zero_band": 2.0,
+        "pi_ideal_band": 0.3,
+        "pi_zero_band": 2.5
+      },
+      "limits": {
+        "debt_soft_limit": 65,
+        "debt_hard_limit": 75
+      },
+      "policy_efficiency": {
+        "use_policy_points": true
+      },
+      "scope_notes": {
+        "time_horizon": "short_run",
+        "model_scope": "IS_LM",
+        "long_run_effects_counted": false
+      }
+    },
+    "available_policies": [
+      {
+        "id": "increase_government_purchase",
+        "cost": 3
+      },
+      {
+        "id": "expansionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "tax_cut",
+        "cost": 2
+      },
+      {
+        "id": "contractionary_fiscal_policy",
+        "cost": 3
+      },
+      {
+        "id": "contractionary_monetary_policy",
+        "cost": 2
+      },
+      {
+        "id": "keep_policy_unchanged",
+        "cost": 0
+      }
     ]
   }
 ]

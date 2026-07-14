@@ -868,6 +868,9 @@ func _on_confirm_policy() -> void:
 			NarrativeManager.replay_button_steps(),
 			_guide_targets
 		)
+	var result_comment_steps: Array = NarrativeManager.after_result_comment_steps(GameState.current_scenario_id)
+	if not result_comment_steps.is_empty():
+		NarrativeManager.play_steps(self, result_comment_steps, _guide_targets)
 
 func _on_round_summary_pressed() -> void:
 	if _is_gameplay_input_blocked():
@@ -997,10 +1000,13 @@ func _register_guide_targets() -> void:
 		"confirm_policy_button": _confirm_button,
 		"model_replay_button": _model_replay_button,
 		"round_summary_button": _summary_button,
-		"wisdom_panel": _wisdom_label
+		"wisdom_panel": _wisdom_label,
+		"wisdom_points_display": _wisdom_label,
+		"hint_button": _request_hint_button
 	}
 	if _replay_overlay != null:
 		_guide_targets["model_replay_window"] = _replay_overlay
+		_guide_targets["model_replay_panel"] = _replay_overlay
 	NarrativeManager.refresh_target_map(_guide_targets)
 
 

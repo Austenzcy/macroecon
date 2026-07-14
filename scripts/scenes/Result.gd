@@ -5,6 +5,7 @@ const CONTENT_WIDTH: float = 980.0
 
 func _ready() -> void:
 	_build_ui()
+	call_deferred("_maybe_play_level_end_dialogue")
 
 
 func _build_ui() -> void:
@@ -181,6 +182,21 @@ func _on_final_summary_pressed() -> void:
 func _on_return_main_menu_pressed() -> void:
 	GameState.reset_for_new_game()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+
+
+func _maybe_play_level_end_dialogue() -> void:
+	if not has_node("/root/NarrativeManager"):
+		return
+	if GameState.last_result.is_empty():
+		return
+	var steps: Array = NarrativeManager.level_end_steps(GameState.current_scenario_id)
+	if steps.is_empty():
+		return
+	NarrativeManager.play_tutorial_once(
+		self,
+		"level_end_%s_round_%d_v1" % [GameState.current_scenario_id, GameState.current_round],
+		steps
+	)
 
 
 func _add_subtitle(parent: VBoxContainer, text: String) -> void:

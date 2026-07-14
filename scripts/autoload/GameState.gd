@@ -37,20 +37,18 @@ func set_current_scenario(scenario_id: String) -> void:
 func start_scenario(scenario_id: String) -> void:
 	current_scenario_id = scenario_id
 	current_round = 1
-	max_rounds = 2
+	max_rounds = _load_max_rounds()
 	initial_state = _load_initial_state()
 	current_state = initial_state.duplicate(true)
 	last_result = {}
 	round_history.clear()
 	return_to_confirmed_policy_desk = false
 	clear_selection()
-	if has_node("/root/NarrativeManager"):
-		NarrativeManager.reset_runtime_state()
 
 
 func reset_for_new_game() -> void:
 	current_round = 1
-	max_rounds = 2
+	max_rounds = _load_max_rounds()
 	initial_state = _load_initial_state()
 	current_state = initial_state.duplicate(true)
 	last_result = {}
@@ -131,3 +129,9 @@ func _load_initial_state() -> Dictionary:
 	if initial_variant is Dictionary and not (initial_variant as Dictionary).is_empty():
 		return (initial_variant as Dictionary).duplicate(true)
 	return DataLoader.load_dict("res://data/variables.json").duplicate(true)
+
+
+func _load_max_rounds() -> int:
+	var scenario: Dictionary = get_current_scenario()
+	var round_value: int = int(scenario.get("round_count", scenario.get("max_rounds", 2)))
+	return maxi(round_value, 1)
