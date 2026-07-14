@@ -110,8 +110,98 @@ foreach ($FileName in $RequiredFiles) {
 	}
 }
 
+function Write-GzipFile {
+	param(
+		[Parameter(Mandatory = $true)]
+		[string] $SourcePath,
+		[Parameter(Mandatory = $true)]
+		[string] $DestinationPath
+	)
+
+	if (Test-Path -LiteralPath $DestinationPath -PathType Leaf) {
+		Remove-Item -LiteralPath $DestinationPath -Force
+	}
+
+	$SourceStream = [System.IO.File]::OpenRead($SourcePath)
+	try {
+		$DestinationStream = [System.IO.File]::Create($DestinationPath)
+		try {
+			$GzipStream = New-Object System.IO.Compression.GZipStream(
+				$DestinationStream,
+				[System.IO.Compression.CompressionLevel]::Optimal
+			)
+			try {
+				$SourceStream.CopyTo($GzipStream)
+			}
+			finally {
+				$GzipStream.Dispose()
+			}
+		}
+		finally {
+			$DestinationStream.Dispose()
+		}
+	}
+	finally {
+		$SourceStream.Dispose()
+	}
+}
+
+$WasmPath = Join-Path $WebBuildPath "index.wasm"
+$CompressedWasmPath = Join-Path $WebBuildPath "index.wasm.gz"
+Write-GzipFile -SourcePath $WasmPath -DestinationPath $CompressedWasmPath
+Write-Host "Generated compressed WebAssembly: index.wasm.gz"
+
 $IndexHtmlPath = Join-Path $WebBuildPath "index.html"
 $IndexHtml = [System.IO.File]::ReadAllText($IndexHtmlPath)
+$CompressedLoaderPatchMarker = "macro-policy-compressed-resource-loader"
+if ($IndexHtml -notmatch [regex]::Escape($CompressedLoaderPatchMarker)) {
+	$CompressedLoaderPatch = @"
+<script id="$CompressedLoaderPatchMarker">
+(function () {
+  if (!("DecompressionStream" in window) || !("ReadableStream" in window)) {
+    return;
+  }
+
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = async function (resource, options) {
+    const url = typeof resource === "string" ? resource : resource && resource.url;
+    if (url && /(^|\/)index\.wasm(?:$|\?)/.test(url)) {
+      try {
+        const gzUrl = url.replace(/index\.wasm(?=$|\?)/, "index.wasm.gz");
+        const response = await originalFetch(gzUrl, options);
+        if (response.ok && response.body) {
+          const headers = new Headers(response.headers);
+          headers.set("content-type", "application/wasm");
+          headers.delete("content-encoding");
+          headers.delete("content-length");
+          return new Response(response.body.pipeThrough(new DecompressionStream("gzip")), {
+            status: response.status,
+            statusText: response.statusText,
+            headers: headers
+          });
+        }
+      } catch (error) {
+        console.warn("Compressed wasm loading failed; falling back to raw wasm.", error);
+      }
+    }
+
+    return originalFetch(resource, options);
+  };
+})();
+</script>
+"@
+	if ($IndexHtml -match '<script src="index\.js"></script>') {
+		$IndexHtml = $IndexHtml -replace '<script src="index\.js"></script>', "$CompressedLoaderPatch`r`n<script src=`"index.js`"></script>"
+	}
+	else {
+		$IndexHtml = $IndexHtml + "`r`n" + $CompressedLoaderPatch
+	}
+	$Utf8NoBomForCompressedLoader = New-Object System.Text.UTF8Encoding($false)
+	[System.IO.File]::WriteAllText($IndexHtmlPath, $IndexHtml, $Utf8NoBomForCompressedLoader)
+	Write-Host "Patched index.html to prefer compressed WebAssembly."
+}
+
 $CtrlWheelPatchMarker = "macro-policy-ctrl-wheel-guard"
 if ($IndexHtml -notmatch [regex]::Escape($CtrlWheelPatchMarker)) {
 	$CtrlWheelPatch = @"

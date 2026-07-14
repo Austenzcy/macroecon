@@ -456,3 +456,15 @@ IS-LM 关卡库 v1 记录：
 - 本轮未接入完整剧情 JSON，未修改 ISLMSolver、ScoreEngine、国家地图、右侧状态条或剧情文案。
 - 已重新导出并部署 CloudBase，BuildId：`20260715-023600`。
 - `latest.json` 已指向 `/releases/20260715-023600/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+Web loading performance audit and fix:
+- Paused feature work and full narrative JSON integration to investigate slow CloudBase Godot Web loading.
+- Confirmed the bottleneck was the browser download stage, before Godot project scripts and MainMenu startup.
+- Before fix, online `index.wasm` was about 39.5 MB and took about 166 seconds to download; `index.pck` was about 13.5 MB and took about 124 seconds to download.
+- Subset `assets/fonts/NotoSansSC-Regular.ttf` for current project text, reducing it from 17,773,248 bytes to 359,112 bytes. The full font is kept only as a local ignored `.bak` backup.
+- Reduced exported `web_build/index.pck` to 481,572 bytes.
+- Updated `scripts/export_web.ps1` to generate `index.wasm.gz` after every Web export and patch `index.html` with `macro-policy-compressed-resource-loader`.
+- The browser now prefers `index.wasm.gz` through `DecompressionStream`, with fallback to raw `index.wasm`.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260715-025823`.
+- Online retest: `index.html` 200 in about 0.95s; `index.js` 200 in about 1.22s; `index.wasm.gz` 200 in about 5.39s; `index.pck` 200 in about 0.78s.
+- Added `docs/Web_Loading_Performance_Audit.md` with diagnosis, fix details, size comparison, and follow-up notes.
+- Did not modify gameplay, narrative interaction details, ISLMSolver, ScoreEngine, macro map, right info panel, or CloudBase deployment route.

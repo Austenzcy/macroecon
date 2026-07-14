@@ -6,3 +6,4 @@ latest.json
 temp_online_check/
 temp_http_server.*
 temp_local_index.html
+assets/fonts/*.bak
