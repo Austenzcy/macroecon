@@ -483,3 +483,15 @@ Formal IS-LM chapter JSON integration:
 - Re-exported and deployed CloudBase successfully. BuildId: `20260715-033716`.
 - Web build size check: `index.wasm` 39,509,339 bytes; `index.wasm.gz` 10,111,653 bytes; `index.pck` 704,400 bytes; `index.js` 279,815 bytes; total `web_build` file sum 50,661,736 bytes.
 - Online check passed: `latest.json` points to `/releases/20260715-033716/index.html`; release `index.html`, `index.js`, `index.pck`, and `index.wasm.gz` all return HTTP 200.
+
+Formal narrative experience repair:
+- Fixed DialogueOverlay root sizing under CanvasLayer so the dialogue box stays fixed at the bottom of the viewport instead of drifting to the upper-left corner.
+- Enlarged the formal narrative dialogue box and made it responsive to viewport height.
+- Added runtime long-text pagination for DialogueOverlay; each page keeps the same speaker, avatar, target, and continue text.
+- IS-LM formal narrative scenarios now skip the legacy ScenarioIntro flow and enter PolicyDesk directly.
+- PolicyDesk now plays chapter opening and level opening dialogue as the formal narrative background before policy decisions.
+- ScenarioIntro remains available as fallback for non-formal scenarios.
+- ScenarioIntro fallback now supports ScrollContainer scrolling and Ctrl + mouse wheel UI scaling.
+- Completed a main-page scroll and Ctrl+wheel scale self-check for MainMenu, LevelSelect, ScenarioIntro fallback, PolicyDesk, DialogueOverlay, HintConfirmModal, Result, Model Replay, and FinalSummary.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260715-124147`.
+- Online check passed: root `index.html` returns HTTP 200 and `latest.json` points to `/releases/20260715-124147/index.html`.

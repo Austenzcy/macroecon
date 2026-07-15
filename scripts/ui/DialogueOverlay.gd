@@ -5,7 +5,9 @@ signal finished
 var _steps: Array = []
 var _target_map: Dictionary = {}
 var _index: int = 0
+var _last_advance_msec: int = 0
 var _dialogue_panel: PanelContainer
+var _bottom_layout: MarginContainer
 var _speaker_label: Label
 var _text_label: RichTextLabel
 var _avatar_label: Label
@@ -18,9 +20,15 @@ func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_sync_viewport_rect()
 	_build_ui()
 	_set_non_interactive_children(self)
 	_show_current_step()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_update_layout_metrics()
 
 
 func _input(event: InputEvent) -> void:
@@ -29,22 +37,22 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			_advance()
+			_try_advance()
 			get_viewport().set_input_as_handled()
 	elif event is InputEventScreenTouch:
 		var touch_event: InputEventScreenTouch = event
 		if touch_event.pressed:
-			_advance()
+			_try_advance()
 			get_viewport().set_input_as_handled()
 	elif event is InputEventKey:
 		var key_event: InputEventKey = event
 		if key_event.pressed and not key_event.echo and (key_event.keycode == KEY_ENTER or key_event.keycode == KEY_SPACE):
-			_advance()
+			_try_advance()
 			get_viewport().set_input_as_handled()
 
 
 func setup(steps: Array, target_map: Dictionary = {}) -> void:
-	_steps = steps.duplicate(true)
+	_steps = _paginate_dialogue_steps(steps)
 	_target_map = target_map.duplicate()
 	_index = 0
 	if is_inside_tree():
@@ -58,6 +66,7 @@ func update_target_map(target_map: Dictionary) -> void:
 
 func _process(_delta: float) -> void:
 	if visible:
+		_sync_viewport_rect()
 		queue_redraw()
 
 
@@ -65,7 +74,7 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			_advance()
+			_try_advance()
 			accept_event()
 			get_viewport().set_input_as_handled()
 
@@ -86,19 +95,15 @@ func _draw() -> void:
 
 
 func _build_ui() -> void:
-	var bottom_layout: MarginContainer = MarginContainer.new()
-	bottom_layout.name = "DialogueBottomLayout"
-	bottom_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bottom_layout.add_theme_constant_override("margin_left", 56)
-	bottom_layout.add_theme_constant_override("margin_top", 24)
-	bottom_layout.add_theme_constant_override("margin_right", 56)
-	bottom_layout.add_theme_constant_override("margin_bottom", 32)
-	add_child(bottom_layout)
+	_bottom_layout = MarginContainer.new()
+	_bottom_layout.name = "DialogueBottomLayout"
+	_bottom_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_bottom_layout)
 
 	var vertical_layout: VBoxContainer = VBoxContainer.new()
 	vertical_layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vertical_layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	bottom_layout.add_child(vertical_layout)
+	_bottom_layout.add_child(vertical_layout)
 
 	var spacer: Control = Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -106,8 +111,8 @@ func _build_ui() -> void:
 
 	_dialogue_panel = PanelContainer.new()
 	_dialogue_panel.name = "DialogueBox"
-	_dialogue_panel.custom_minimum_size = Vector2(0.0, 164.0)
 	_dialogue_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_dialogue_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 	_dialogue_panel.add_theme_stylebox_override("panel", _panel_style())
 	vertical_layout.add_child(_dialogue_panel)
 
@@ -123,10 +128,8 @@ func _build_ui() -> void:
 	margin.add_child(row)
 
 	_avatar_label = Label.new()
-	_avatar_label.custom_minimum_size = Vector2(82, 82)
 	_avatar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_avatar_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_avatar_label.add_theme_font_size_override("font_size", 30)
 	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
 	row.add_child(_avatar_label)
 
@@ -136,26 +139,23 @@ func _build_ui() -> void:
 	row.add_child(text_box)
 
 	_speaker_label = Label.new()
-	_speaker_label.add_theme_font_size_override("font_size", 20)
 	_speaker_label.modulate = Color(0.92, 0.80, 0.46)
 	text_box.add_child(_speaker_label)
 
 	_text_label = RichTextLabel.new()
-	_text_label.custom_minimum_size = Vector2(0.0, 62.0)
 	_text_label.scroll_active = false
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_text_label.add_theme_font_size_override("normal_font_size", 20)
 	_text_label.modulate = Color(0.95, 0.98, 1.0)
 	text_box.add_child(_text_label)
 
 	_continue_label = Label.new()
 	_continue_label.text = "单击以继续"
 	_continue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_continue_label.add_theme_font_size_override("font_size", 14)
 	_continue_label.modulate = Color(0.70, 0.80, 0.86)
 	text_box.add_child(_continue_label)
+	_update_layout_metrics()
 
 
 func _show_current_step() -> void:
@@ -169,14 +169,24 @@ func _show_current_step() -> void:
 	var speaker: String = str(step.get("speaker", "首席经济顾问"))
 	var text: String = str(step.get("text", ""))
 	var continue_text: String = str(step.get("continue_text", "单击以继续"))
+	var page_index: int = int(step.get("_page_index", 0))
+	var page_count: int = int(step.get("_page_count", 1))
 	var target_id: String = str(step.get("target", step.get("target_ui", "")))
 
 	_speaker_label.text = speaker
 	_text_label.text = text
-	_continue_label.text = continue_text
+	_continue_label.text = "%s  %d/%d" % [continue_text, page_index + 1, page_count] if page_count > 1 else continue_text
 	_avatar_label.text = _avatar_initial(speaker)
 	_current_target_id = target_id
 	queue_redraw()
+
+
+func _try_advance() -> void:
+	var now: int = Time.get_ticks_msec()
+	if now - _last_advance_msec < 80:
+		return
+	_last_advance_msec = now
+	_advance()
 
 
 func _advance() -> void:
@@ -202,6 +212,105 @@ func _target_rect(target: Control) -> Rect2:
 	var target_rect: Rect2 = target.get_global_rect()
 	var origin: Vector2 = get_global_rect().position
 	return Rect2(target_rect.position - origin, target_rect.size)
+
+
+func _sync_viewport_rect() -> void:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		return
+	position = Vector2.ZERO
+	custom_minimum_size = viewport_size
+	set_anchors_preset(Control.PRESET_FULL_RECT)
+	offset_left = 0.0
+	offset_top = 0.0
+	offset_right = 0.0
+	offset_bottom = 0.0
+	size = viewport_size
+	_update_layout_metrics()
+
+
+func _update_layout_metrics() -> void:
+	if _bottom_layout == null:
+		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		viewport_size = size
+	var side_margin: int = int(roundf(clampf(viewport_size.x * 0.045, 28.0, 72.0)))
+	var bottom_margin: int = int(roundf(clampf(viewport_size.y * 0.035, 20.0, 42.0)))
+	_bottom_layout.add_theme_constant_override("margin_left", side_margin)
+	_bottom_layout.add_theme_constant_override("margin_top", 18)
+	_bottom_layout.add_theme_constant_override("margin_right", side_margin)
+	_bottom_layout.add_theme_constant_override("margin_bottom", bottom_margin)
+	if _dialogue_panel != null:
+		var panel_height: float = clampf(viewport_size.y * 0.30, 220.0, 330.0)
+		_dialogue_panel.custom_minimum_size = Vector2(0.0, panel_height)
+	if _avatar_label != null:
+		var avatar_size: float = clampf(viewport_size.y * 0.105, 66.0, 92.0)
+		_avatar_label.custom_minimum_size = Vector2(avatar_size, avatar_size)
+		_avatar_label.add_theme_font_size_override("font_size", int(roundf(avatar_size * 0.34)))
+	if _speaker_label != null:
+		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.026, 18.0, 23.0))))
+	if _text_label != null:
+		_text_label.custom_minimum_size = Vector2(0.0, clampf(viewport_size.y * 0.155, 118.0, 178.0))
+		_text_label.add_theme_font_size_override("normal_font_size", int(roundf(clampf(viewport_size.y * 0.025, 18.0, 22.0))))
+	if _continue_label != null:
+		_continue_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.018, 13.0, 16.0))))
+
+
+func _paginate_dialogue_steps(raw_steps: Array) -> Array:
+	var pages: Array = []
+	var max_chars: int = _dialogue_page_char_limit()
+	for raw_step: Variant in raw_steps:
+		if not (raw_step is Dictionary):
+			continue
+		var step: Dictionary = (raw_step as Dictionary).duplicate(true)
+		var text: String = str(step.get("text", ""))
+		var text_pages: Array[String] = _split_text_to_pages(text, max_chars)
+		for page_index: int in range(text_pages.size()):
+			var page_step: Dictionary = step.duplicate(true)
+			page_step["text"] = text_pages[page_index]
+			page_step["_page_index"] = page_index
+			page_step["_page_count"] = text_pages.size()
+			pages.append(page_step)
+	return pages
+
+
+func _dialogue_page_char_limit() -> int:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	if viewport_size.x <= 1.0:
+		return 84
+	return clampi(int(roundf(viewport_size.x / 15.0)), 64, 96)
+
+
+func _split_text_to_pages(text: String, max_chars: int) -> Array[String]:
+	var cleaned: String = text.strip_edges()
+	if cleaned.length() <= max_chars:
+		return [cleaned]
+	var pages: Array[String] = []
+	var remaining: String = cleaned
+	while remaining.length() > max_chars:
+		var cut: int = _find_page_cut(remaining, max_chars)
+		pages.append(remaining.substr(0, cut).strip_edges())
+		remaining = remaining.substr(cut).strip_edges()
+	if not remaining.is_empty():
+		pages.append(remaining)
+	return pages
+
+
+func _find_page_cut(text: String, max_chars: int) -> int:
+	var preferred: Array[String] = ["。", "；", "！", "？", "，"]
+	for mark: String in preferred:
+		var best: int = -1
+		var search_from: int = 0
+		while true:
+			var found: int = text.find(mark, search_from)
+			if found == -1 or found >= max_chars:
+				break
+			best = found + mark.length()
+			search_from = found + mark.length()
+		if best >= int(float(max_chars) * 0.46):
+			return best
+	return max_chars
 
 
 func _is_modal_active() -> bool:

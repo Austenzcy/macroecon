@@ -1,8 +1,14 @@
 extends Control
 
+const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
+const SCALE_STEP: float = 0.1
+const MIN_UI_SCALE: float = 0.8
+const MAX_UI_SCALE: float = 1.2
+
 var _scenario: Dictionary = {}
 var _story_steps: Array = []
 var _step_index: int = 0
+var _ui_scale: float = 1.0
 
 var _content_box: VBoxContainer
 var _progress_label: Label
@@ -19,9 +25,26 @@ var _next_button: Button
 
 func _ready() -> void:
 	_load_scenario()
+	if has_node("/root/NarrativeManager") and NarrativeManager.should_skip_scenario_intro(str(_scenario.get("id", GameState.current_scenario_id))):
+		call_deferred("_go_to_policy_desk")
+		return
+	_ui_scale = GameState.ui_scale
 	_build_ui()
 	_show_step(0, false)
 	call_deferred("_maybe_play_opening_dialogue")
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		var mouse_event: InputEventMouseButton = event
+		if not mouse_event.pressed or not mouse_event.ctrl_pressed:
+			return
+		if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_set_ui_scale(_ui_scale + SCALE_STEP)
+			get_viewport().set_input_as_handled()
+		elif mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_set_ui_scale(_ui_scale - SCALE_STEP)
+			get_viewport().set_input_as_handled()
 
 
 func _load_scenario() -> void:
@@ -51,28 +74,55 @@ func _load_scenario() -> void:
 
 
 func _build_ui() -> void:
+	_content_box = null
+	_progress_label = null
+	_scenario_title_label = null
+	_mode_label = null
+	_title_label = null
+	_body_label = null
+	_tags = null
+	_problem_panel = null
+	_problem_label = null
+	_model_hint_label = null
+	_next_button = null
+	for child: Node in get_children():
+		remove_child(child)
+		child.queue_free()
+
 	var background: ColorRect = ColorRect.new()
 	background.color = Color(0.045, 0.055, 0.065, 1.0)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
+	scroll.follow_focus = true
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	add_child(scroll)
+
+	var outer_margin: MarginContainer = MarginContainer.new()
+	outer_margin.add_theme_constant_override("margin_left", _dim(48))
+	outer_margin.add_theme_constant_override("margin_top", _dim(42))
+	outer_margin.add_theme_constant_override("margin_right", _dim(48))
+	outer_margin.add_theme_constant_override("margin_bottom", _dim(112))
+	scroll.add_child(outer_margin)
+
 	var panel: PanelContainer = PanelContainer.new()
-	panel.anchor_left = 0.15
-	panel.anchor_top = 0.12
-	panel.anchor_right = 0.85
-	panel.anchor_bottom = 0.88
+	panel.custom_minimum_size = Vector2(900, 720) * _ui_scale
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
-	add_child(panel)
+	outer_margin.add_child(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 42)
-	margin.add_theme_constant_override("margin_top", 34)
-	margin.add_theme_constant_override("margin_right", 42)
-	margin.add_theme_constant_override("margin_bottom", 34)
+	margin.add_theme_constant_override("margin_left", _dim(42))
+	margin.add_theme_constant_override("margin_top", _dim(34))
+	margin.add_theme_constant_override("margin_right", _dim(42))
+	margin.add_theme_constant_override("margin_bottom", _dim(34))
 	panel.add_child(margin)
 
 	_content_box = VBoxContainer.new()
-	_content_box.add_theme_constant_override("separation", 18)
+	_content_box.add_theme_constant_override("separation", _dim(18))
 	margin.add_child(_content_box)
 
 	var header: HBoxContainer = HBoxContainer.new()
@@ -82,35 +132,36 @@ func _build_ui() -> void:
 	var kicker: Label = Label.new()
 	kicker.text = "情境开场"
 	kicker.modulate = Color(0.68, 0.84, 1.0)
-	kicker.add_theme_font_size_override("font_size", 18)
+	kicker.add_theme_font_size_override("font_size", _fs(18))
 	kicker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(kicker)
 
 	_progress_label = Label.new()
 	_progress_label.modulate = Color(0.72, 0.82, 0.90)
-	_progress_label.add_theme_font_size_override("font_size", 18)
+	_progress_label.add_theme_font_size_override("font_size", _fs(18))
 	header.add_child(_progress_label)
 
 	_scenario_title_label = Label.new()
 	_scenario_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_scenario_title_label.modulate = Color(0.70, 0.86, 1.0)
-	_scenario_title_label.add_theme_font_size_override("font_size", 22)
+	_scenario_title_label.add_theme_font_size_override("font_size", _fs(22))
 	_content_box.add_child(_scenario_title_label)
 
 	_mode_label = Label.new()
 	_mode_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_mode_label.modulate = Color(0.92, 0.80, 0.46)
-	_mode_label.add_theme_font_size_override("font_size", 18)
+	_mode_label.add_theme_font_size_override("font_size", _fs(18))
 	_content_box.add_child(_mode_label)
 
 	_title_label = Label.new()
 	_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_title_label.add_theme_font_size_override("font_size", 40)
+	_title_label.add_theme_font_size_override("font_size", _fs(40))
 	_content_box.add_child(_title_label)
 
 	_body_label = Label.new()
 	_body_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_body_label.add_theme_font_size_override("font_size", 22)
+	_body_label.add_theme_font_size_override("font_size", _fs(22))
 	_body_label.modulate = Color(0.88, 0.92, 0.95)
 	_content_box.add_child(_body_label)
 
@@ -123,24 +174,25 @@ func _build_ui() -> void:
 	_content_box.add_child(_problem_panel)
 
 	var problem_margin: MarginContainer = MarginContainer.new()
-	problem_margin.add_theme_constant_override("margin_left", 18)
-	problem_margin.add_theme_constant_override("margin_top", 14)
-	problem_margin.add_theme_constant_override("margin_right", 18)
-	problem_margin.add_theme_constant_override("margin_bottom", 14)
+	problem_margin.add_theme_constant_override("margin_left", _dim(18))
+	problem_margin.add_theme_constant_override("margin_top", _dim(14))
+	problem_margin.add_theme_constant_override("margin_right", _dim(18))
+	problem_margin.add_theme_constant_override("margin_bottom", _dim(14))
 	_problem_panel.add_child(problem_margin)
 
 	var problem_box: VBoxContainer = VBoxContainer.new()
-	problem_box.add_theme_constant_override("separation", 8)
+	problem_box.add_theme_constant_override("separation", _dim(8))
 	problem_margin.add_child(problem_box)
 
 	_problem_label = Label.new()
 	_problem_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_problem_label.add_theme_font_size_override("font_size", 20)
+	_problem_label.add_theme_font_size_override("font_size", _fs(20))
 	problem_box.add_child(_problem_label)
 
 	_model_hint_label = Label.new()
 	_model_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_model_hint_label.modulate = Color(0.80, 0.90, 0.82)
+	_model_hint_label.add_theme_font_size_override("font_size", _fs(17))
 	problem_box.add_child(_model_hint_label)
 
 	var spacer: Control = Control.new()
@@ -148,9 +200,9 @@ func _build_ui() -> void:
 	_content_box.add_child(spacer)
 
 	_next_button = Button.new()
-	_next_button.custom_minimum_size = Vector2(260, 56)
+	_next_button.custom_minimum_size = Vector2(260, 56) * _ui_scale
 	_next_button.size_flags_horizontal = Control.SIZE_SHRINK_END
-	_next_button.add_theme_font_size_override("font_size", 22)
+	_next_button.add_theme_font_size_override("font_size", _fs(22))
 	_next_button.pressed.connect(_on_next_pressed)
 	_content_box.add_child(_next_button)
 
@@ -194,9 +246,13 @@ func _selection_mode_text() -> String:
 func _on_next_pressed() -> void:
 	AudioManager.play_sfx(&"card_play")
 	if _step_index >= _story_steps.size() - 1:
-		get_tree().change_scene_to_file("res://scenes/PolicyDesk.tscn")
+		_go_to_policy_desk()
 		return
 	_show_step(_step_index + 1, true)
+
+
+func _go_to_policy_desk() -> void:
+	get_tree().change_scene_to_file(POLICY_DESK_PATH)
 
 
 func _maybe_play_opening_dialogue() -> void:
@@ -223,7 +279,7 @@ func _make_panel_style() -> StyleBoxFlat:
 	style.bg_color = Color(0.075, 0.11, 0.14, 0.96)
 	style.border_color = Color(0.32, 0.54, 0.68, 0.9)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
+	style.set_corner_radius_all(_dim(8))
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
 	style.shadow_size = 18
 	return style
@@ -234,5 +290,23 @@ func _make_problem_style() -> StyleBoxFlat:
 	style.bg_color = Color(0.09, 0.13, 0.15, 0.96)
 	style.border_color = Color(0.45, 0.70, 0.86, 0.92)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
+	style.set_corner_radius_all(_dim(8))
 	return style
+
+
+func _set_ui_scale(value: float) -> void:
+	var next_scale: float = clampf(value, MIN_UI_SCALE, MAX_UI_SCALE)
+	if is_equal_approx(next_scale, _ui_scale):
+		return
+	_ui_scale = next_scale
+	GameState.set_ui_scale(_ui_scale)
+	_build_ui()
+	_show_step(_step_index, false)
+
+
+func _dim(value: int) -> int:
+	return maxi(1, int(roundf(float(value) * _ui_scale)))
+
+
+func _fs(value: int) -> int:
+	return maxi(11, int(roundf(float(value) * _ui_scale)))

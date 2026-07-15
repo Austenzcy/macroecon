@@ -173,6 +173,45 @@ UI 脚本不应硬编码正式剧情，只负责调用 `NarrativeManager` 播放
 - 回看提示 `_on_review_hint_pressed`
 
 当前所有新手引导 step 都是“点击继续”模式，不允许玩家在高亮区域直接操作底层 UI。后续如果需要“允许指定目标点击”的教程步骤，将单独设计交互模式。
+
+## Dialogue Layout Stabilization and ScenarioIntro Skip
+
+Formal narrative text is longer than the original mock dialogue, so the dialogue layer now uses a viewport-sized root Control under `DialogueOverlayLayer` instead of relying only on anchors. A `CanvasLayer` is not a Control parent, so anchors alone can leave the overlay root at a tiny default size and make the dialogue box appear near the upper-left corner. The overlay now synchronizes its root position and size with the viewport every frame while visible.
+
+Current layout:
+- `DialogueOverlayLayer` is attached to `SceneTree.root` with `CanvasLayer.layer = 100`.
+- `DialogueOverlay` root covers the full viewport.
+- The dim layer and highlight drawing use the same full-viewport coordinate space.
+- The dialogue box is placed by a full-rect `MarginContainer` and a vertical spacer, so it stays fixed at the bottom.
+- The dialogue box uses about 30% of viewport height, clamped to a readable range.
+- Width is controlled by responsive side margins, keeping the box close to full width without touching the screen edge.
+
+Long text pagination:
+- JSON dialogue is not modified.
+- Runtime dialogue steps are expanded into internal pages.
+- Each page preserves the original `speaker`, `avatar`, `target`, and `continue_text`.
+- Splitting prefers Chinese punctuation: `。` `；` `！` `？` `，`.
+- If no good punctuation boundary exists, the text falls back to a character-count split.
+- Each click advances one page; after all pages of a step are shown, the next dialogue step begins.
+
+Formal IS-LM chapter flow:
+- Scenarios with `narrative_level_id` and formal `opening_dialogue` skip the legacy `ScenarioIntro`.
+- `LevelSelect` and Quick Start route those scenarios directly to `PolicyDesk`.
+- `PolicyDesk` becomes the visual background for quarter and level-opening dialogue.
+- The old `ScenarioIntro` scene is kept as fallback for scenarios without formal narrative opening.
+- `ScenarioIntro` fallback now uses `ScrollContainer` and supports Ctrl + mouse wheel UI scaling.
+
+Scroll and zoom self-check notes:
+- `MainMenu` remains compact and does not require scrolling in the current layout.
+- `LevelSelect` uses `ScrollContainer`.
+- `PolicyDesk` keeps its internal `ScrollContainer`, black safe margins, and Ctrl + wheel scale.
+- `DialogueOverlay` and `HintConfirmModal` use viewport-sized roots under CanvasLayer, so they do not move with PolicyDesk scrolling or UI rebuilding.
+- `Result`, `ModelReplay`, and `FinalSummary` already use scrollable panel layouts for small viewport heights.
+
+Known limits:
+- Dialogue pagination is character-count based and not a full text-measurement layout engine.
+- Highlight rectangles are still rectangular and do not auto-scroll hidden targets into view.
+- Ctrl + wheel scaling is scene-level; a future global UI scale manager could unify behavior across all screens.
 ## Formal JSON Integration v1
 
 本轮已接入两份正式 IS-LM 章节 JSON：

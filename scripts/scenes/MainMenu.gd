@@ -1,6 +1,8 @@
 extends Control
 
 const QUICK_START_SCENARIO_ID: String = "consumer_confidence_drop_basic"
+const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
+const SCENARIO_INTRO_PATH: String = "res://scenes/ScenarioIntro.tscn"
 
 
 func _ready() -> void:
@@ -77,4 +79,5 @@ func _on_quick_start_pressed() -> void:
 	GameState.set_current_scenario(QUICK_START_SCENARIO_ID)
 	AudioManager.unlock_audio_from_user_gesture()
 	AudioManager.play_bgm()
-	get_tree().change_scene_to_file("res://scenes/ScenarioIntro.tscn")
+	var entry_scene: String = POLICY_DESK_PATH if has_node("/root/NarrativeManager") and NarrativeManager.should_skip_scenario_intro(QUICK_START_SCENARIO_ID) else SCENARIO_INTRO_PATH
+	get_tree().change_scene_to_file(entry_scene)

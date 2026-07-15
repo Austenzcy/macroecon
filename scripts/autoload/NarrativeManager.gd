@@ -221,6 +221,15 @@ func level_opening_steps(scenario_id: String = "") -> Array:
 	return []
 
 
+func should_skip_scenario_intro(scenario_id: String = "") -> bool:
+	var scenario: Dictionary = DataLoader.get_scenario_by_id(scenario_id) if not scenario_id.is_empty() else GameState.get_current_scenario()
+	if scenario.is_empty():
+		return false
+	if not scenario.has("narrative_level_id"):
+		return false
+	return not level_opening_steps(str(scenario.get("id", scenario_id))).is_empty()
+
+
 func after_result_comment_steps(scenario_id: String = "") -> Array:
 	var level: Dictionary = _level_narrative_for_scenario(scenario_id)
 	var steps_variant: Variant = level.get("after_result_comments", [])

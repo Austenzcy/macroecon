@@ -1014,6 +1014,22 @@ func _maybe_start_policy_desk_guides() -> void:
 	_register_guide_targets()
 	if GameState.current_round != 1 or _is_policy_confirmed:
 		return
+	var chapter_steps: Array = NarrativeManager.chapter_opening_steps()
+	if not chapter_steps.is_empty():
+		NarrativeManager.play_tutorial_once(
+			self,
+			"islm_chapter_opening_v1",
+			chapter_steps,
+			_guide_targets
+		)
+	var level_steps: Array = NarrativeManager.level_opening_steps(GameState.current_scenario_id)
+	if not level_steps.is_empty():
+		NarrativeManager.play_tutorial_once(
+			self,
+			"level_opening_%s_v1" % GameState.current_scenario_id,
+			level_steps,
+			_guide_targets
+		)
 	if _is_first_level_scenario():
 		NarrativeManager.play_tutorial_once(
 			self,

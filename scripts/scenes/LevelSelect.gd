@@ -1,6 +1,7 @@
 extends Control
 
 const SCENARIO_INTRO_PATH: String = "res://scenes/ScenarioIntro.tscn"
+const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
 const MAIN_MENU_PATH: String = "res://scenes/MainMenu.tscn"
 
 var _levels: Array[Dictionary] = []
@@ -197,12 +198,18 @@ func _on_scenario_pressed(scenario_id: String) -> void:
 	GameState.set_current_scenario(scenario_id)
 	AudioManager.unlock_audio_from_user_gesture()
 	AudioManager.play_bgm()
-	get_tree().change_scene_to_file(SCENARIO_INTRO_PATH)
+	get_tree().change_scene_to_file(_entry_scene_for_scenario(scenario_id))
 
 
 func _on_back_pressed() -> void:
 	GameState.reset_for_new_game()
 	get_tree().change_scene_to_file(MAIN_MENU_PATH)
+
+
+func _entry_scene_for_scenario(scenario_id: String) -> String:
+	if has_node("/root/NarrativeManager") and NarrativeManager.should_skip_scenario_intro(scenario_id):
+		return POLICY_DESK_PATH
+	return SCENARIO_INTRO_PATH
 
 
 func _make_panel_style(bg: Color, border: Color) -> StyleBoxFlat:
