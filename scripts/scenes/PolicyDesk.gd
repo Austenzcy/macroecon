@@ -27,6 +27,7 @@ const MAP_REGION_CONFIGS: Array[Dictionary] = [
 
 var _policy_cards: Array[Node] = []
 var _advisor_panel: PanelContainer
+var _main_scroll: ScrollContainer
 var _outer_margin: MarginContainer
 var _content_margin: MarginContainer
 var _scale_label: Label
@@ -91,6 +92,7 @@ func _input(event: InputEvent) -> void:
 func _build_ui() -> void:
 	_policy_cards.clear()
 	_advisor_panel = null
+	_main_scroll = null
 	_right_panel_box = null
 	_right_panel = null
 	_problem_panel = null
@@ -121,6 +123,7 @@ func _build_ui() -> void:
 	add_child(background)
 
 	var scroll: ScrollContainer = ScrollContainer.new()
+	_main_scroll = scroll
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scroll.follow_focus = true
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
@@ -831,12 +834,13 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 	AudioManager.play_sfx(&"card_play")
 	_advisor_panel.call("set_advisor", "政策秘书", _selection_message(policy_name))
 	_register_guide_targets()
-	NarrativeManager.play_tutorial_once(
-		self,
-		"confirm_policy_intro_v1",
-		NarrativeManager.confirm_policy_steps(),
-		_guide_targets
-	)
+	if GameState.get_current_visible_level_number() == 1:
+		NarrativeManager.play_tutorial_once(
+			self,
+			"confirm_policy_intro_v1",
+			NarrativeManager.confirm_policy_steps(),
+			_guide_targets
+		)
 
 func _on_confirm_policy() -> void:
 	if _is_gameplay_input_blocked():
@@ -861,7 +865,7 @@ func _on_confirm_policy() -> void:
 	var summary: String = str(_last_result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
 	_advisor_panel.call("set_advisor", "会议记录", _confirmed_meeting_log(summary))
 	AudioManager.play_sfx(&"card_play")
-	if _model_replay_button != null:
+	if _model_replay_button != null and _is_budget_mode():
 		NarrativeManager.play_tutorial_once(
 			self,
 			"model_replay_button_intro_v1",
@@ -870,7 +874,9 @@ func _on_confirm_policy() -> void:
 		)
 	var result_comment_steps: Array = NarrativeManager.after_result_comment_steps(GameState.current_scenario_id)
 	if not result_comment_steps.is_empty():
-		NarrativeManager.play_steps(self, result_comment_steps, _guide_targets)
+		NarrativeManager.play_steps(self, result_comment_steps, _guide_targets, Callable(self, "_maybe_play_round_summary_guide"))
+	else:
+		_maybe_play_round_summary_guide()
 
 func _on_round_summary_pressed() -> void:
 	if _is_gameplay_input_blocked():
@@ -979,6 +985,19 @@ func _set_ui_scale(value: float) -> void:
 	call_deferred("_refresh_initial_layout")
 
 
+func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
+	if ctrl_pressed:
+		if button_index == MOUSE_BUTTON_WHEEL_UP:
+			_set_ui_scale(_ui_scale + SCALE_STEP)
+		elif button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_set_ui_scale(_ui_scale - SCALE_STEP)
+		return
+	if _main_scroll == null:
+		return
+	var delta: int = -84 if button_index == MOUSE_BUTTON_WHEEL_UP else 84
+	_main_scroll.scroll_vertical = maxi(0, _main_scroll.scroll_vertical + delta)
+
+
 func _refresh_initial_layout() -> void:
 	if _content_margin != null:
 		_content_margin.queue_sort()
@@ -1015,7 +1034,7 @@ func _maybe_start_policy_desk_guides() -> void:
 	if GameState.current_round != 1 or _is_policy_confirmed:
 		return
 	var chapter_steps: Array = NarrativeManager.chapter_opening_steps()
-	if not chapter_steps.is_empty():
+	if GameState.get_current_visible_level_number() == 1 and not chapter_steps.is_empty():
 		NarrativeManager.play_tutorial_once(
 			self,
 			"islm_chapter_opening_v1",
@@ -1030,7 +1049,7 @@ func _maybe_start_policy_desk_guides() -> void:
 			level_steps,
 			_guide_targets
 		)
-	if _is_first_level_scenario():
+	if GameState.get_current_visible_level_number() == 1:
 		NarrativeManager.play_tutorial_once(
 			self,
 			"policy_desk_intro_v1",
@@ -1045,6 +1064,20 @@ func _maybe_start_policy_desk_guides() -> void:
 			NarrativeManager.budget_intro_steps(),
 			_guide_targets
 		)
+
+
+func _maybe_play_round_summary_guide() -> void:
+	if GameState.get_current_visible_level_number() != 1:
+		return
+	if _summary_button == null:
+		return
+	_register_guide_targets()
+	NarrativeManager.play_tutorial_once(
+		self,
+		"round_summary_intro_v1",
+		NarrativeManager.round_summary_steps(),
+		_guide_targets
+	)
 
 
 func _on_policy_desk_intro_finished() -> void:

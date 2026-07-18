@@ -36,6 +36,11 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
+		if mouse_event.pressed and (mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP or mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN):
+			if has_node("/root/NarrativeManager"):
+				NarrativeManager.handle_overlay_wheel(mouse_event.button_index, mouse_event.ctrl_pressed)
+			get_viewport().set_input_as_handled()
+			return
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
 			_try_advance()
 			get_viewport().set_input_as_handled()
@@ -73,6 +78,12 @@ func _process(_delta: float) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
+		if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP or mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			if mouse_event.pressed and has_node("/root/NarrativeManager"):
+				NarrativeManager.handle_overlay_wheel(mouse_event.button_index, mouse_event.ctrl_pressed)
+			accept_event()
+			get_viewport().set_input_as_handled()
+			return
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
 			_try_advance()
 			accept_event()

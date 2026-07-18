@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Macro Policy Game Web Validation"
 config/description="Godot Web export validation sample for Macro Policy Game."
-run/main_scene="res://scenes/MainMenu.tscn"
+run/main_scene="res://scenes/LevelSelect.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [autoload]

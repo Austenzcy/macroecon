@@ -212,6 +212,45 @@ Known limits:
 - Dialogue pagination is character-count based and not a full text-measurement layout engine.
 - Highlight rectangles are still rectangular and do not auto-scroll hidden targets into view.
 - Ctrl + wheel scaling is scene-level; a future global UI scale manager could unify behavior across all screens.
+
+## Level Flow Refinement
+
+The formal web entry now uses `LevelSelect` directly as the Godot main scene. `MainMenu` is kept as a fallback scene, but its script immediately redirects to `LevelSelect`, so players no longer see a two-button home page or a Quick Start entry in the normal flow.
+
+`LevelSelect` is simplified into seven chapter boxes labeled `1` through `7`. The UI no longer exposes the old `basic` / `training` branch choice. Internally, the project still keeps those scenarios for data and testing, but the visible chapter route maps them into a single ordered path:
+
+1. `consumer_confidence_drop_basic`
+2. `investment_confidence_drop_training`
+3. `money_market_tightening_training`
+4. `overheating_and_cooling_training`
+5. `fiscal_expansion_crowding_out_training`
+6. `double_shock_investment_and_money_demand_training`
+7. `two_round_stabilization_challenge_training`
+
+Runtime unlocking is handled by `GameState.unlocked_visible_level`. The first level is unlocked at startup. Completing a level and returning from `FinalSummary` calls `GameState.mark_current_visible_level_completed()`, which unlocks the next visible level. This is currently runtime-only and does not introduce a persistent save system.
+
+Round counts are now tied to the visible chapter path:
+
+- Levels 1-5: 1 round.
+- Levels 6-7: 2 rounds.
+
+The chapter timeline is continuous across the visible path rather than being reset inside hidden scenario groups. The quarter index is:
+
+`global_quarter_index = sum(round_count of visible levels before current level) + (current_round - 1)`
+
+The label is then computed from year 1000, quarter 1.
+
+Narrative playback is scoped by tutorial type:
+
+- `chapter_opening` only plays in visible level 1 and only once per runtime session.
+- `basic_desk_tutorial` only plays in visible level 1 and only once.
+- Each visible level may still play its own `level_opening`.
+- `policy_points_tutorial` plays once when the first budget/model level appears.
+- Confirm-policy guidance plays after the first level's first successful policy card selection.
+- Round-summary guidance plays after the first level's result comments and highlights the round summary button.
+- Model replay guidance is delayed until the first budget/model level has confirmed policy and the replay button is available.
+
+During `DialogueOverlay`, left-click and touch advance dialogue and remain blocked from the gameplay layer. Mouse wheel is forwarded to the active scene's `handle_narrative_wheel(...)`; ordinary wheel scrolls the current page, while Ctrl + wheel uses the scene's UI scaling where available. If the highlighted target scrolls out of view, the overlay keeps running and refreshes the highlight on the next frame instead of closing.
 ## Formal JSON Integration v1
 
 本轮已接入两份正式 IS-LM 章节 JSON：

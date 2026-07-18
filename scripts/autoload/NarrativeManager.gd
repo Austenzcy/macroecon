@@ -20,6 +20,7 @@ var unlocked_hints: Dictionary = {}
 var _active_overlay: Control
 var _active_overlay_layer: CanvasLayer
 var _active_modal_layer: CanvasLayer
+var _active_host: Control
 var _pending_sequences: Array[Dictionary] = []
 var _narrative_cache: Dictionary = {}
 
@@ -41,6 +42,7 @@ func reset_runtime_state() -> void:
 	if _active_overlay != null and is_instance_valid(_active_overlay):
 		_free_overlay_layer()
 	_active_overlay = null
+	_active_host = null
 	if _active_modal_layer != null and is_instance_valid(_active_modal_layer):
 		_active_modal_layer.queue_free()
 	_active_modal_layer = null
@@ -135,6 +137,13 @@ func is_blocking_game_input() -> bool:
 	return is_dialogue_active() or is_modal_active()
 
 
+func handle_overlay_wheel(button_index: int, ctrl_pressed: bool) -> void:
+	if _active_host != null and is_instance_valid(_active_host) and _active_host.has_method("handle_narrative_wheel"):
+		_active_host.call("handle_narrative_wheel", button_index, ctrl_pressed)
+	if _active_overlay != null and is_instance_valid(_active_overlay):
+		_active_overlay.call_deferred("queue_redraw")
+
+
 func replay_unlocked_hints(host: Control, scenario_id: String, target_map: Dictionary = {}) -> void:
 	var unlocked: Array = _unlocked_hint_indices(scenario_id)
 	if unlocked.is_empty():
@@ -144,8 +153,7 @@ func replay_unlocked_hints(host: Control, scenario_id: String, target_map: Dicti
 
 
 func get_current_quarter_label(scenario_id: String = "") -> String:
-	var level_index: int = _level_index_for_scenario(scenario_id)
-	var absolute_quarter: int = (START_QUARTER - 1) + level_index
+	var absolute_quarter: int = (START_QUARTER - 1) + GameState.get_global_quarter_index(scenario_id)
 	var year: int = START_YEAR + int(floor(float(absolute_quarter) / 4.0))
 	var quarter: int = absolute_quarter % 4 + 1
 	return "公元%d年 %s" % [year, _quarter_name(quarter)]
@@ -190,6 +198,12 @@ func confirm_policy_steps() -> Array:
 func replay_button_steps() -> Array:
 	return _tutorial_sequence_steps("after_first_policy_confirmed", [
 		_step("首席经济顾问", "政策已经执行。现在可以查看模型回放，看看政策如何移动 IS 或 LM 曲线。", "model_replay_button")
+	])
+
+
+func round_summary_steps() -> Array:
+	return _tutorial_sequence_steps("after_first_result_comments", [
+		_step("首席经济顾问", "本轮政策已经执行。接下来，请打开“本轮总结”，查看这次治理带来的变量变化和机制解释。", "round_summary_button")
 	])
 
 
@@ -253,6 +267,7 @@ func _start_sequence(request: Dictionary) -> void:
 		return
 	var overlay: Control = DialogueOverlayScript.new() as Control
 	_active_overlay = overlay
+	_active_host = host
 	var layer: CanvasLayer = _create_canvas_layer(host, "DialogueOverlayLayer", 100)
 	_active_overlay_layer = layer
 	overlay.call("setup", request.get("steps", []), request.get("target_map", {}))
@@ -262,6 +277,7 @@ func _start_sequence(request: Dictionary) -> void:
 
 func _on_overlay_finished(on_finished: Callable) -> void:
 	_active_overlay = null
+	_active_host = null
 	_free_overlay_layer()
 	if on_finished.is_valid():
 		on_finished.call()

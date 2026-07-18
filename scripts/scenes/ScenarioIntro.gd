@@ -11,6 +11,7 @@ var _step_index: int = 0
 var _ui_scale: float = 1.0
 
 var _content_box: VBoxContainer
+var _main_scroll: ScrollContainer
 var _progress_label: Label
 var _scenario_title_label: Label
 var _mode_label: Label
@@ -95,6 +96,7 @@ func _build_ui() -> void:
 	add_child(background)
 
 	var scroll: ScrollContainer = ScrollContainer.new()
+	_main_scroll = scroll
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scroll.follow_focus = true
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
@@ -302,6 +304,19 @@ func _set_ui_scale(value: float) -> void:
 	GameState.set_ui_scale(_ui_scale)
 	_build_ui()
 	_show_step(_step_index, false)
+
+
+func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
+	if ctrl_pressed:
+		if button_index == MOUSE_BUTTON_WHEEL_UP:
+			_set_ui_scale(_ui_scale + SCALE_STEP)
+		elif button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_set_ui_scale(_ui_scale - SCALE_STEP)
+		return
+	if _main_scroll == null:
+		return
+	var delta: int = -72 if button_index == MOUSE_BUTTON_WHEEL_UP else 72
+	_main_scroll.scroll_vertical = maxi(0, _main_scroll.scroll_vertical + delta)
 
 
 func _dim(value: int) -> int:

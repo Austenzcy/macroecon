@@ -41,7 +41,7 @@ func _build_ui() -> void:
 	var result: Dictionary = GameState.last_result
 	if result.is_empty():
 		page.add_child(_build_text_panel("提示", "还没有可展示的本轮结算结果。请先在政策桌面确认政策。"))
-		page.add_child(_build_action_button("返回主菜单", _on_return_main_menu_pressed))
+		page.add_child(_build_action_button("返回关卡选择", _on_return_level_select_pressed))
 		return
 
 	_add_subtitle(page, "第 %d 回合结果" % GameState.current_round)
@@ -179,9 +179,28 @@ func _on_final_summary_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/FinalSummary.tscn")
 
 
-func _on_return_main_menu_pressed() -> void:
-	GameState.reset_for_new_game()
-	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+func _on_return_level_select_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/LevelSelect.tscn")
+
+
+func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
+	if ctrl_pressed:
+		return
+	var scroll: ScrollContainer = _find_first_scroll_container(self)
+	if scroll == null:
+		return
+	var delta: int = -72 if button_index == MOUSE_BUTTON_WHEEL_UP else 72
+	scroll.scroll_vertical = maxi(0, scroll.scroll_vertical + delta)
+
+
+func _find_first_scroll_container(node: Node) -> ScrollContainer:
+	if node is ScrollContainer:
+		return node as ScrollContainer
+	for child: Node in node.get_children():
+		var found: ScrollContainer = _find_first_scroll_container(child)
+		if found != null:
+			return found
+	return null
 
 
 func _maybe_play_level_end_dialogue() -> void:

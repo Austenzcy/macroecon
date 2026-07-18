@@ -495,3 +495,26 @@ Formal narrative experience repair:
 - Completed a main-page scroll and Ctrl+wheel scale self-check for MainMenu, LevelSelect, ScenarioIntro fallback, PolicyDesk, DialogueOverlay, HintConfirmModal, Result, Model Replay, and FinalSummary.
 - Re-exported and deployed CloudBase successfully. BuildId: `20260715-124147`.
 - Online check passed: root `index.html` returns HTTP 200 and `latest.json` points to `/releases/20260715-124147/index.html`.
+
+Level flow, tutorial trigger, and timeline refinement:
+- Startup flow changed to enter `LevelSelect` directly; `MainMenu` remains as a fallback redirect scene.
+- LevelSelect simplified to seven numbered chapter boxes.
+- Visible levels 2-7 are locked at the start; locked levels show a lock label and do not enter gameplay.
+- Completing a level from FinalSummary unlocks the next visible level at runtime.
+- Visible level mapping added:
+  1. `consumer_confidence_drop_basic`
+  2. `investment_confidence_drop_training`
+  3. `money_market_tightening_training`
+  4. `overheating_and_cooling_training`
+  5. `fiscal_expansion_crowding_out_training`
+  6. `double_shock_investment_and_money_demand_training`
+  7. `two_round_stabilization_challenge_training`
+- Chapter opening and first desk tutorial now only play in visible level 1.
+- Later levels play their own level opening without replaying the first chapter opening.
+- First level policy selection now triggers confirm-policy guidance.
+- First level result comments now trigger round-summary guidance.
+- First budget/model level now triggers model replay guidance only after policy confirmation and replay button availability.
+- DialogueOverlay now forwards ordinary mouse wheel to page scrolling and Ctrl + wheel to scene UI scaling while still blocking left-click gameplay interaction.
+- Chapter quarter timeline now uses visible-level order and prior round counts instead of resetting inside hidden scenario groups.
+- Round count set to 1 for visible levels 1-5 and 2 for visible levels 6-7.
+- ScenarioIntro remains skipped for formal IS-LM narrative levels and stays available as fallback.

@@ -81,7 +81,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "consumer_confidence_drop_basic",
     "title": "消费信心下滑：基础教学关",
     "selection_mode": "single",
@@ -185,7 +185,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "consumer_confidence_drop_training",
     "title": "消费信心下滑：组合训练关",
     "selection_mode": "budget",
@@ -324,7 +324,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "investment_confidence_drop_basic",
     "title": "投资信心下降：基础教学关",
     "selection_mode": "single",
@@ -428,7 +428,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "investment_confidence_drop_training",
     "title": "投资信心下降：组合训练关",
     "selection_mode": "budget",
@@ -567,7 +567,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "money_market_tightening_basic",
     "title": "货币市场紧张：基础教学关",
     "selection_mode": "single",
@@ -671,7 +671,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "money_market_tightening_training",
     "title": "货币市场紧张：组合训练关",
     "selection_mode": "budget",
@@ -812,7 +812,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "overheating_and_cooling_basic",
     "title": "经济过热与政策降温：基础教学关",
     "selection_mode": "single",
@@ -918,7 +918,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "overheating_and_cooling_training",
     "title": "经济过热与政策降温：组合训练关",
     "selection_mode": "budget",
@@ -1060,7 +1060,7 @@
         "pi_sensitivity": 0.03
       }
     },
-    "round_count": 2,
+    "round_count": 1,
     "id": "fiscal_expansion_crowding_out_training",
     "title": "财政扩张与挤出效应：组合训练关",
     "selection_mode": "budget",
