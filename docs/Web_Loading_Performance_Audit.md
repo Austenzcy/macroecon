@@ -115,3 +115,28 @@ index.js + index.wasm + index.pck ~= 53.3 MB
 ## Follow-Up
 
 Before adding the complete narrative JSON, check whether new text introduces characters missing from the subset font and regenerate the subset as part of the build process if needed.
+
+## Automated Font Subset Generation
+
+LevelSelect's new chapter instruction introduced glyphs that were absent from the previous one-off font subset. The text source was valid UTF-8 in `scripts/scenes/LevelSelect.gd`; the displayed squares were missing glyphs rather than damaged content.
+
+`scripts/generate_font_subset.py` now rebuilds the actual project font at `assets/fonts/NotoSansSC-Regular.ttf` from the local ignored full-font source `assets/fonts/NotoSansSC-Regular.full.ttf.bak`.
+
+The generator scans UTF-8 text from `.gd`, `.tscn`, `.tres`, `.json`, and `.cfg` files under the project. It excludes `.git`, `.godot`, `.godot_cli_user`, `web_build`, `releases`, `root_index`, `docs`, temporary/backup directories, `node_modules`, and `.bak` files. A fixed UI/economics character set is added as a safety net, including chapter/lock/hint labels, ASCII letters and digits, punctuation, `π`, and directional arrows.
+
+`scripts/export_web.ps1` runs the generator before Godot Web export. If Python, fonttools, the full font, or subset validation is unavailable, export stops instead of silently packaging an old font. The generator reports scanned-file count, unique-character count, output size, and validates `顺、序、解、锁、关、卡、提、示、π、↑、↓`.
+
+When adding visible game text later, place it in the normal scenes, scripts, or data directories and the next export will include it automatically. Do not move the full font backup into an exported resource path.
+
+### Current Export Check
+
+BuildId: `20260720-152552`
+
+| File | Size |
+|---|---:|
+| `assets/fonts/NotoSansSC-Regular.ttf` | 492,644 bytes |
+| `web_build/index.pck` | 716,704 bytes |
+| `web_build/index.wasm.gz` | 10,111,653 bytes |
+| `web_build/index.js` | 279,815 bytes |
+
+CloudBase checks for this release returned HTTP 200 for `index.html`, `index.js`, `index.pck`, and `index.wasm.gz`. One command-line timing sample measured 0.90 seconds for HTML, 2.91 seconds for PCK, 12.94 seconds for JS, and 34.26 seconds for compressed wasm. These timings are CDN/network samples rather than a full browser startup benchmark; the release still transfers the compressed 10.1 MB wasm payload rather than the 39.5 MB raw wasm payload.

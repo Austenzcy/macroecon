@@ -518,3 +518,13 @@ Level flow, tutorial trigger, and timeline refinement:
 - Chapter quarter timeline now uses visible-level order and prior round counts instead of resetting inside hidden scenario groups.
 - Round count set to 1 for visible levels 1-5 and 2 for visible levels 6-7.
 - ScenarioIntro remains skipped for formal IS-LM narrative levels and stays available as fallback.
+
+Font subset automation and LevelSelect accessibility:
+- Added `scripts/generate_font_subset.py`, which scans visible game text from `.gd`, `.tscn`, `.tres`, `.json`, and `.cfg` resources while excluding export, cache, documentation, temporary, and backup directories.
+- The generator rebuilds the Web font subset from the ignored local full-font backup and validates key UI/economics glyphs such as 顺、序、解、锁、π、↑、↓.
+- `scripts/export_web.ps1` now runs the font generator before every Godot Web export and fails fast if generation or validation fails.
+- Regenerated `assets/fonts/NotoSansSC-Regular.ttf` to include LevelSelect's chapter instruction and lock/status text, fixing the missing-glyph display.
+- LevelSelect now uses ScrollContainer scrolling and the same 80%–120% Ctrl + mouse wheel UI scaling range as the main policy flow.
+- Verified the generated subset, Web export, compressed wasm path, and the main-page scroll/zoom integration before CloudBase deployment.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260720-152552`; latest.json now points to `/releases/20260720-152552/index.html`.
+- Current generated sizes: font subset 492,644 bytes; index.pck 716,704 bytes; index.wasm.gz 10,111,653 bytes; index.js 279,815 bytes.

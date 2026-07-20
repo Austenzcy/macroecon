@@ -251,6 +251,14 @@ Narrative playback is scoped by tutorial type:
 - Model replay guidance is delayed until the first budget/model level has confirmed policy and the replay button is available.
 
 During `DialogueOverlay`, left-click and touch advance dialogue and remain blocked from the gameplay layer. Mouse wheel is forwarded to the active scene's `handle_narrative_wheel(...)`; ordinary wheel scrolls the current page, while Ctrl + wheel uses the scene's UI scaling where available. If the highlighted target scrolls out of view, the overlay keeps running and refreshes the highlight on the next frame instead of closing.
+
+## LevelSelect Scroll And Scale
+
+LevelSelect now uses the same internal UI-scale range as PolicyDesk: 80% to 120% in 10% increments. Ctrl + mouse wheel rebuilds its dimensions, spacing, font sizes, and level boxes from `GameState.ui_scale`; it does not rely on browser zoom. Its page content remains inside a `ScrollContainer`, with bottom safety space preserved so the chapter instruction and level boxes remain reachable after zooming.
+
+Regular mouse wheel remains available to the `ScrollContainer`. When DialogueOverlay is active over LevelSelect, NarrativeManager forwards ordinary wheel to page scrolling and Ctrl + wheel to this same scale handler while left-click continues to advance dialogue only.
+
+Known limitation: Result and FinalSummary currently support forwarded scroll during dialogue, but only PolicyDesk, ScenarioIntro fallback, and LevelSelect currently implement scene-level Ctrl + wheel content scaling.
 ## Formal JSON Integration v1
 
 本轮已接入两份正式 IS-LM 章节 JSON：

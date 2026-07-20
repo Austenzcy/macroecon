@@ -71,6 +71,42 @@ Write-Host "Godot: $ResolvedGodotExe"
 Write-Host "Project: $ProjectPath"
 Write-Host "Export: $ExportPath"
 
+$FontSubsetScript = Join-Path $ScriptDir "generate_font_subset.py"
+if (-not (Test-Path -LiteralPath $FontSubsetScript -PathType Leaf)) {
+	throw "Font subset generator is missing: $FontSubsetScript"
+}
+
+function Resolve-PythonExecutable {
+	$Candidates = @()
+	if (-not [string]::IsNullOrWhiteSpace($env:CONDA_PREFIX)) {
+		$Candidates += (Join-Path $env:CONDA_PREFIX "python.exe")
+	}
+	if (-not [string]::IsNullOrWhiteSpace($env:USERPROFILE)) {
+		$Candidates += (Join-Path $env:USERPROFILE "ANACD\python.exe")
+	}
+
+	$PythonCommand = Get-Command python -ErrorAction SilentlyContinue
+	if ($null -ne $PythonCommand -and -not $PythonCommand.Source.Contains("WindowsApps")) {
+		$Candidates += $PythonCommand.Source
+	}
+
+	foreach ($Candidate in $Candidates) {
+		if (Test-Path -LiteralPath $Candidate -PathType Leaf) {
+			return $Candidate
+		}
+	}
+
+	throw "Python with fonttools was not found. Install fonttools or configure a real Python executable."
+}
+
+$PythonExe = Resolve-PythonExecutable
+
+Write-Host "Generating Web font subset..."
+& $PythonExe $FontSubsetScript
+if ($LASTEXITCODE -ne 0) {
+	throw "Font subset generation failed. Web export was stopped."
+}
+
 if (Test-Path -LiteralPath $WebBuildPath) {
 	Remove-Item -LiteralPath $WebBuildPath -Recurse -Force
 }
