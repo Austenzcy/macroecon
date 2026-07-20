@@ -540,3 +540,15 @@ Web loading performance second audit:
 - Documented the CloudBase 120-second cache limit and recommended long-lived caching for BuildId release paths.
 - Browser timing: cold LevelSelect ready in 47.0 seconds; warm LevelSelect ready in 7.6 seconds.
 - Re-exported and deployed CloudBase successfully. BuildId: `20260720-214725`.
+
+Art asset audit v1:
+- Completed the current project art-resource audit.
+- Added `docs/Art_Asset_Audit_v1.md`.
+- Audited page-level scenes and dynamic UI scripts including LevelSelect, PolicyDesk, DialogueOverlay, HintConfirmModal, Result, FinalSummary, Model Replay, MacroMap, RightInfoPanel/stat bars, TheoryPanel, PolicyCard, and loading/export-related files.
+- Organized page-level resource needs and UI component-level resource needs.
+- Documented first-pass character badge recommendations for the six narrative roles.
+- Documented map-area resource recommendations and theory/model panel visual boundaries.
+- Organized a three-stage animation list: low-risk UI feedback, strategy-game feel, and later teaching presentation effects.
+- Marked the recommended first art pass scope with P0/P1/P2/P3 priorities.
+- Noted Web performance and font-subset constraints for future art resources.
+- Did not modify gameplay UI, generate images, change logic, edit narrative text, deploy CloudBase, or push to GitHub.
