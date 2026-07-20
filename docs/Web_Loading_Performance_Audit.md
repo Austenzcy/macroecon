@@ -140,3 +140,67 @@ BuildId: `20260720-152552`
 | `web_build/index.js` | 279,815 bytes |
 
 CloudBase checks for this release returned HTTP 200 for `index.html`, `index.js`, `index.pck`, and `index.wasm.gz`. One command-line timing sample measured 0.90 seconds for HTML, 2.91 seconds for PCK, 12.94 seconds for JS, and 34.26 seconds for compressed wasm. These timings are CDN/network samples rather than a full browser startup benchmark; the release still transfers the compressed 10.1 MB wasm payload rather than the 39.5 MB raw wasm payload.
+
+## Web Loading Performance Audit - 2026-07-20
+
+BuildId: `20260720-214725`
+
+### Finding
+
+The dominant cold-start cost is downloading the Godot engine from CloudBase, not parsing the project data or building the LevelSelect scene. The same 10.1 MB `index.wasm.gz` took about 40 seconds in cold command-line samples, while the browser's second visit reused the cached asset and reached LevelSelect in 7.6 seconds.
+
+The browser console showed no Godot, GDScript, WebGL, resource, or autoload errors after the final fix. Boot markers showed:
+
+```text
+Cold browser run:
+wasm downloaded and decompressed: 34.7 s
+LevelSelect ready: 47.0 s
+
+Warm browser run:
+wasm decompressed from cache: 0.8 s
+LevelSelect ready: 7.6 s
+```
+
+The in-app test browser cannot access the local loopback server, so an equivalent local browser startup time could not be recorded in this environment. Local export and script compilation completed successfully in 65.6 seconds; this is a build-time check, not a page-load benchmark.
+
+### Current Artifacts
+
+| File | Size |
+|---|---:|
+| `index.html` | 10,266 bytes |
+| `index.js` | 279,815 bytes |
+| `index.wasm` | 39,509,339 bytes |
+| `index.wasm.gz` | 10,111,653 bytes |
+| `index.pck` | 717,056 bytes |
+| font subset | 492,644 bytes |
+| all JSON data | 139,628 bytes |
+| total release files | 50,677,779 bytes |
+
+The raw wasm remains in the release only as a compatibility fallback. Supported browsers request `index.wasm.gz`; they do not also download `index.wasm`. No full Chinese font, `.bak` font, docs, releases, Web exports, screenshots, or temporary directories were found in the PCK. There are no duplicate exported font resources or large image/audio assets.
+
+### Changes
+
+1. The generated page preloads `index.wasm.gz` and `index.pck` so the largest transfers can begin before the Godot launcher asks for them.
+2. The compressed loader retains streaming gzip decompression and WebAssembly compilation, with raw wasm used only for unsupported browsers or a failed compressed request.
+3. The loading page now reports download, decompression/compilation, resource loading, and game-ready stages. After ten seconds it explains that the first engine download may take longer.
+4. Boot diagnostics are concise and report only major stage timing.
+5. Synthesized BGM/SFX streams are now created lazily after a user gesture instead of during autoload startup.
+6. LevelSelect reports its ready state to the Web loading page.
+
+### Network And Cache
+
+All release files and `latest.json` returned HTTP 200. `index.wasm.gz` and `index.pck` use `application/octet-stream`; the loader converts the decompressed wasm response to `application/wasm`. CloudBase currently returns `Cache-Control: max-age=120` for versioned release assets, including wasm and PCK. This is shorter than ideal and explains why a visit after two minutes may behave like another cold load.
+
+The current CloudBase CLI does not expose per-path cache-header configuration. Configure the hosting cache in the CloudBase console when available:
+
+```text
+/releases/**  -> public, max-age=31536000, immutable
+/latest.json  -> no-cache
+/index.html   -> no-cache or short cache
+```
+
+Reference: https://cloud.tencent.com/document/product/876/123943
+
+### Remaining Bottleneck
+
+Godot Standard Web requires a roughly 10.1 MB compressed engine download and then browser-side WASM compilation. On a slow or cold CloudBase edge this transfer can still take 35-45 seconds. The project PCK is already below 1 MB, so further project-resource trimming will not materially remove that engine cost. The highest-value next step is long-lived caching for BuildId-versioned release assets; a later investigation could compare a smaller custom Godot Web template, but that is outside this maintenance pass.

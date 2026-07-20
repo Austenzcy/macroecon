@@ -14,6 +14,7 @@ var _ui_scale: float = 1.0
 func _ready() -> void:
 	_ui_scale = GameState.ui_scale
 	_build_ui()
+	_report_web_boot_ready()
 
 
 func _input(event: InputEvent) -> void:
@@ -187,6 +188,11 @@ func _dim(value: int) -> int:
 
 func _font(value: int) -> int:
 	return maxi(11, int(roundf(float(value) * _ui_scale)))
+
+
+func _report_web_boot_ready() -> void:
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.macroPolicyGameReady && window.macroPolicyGameReady();")
 
 
 func _make_panel_style(bg: Color, border: Color) -> StyleBoxFlat:

@@ -16,17 +16,15 @@ func _ready() -> void:
 	_sfx_player.name = "SFXPlayer"
 	add_child(_sfx_player)
 
-	_bgm_stream = _make_tone_stream(220.0, 1.5, 0.12, true)
-	_card_sfx_stream = _make_tone_stream(720.0, 0.12, 0.35, false)
-
-
 func unlock_audio_from_user_gesture() -> void:
 	_audio_unlocked = true
+	_ensure_audio_streams()
 
 
 func play_bgm() -> void:
 	if not _audio_unlocked:
 		return
+	_ensure_audio_streams()
 	if _bgm_player.stream == null:
 		_bgm_player.stream = _bgm_stream
 	if not _bgm_player.playing:
@@ -36,12 +34,20 @@ func play_bgm() -> void:
 func play_sfx(name: StringName = &"card_play") -> void:
 	if not _audio_unlocked:
 		return
+	_ensure_audio_streams()
 	match name:
 		&"card_play":
 			_sfx_player.stream = _card_sfx_stream
 		_:
 			_sfx_player.stream = _card_sfx_stream
 	_sfx_player.play()
+
+
+func _ensure_audio_streams() -> void:
+	if _bgm_stream == null:
+		_bgm_stream = _make_tone_stream(220.0, 1.5, 0.12, true)
+	if _card_sfx_stream == null:
+		_card_sfx_stream = _make_tone_stream(720.0, 0.12, 0.35, false)
 
 
 func _make_tone_stream(frequency: float, duration: float, volume: float, should_loop: bool) -> AudioStreamWAV:

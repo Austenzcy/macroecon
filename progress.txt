@@ -528,3 +528,15 @@ Font subset automation and LevelSelect accessibility:
 - Verified the generated subset, Web export, compressed wasm path, and the main-page scroll/zoom integration before CloudBase deployment.
 - Re-exported and deployed CloudBase successfully. BuildId: `20260720-152552`; latest.json now points to `/releases/20260720-152552/index.html`.
 - Current generated sizes: font subset 492,644 bytes; index.pck 716,704 bytes; index.wasm.gz 10,111,653 bytes; index.js 279,815 bytes.
+
+Web loading performance second audit:
+- Audited download, compressed wasm, PCK, font, JSON, release consistency, browser console, and startup scripts.
+- Confirmed the main cold-start bottleneck is the 10.1 MB compressed Godot engine download; no Godot/GDScript startup errors were present.
+- Confirmed supported browsers use `index.wasm.gz` without simultaneously downloading raw `index.wasm`.
+- Added early preload hints for compressed wasm and PCK.
+- Added concise staged loading messages for engine download, decompression/compilation, resource loading, and LevelSelect readiness.
+- Deferred synthesized audio stream creation until the first user gesture.
+- Confirmed the font subset remains 492,644 bytes and PCK remains 717,056 bytes; no unexpected large project resource was exported.
+- Documented the CloudBase 120-second cache limit and recommended long-lived caching for BuildId release paths.
+- Browser timing: cold LevelSelect ready in 47.0 seconds; warm LevelSelect ready in 7.6 seconds.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260720-214725`.
