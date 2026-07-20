@@ -1,5 +1,6 @@
 extends Control
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
 const SCENARIO_INTRO_PATH: String = "res://scenes/ScenarioIntro.tscn"
 const SCALE_STEP: float = 0.1
@@ -36,7 +37,7 @@ func _build_ui() -> void:
 		child.queue_free()
 
 	var background: ColorRect = ColorRect.new()
-	background.color = Color(0.018, 0.022, 0.028, 1.0)
+	background.color = ClassicalTheme.BG_DEEP
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -66,14 +67,14 @@ func _build_ui() -> void:
 	_status_label = Label.new()
 	_status_label.text = "请选择已解锁关卡。"
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_status_label.modulate = Color(0.78, 0.88, 0.94)
+	ClassicalTheme.apply_label_color(_status_label, "soft")
 	_status_label.add_theme_font_size_override("font_size", _font(18))
 	root.add_child(_status_label)
 
 
 func _build_header() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.065, 0.095, 0.115, 0.95), Color(0.22, 0.42, 0.52)))
+	panel.add_theme_stylebox_override("panel", ClassicalTheme.panel_style("chapter", _ui_scale))
 
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", _dim(26))
@@ -90,12 +91,13 @@ func _build_header() -> PanelContainer:
 	title.text = "第一章：短期需求管理与 IS-LM 模型"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", _font(38))
+	ClassicalTheme.apply_label_color(title, "title")
 	box.add_child(title)
 
 	var subtitle: Label = Label.new()
 	subtitle.text = "按顺序完成 1–7 关。新关卡将在完成前一关后解锁。"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.modulate = Color(0.78, 0.88, 0.94)
+	ClassicalTheme.apply_label_color(subtitle, "soft")
 	subtitle.add_theme_font_size_override("font_size", _font(18))
 	box.add_child(subtitle)
 
@@ -104,7 +106,7 @@ func _build_header() -> PanelContainer:
 
 func _build_level_grid() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.042, 0.054, 0.068, 0.96), Color(0.18, 0.36, 0.46)))
+	panel.add_theme_stylebox_override("panel", ClassicalTheme.panel_style("desk", _ui_scale))
 
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", _dim(30))
@@ -130,11 +132,15 @@ func _build_level_grid() -> PanelContainer:
 func _build_level_button(level_number: int) -> Button:
 	var button: Button = Button.new()
 	button.custom_minimum_size = Vector2(_dim(104), _dim(104))
+	button.pivot_offset = button.custom_minimum_size * 0.5
 	button.add_theme_font_size_override("font_size", _font(34))
 	if GameState.is_visible_level_unlocked(level_number):
 		button.text = str(level_number)
 	else:
 		button.text = "%d\n锁" % level_number
+	_apply_level_button_style(button, level_number, false)
+	button.mouse_entered.connect(_on_level_button_hovered.bind(button, level_number, true))
+	button.mouse_exited.connect(_on_level_button_hovered.bind(button, level_number, false))
 	button.pressed.connect(_on_level_pressed.bind(level_number))
 	return button
 
@@ -143,6 +149,9 @@ func _on_level_pressed(level_number: int) -> void:
 	if not GameState.is_visible_level_unlocked(level_number):
 		if _status_label != null:
 			_status_label.text = "请先完成前一关。"
+			var tween: Tween = _status_label.create_tween()
+			tween.tween_property(_status_label, "modulate", ClassicalTheme.ACCENT_GOLD, 0.08)
+			tween.tween_property(_status_label, "modulate", ClassicalTheme.TEXT_SOFT, 0.20)
 		AudioManager.play_sfx(&"card_play")
 		return
 	if not GameState.start_visible_level(level_number):
@@ -207,3 +216,27 @@ func _make_panel_style(bg: Color, border: Color) -> StyleBoxFlat:
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.32)
 	style.shadow_size = 12
 	return style
+
+
+func _apply_level_button_style(button: Button, level_number: int, hovered: bool) -> void:
+	var kind: String = "level_locked"
+	if GameState.is_visible_level_unlocked(level_number):
+		kind = "level_completed" if level_number < GameState.get_unlocked_visible_level() else "level_current"
+	var normal: StyleBoxFlat = ClassicalTheme.panel_style(kind, _ui_scale)
+	var hover: StyleBoxFlat = ClassicalTheme.panel_style(kind, _ui_scale)
+	hover.bg_color = hover.bg_color.lightened(0.09)
+	hover.border_color = ClassicalTheme.ACCENT_GOLD
+	var pressed: StyleBoxFlat = ClassicalTheme.panel_style(kind, _ui_scale)
+	pressed.bg_color = pressed.bg_color.darkened(0.12)
+	button.add_theme_stylebox_override("normal", hover if hovered else normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("disabled", ClassicalTheme.panel_style("level_locked", _ui_scale))
+	button.add_theme_color_override("font_color", ClassicalTheme.TEXT_MAIN if GameState.is_visible_level_unlocked(level_number) else ClassicalTheme.TEXT_MUTED)
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.86, 0.48, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(0.82, 0.70, 0.50, 1.0))
+
+
+func _on_level_button_hovered(button: Button, level_number: int, hovered: bool) -> void:
+	_apply_level_button_style(button, level_number, hovered)
+	ClassicalTheme.hover_to(button, Vector2(1.035, 1.035) if hovered else Vector2.ONE, 0.10)

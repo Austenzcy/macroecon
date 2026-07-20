@@ -4,6 +4,7 @@ const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
 const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
 const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
 const TheoryISLMGraphScript = preload("res://scripts/ui/TheoryISLMGraph.gd")
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
@@ -118,7 +119,7 @@ func _build_ui() -> void:
 		child.queue_free()
 
 	var background: ColorRect = ColorRect.new()
-	background.color = Color(0.015, 0.018, 0.022, 1.0)
+	background.color = ClassicalTheme.BG_DEEP
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -178,6 +179,7 @@ func _build_ui() -> void:
 	_confirm_button.disabled = _is_policy_confirmed
 	_confirm_button.custom_minimum_size = Vector2(_dim(160), _dim(64))
 	_confirm_button.add_theme_font_size_override("font_size", _font(20))
+	ClassicalTheme.apply_button(_confirm_button, _ui_scale, "primary")
 	_confirm_button.pressed.connect(_on_confirm_policy)
 	bottom_row.add_child(_confirm_button)
 
@@ -250,6 +252,7 @@ func _build_wisdom_panel() -> PanelContainer:
 	_wisdom_label.custom_minimum_size = Vector2(_dim(86), _dim(30))
 	_wisdom_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_wisdom_label.add_theme_font_size_override("font_size", _font(14))
+	ClassicalTheme.apply_label_color(_wisdom_label, "title")
 	row.add_child(_wisdom_label)
 
 	_request_hint_button = Button.new()
@@ -257,6 +260,7 @@ func _build_wisdom_panel() -> PanelContainer:
 	_request_hint_button.text = "请求提示"
 	_request_hint_button.custom_minimum_size = Vector2(_dim(82), _dim(32))
 	_request_hint_button.add_theme_font_size_override("font_size", _font(14))
+	ClassicalTheme.apply_button(_request_hint_button, _ui_scale, "primary")
 	_request_hint_button.pressed.connect(_on_request_hint_pressed)
 	row.add_child(_request_hint_button)
 
@@ -265,6 +269,7 @@ func _build_wisdom_panel() -> PanelContainer:
 	_review_hint_button.text = "回看"
 	_review_hint_button.custom_minimum_size = Vector2(_dim(54), _dim(32))
 	_review_hint_button.add_theme_font_size_override("font_size", _font(14))
+	ClassicalTheme.apply_button(_review_hint_button, _ui_scale, "quiet")
 	_review_hint_button.pressed.connect(_on_review_hint_pressed)
 	row.add_child(_review_hint_button)
 
@@ -291,6 +296,7 @@ func _build_scale_controls() -> PanelContainer:
 	minus_button.text = "-"
 	minus_button.custom_minimum_size = Vector2(_dim(34), _dim(32))
 	minus_button.add_theme_font_size_override("font_size", _font(16))
+	ClassicalTheme.apply_button(minus_button, _ui_scale, "quiet")
 	minus_button.pressed.connect(_on_zoom_out)
 	row.add_child(minus_button)
 
@@ -306,6 +312,7 @@ func _build_scale_controls() -> PanelContainer:
 	plus_button.text = "+"
 	plus_button.custom_minimum_size = Vector2(_dim(34), _dim(32))
 	plus_button.add_theme_font_size_override("font_size", _font(16))
+	ClassicalTheme.apply_button(plus_button, _ui_scale, "quiet")
 	plus_button.pressed.connect(_on_zoom_in)
 	row.add_child(plus_button)
 
@@ -313,6 +320,7 @@ func _build_scale_controls() -> PanelContainer:
 	reset_button.text = "重置"
 	reset_button.custom_minimum_size = Vector2(_dim(58), _dim(32))
 	reset_button.add_theme_font_size_override("font_size", _font(15))
+	ClassicalTheme.apply_button(reset_button, _ui_scale, "quiet")
 	reset_button.pressed.connect(_on_zoom_reset)
 	row.add_child(reset_button)
 
@@ -416,6 +424,7 @@ func _build_map_panel() -> PanelContainer:
 	_theory_button.text = "关闭理论" if _is_theory_open else "图表/理论"
 	_theory_button.custom_minimum_size = Vector2(_dim(112), _dim(38))
 	_theory_button.add_theme_font_size_override("font_size", _font(16))
+	ClassicalTheme.apply_button(_theory_button, _ui_scale, "quiet")
 	_theory_button.pressed.connect(_on_toggle_theory_panel)
 	title_row.add_child(_theory_button)
 
@@ -553,6 +562,7 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		replay_button.text = "查看模型回放"
 		replay_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
 		replay_button.add_theme_font_size_override("font_size", _font(16))
+		ClassicalTheme.apply_button(replay_button, _ui_scale, "primary")
 		replay_button.pressed.connect(_on_open_replay_pressed)
 		_right_panel_box.add_child(replay_button)
 
@@ -562,6 +572,7 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 	summary_button.text = "本轮总结"
 	summary_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
 	summary_button.add_theme_font_size_override("font_size", _font(16))
+	ClassicalTheme.apply_button(summary_button, _ui_scale, "primary")
 	summary_button.pressed.connect(_on_round_summary_pressed)
 	_right_panel_box.add_child(summary_button)
 	_register_guide_targets()
@@ -1371,56 +1382,24 @@ func _font(value: int) -> int:
 
 
 func _make_map_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.07, 0.10, 0.12, 0.96)
-	style.border_color = Color(0.26, 0.48, 0.58, 0.88)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	return style
+	return ClassicalTheme.panel_style("map", _ui_scale)
 
 
 func _make_problem_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.12, 0.135, 0.96)
-	style.border_color = Color(0.45, 0.70, 0.86, 0.92)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	style.shadow_color = Color(0.10, 0.38, 0.56, 0.28)
-	style.shadow_size = _dim(14)
-	return style
+	return ClassicalTheme.panel_style("problem", _ui_scale)
 
 
 func _make_right_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.12, 0.16, 0.96)
-	style.border_color = Color(0.24, 0.42, 0.56, 0.9)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	return style
+	return ClassicalTheme.panel_style("right", _ui_scale)
 
 
 func _make_theory_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.075, 0.085, 0.98)
-	style.border_color = Color(0.42, 0.62, 0.74, 0.88)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	return style
+	return ClassicalTheme.panel_style("theory", _ui_scale)
 
 
 func _make_chart_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.04, 0.055, 0.065, 0.98)
-	style.border_color = Color(0.26, 0.48, 0.58, 0.78)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(6))
-	return style
+	return ClassicalTheme.panel_style("theory", _ui_scale)
 
 
 func _make_compact_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.075, 0.10, 0.12, 0.92)
-	style.border_color = Color(0.26, 0.46, 0.58, 0.72)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	return style
+	return ClassicalTheme.panel_style("compact", _ui_scale)

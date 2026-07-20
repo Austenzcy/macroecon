@@ -3,6 +3,8 @@ extends Control
 signal confirmed
 signal cancelled
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+
 var _message: String = ""
 
 
@@ -13,6 +15,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_sync_viewport_rect()
 	_build_ui()
+	ClassicalTheme.fade_in(self, 0.18)
 
 
 func _process(_delta: float) -> void:
@@ -39,7 +42,7 @@ func _sync_viewport_rect() -> void:
 
 func _build_ui() -> void:
 	var dim: ColorRect = ColorRect.new()
-	dim.color = Color(0.0, 0.0, 0.0, 0.58)
+	dim.color = ClassicalTheme.DIM_OVERLAY
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 
@@ -68,12 +71,13 @@ func _build_ui() -> void:
 	var title: Label = Label.new()
 	title.text = "确认查看提示"
 	title.add_theme_font_size_override("font_size", 24)
+	ClassicalTheme.apply_label_color(title, "title")
 	box.add_child(title)
 
 	var body: Label = Label.new()
 	body.text = _message
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.modulate = Color(0.86, 0.92, 0.96)
+	ClassicalTheme.apply_label_color(body, "soft")
 	body.add_theme_font_size_override("font_size", 17)
 	box.add_child(body)
 
@@ -89,12 +93,14 @@ func _build_ui() -> void:
 	var cancel_button: Button = Button.new()
 	cancel_button.text = "取消"
 	cancel_button.custom_minimum_size = Vector2(96, 40)
+	ClassicalTheme.apply_button(cancel_button, 1.0, "quiet")
 	cancel_button.pressed.connect(_on_cancel_pressed)
 	buttons.add_child(cancel_button)
 
 	var confirm_button: Button = Button.new()
 	confirm_button.text = "确认"
 	confirm_button.custom_minimum_size = Vector2(96, 40)
+	ClassicalTheme.apply_button(confirm_button, 1.0, "primary")
 	confirm_button.pressed.connect(_on_confirm_pressed)
 	buttons.add_child(confirm_button)
 
@@ -110,11 +116,4 @@ func _on_cancel_pressed() -> void:
 
 
 func _panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.085, 0.10, 0.98)
-	style.border_color = Color(0.52, 0.70, 0.82, 0.92)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(10)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	style.shadow_size = 16
-	return style
+	return ClassicalTheme.panel_style("modal", 1.0)

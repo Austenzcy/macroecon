@@ -552,3 +552,18 @@ Art asset audit v1:
 - Marked the recommended first art pass scope with P0/P1/P2/P3 priorities.
 - Noted Web performance and font-subset constraints for future art resources.
 - Did not modify gameplay UI, generate images, change logic, edit narrative text, deploy CloudBase, or push to GitHub.
+
+Classical governance UI skin v1:
+- Completed the first UI art unification pass.
+- Added `scripts/ui/ClassicalTheme.gd` as a centralized classical governance style helper.
+- Updated LevelSelect with chapter dossier styling, copper/gold level tiles, hover feedback, and locked-level feedback.
+- Updated DialogueOverlay with a bottom ministerial report frame, softened dim overlay, procedural badge avatar styling, fade-in, and breathing highlight frame.
+- Updated PolicyCard styling into decree/order cards with dark parchment panels, copper borders, hover feedback, selected highlight, and a procedural selected stamp.
+- Updated common buttons across PolicyDesk, Result, FinalSummary, ScenarioIntro fallback, IS-LM replay, and hint modal.
+- Updated the wisdom points area and hint confirmation modal to match the resource / counsel visual language.
+- Lightly updated MacroStatBar, TheoryISLMGraph, and ISLMChart colors while preserving their data and drawing logic.
+- Added low-risk hover, selected, fade-in, and highlight breathing effects.
+- Did not generate images, add avatar resources, modify models, modify score logic, modify macro settlement logic, or rewrite narrative text.
+- Added `docs/UI_Skin_v1_Implementation.md`.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260720-224348`.
+- Current generated sizes: font subset 492,644 bytes; index.pck 724,324 bytes; index.wasm.gz 10,111,653 bytes; index.js 279,815 bytes.

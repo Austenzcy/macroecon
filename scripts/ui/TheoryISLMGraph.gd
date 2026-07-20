@@ -1,5 +1,6 @@
 extends Control
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const SUPPORTED_SHOCKS: Array[String] = ["IS_LEFT", "IS_RIGHT", "LM_LEFT", "LM_RIGHT"]
 
 var _scenario: Dictionary = {}
@@ -40,13 +41,13 @@ func _draw() -> void:
 
 func _draw_background(graph_rect: Rect2) -> void:
 	var bg_rect: Rect2 = Rect2(Vector2.ZERO, size)
-	draw_rect(bg_rect, Color(0.035, 0.048, 0.058, 0.98), true)
-	draw_rect(bg_rect, Color(0.22, 0.42, 0.54, 0.70), false, _line(1.0))
-	draw_rect(graph_rect, Color(0.055, 0.075, 0.090, 0.86), true)
+	draw_rect(bg_rect, Color(0.045, 0.040, 0.033, 0.98), true)
+	draw_rect(bg_rect, ClassicalTheme.BORDER_COPPER, false, _line(1.0))
+	draw_rect(graph_rect, Color(0.035, 0.045, 0.044, 0.88), true)
 
 
 func _draw_axes(graph_rect: Rect2) -> void:
-	var axis_color: Color = Color(0.62, 0.76, 0.84, 0.86)
+	var axis_color: Color = Color(0.72, 0.66, 0.50, 0.88)
 	var left_bottom: Vector2 = Vector2(graph_rect.position.x, graph_rect.end.y)
 	var left_top: Vector2 = graph_rect.position
 	var right_bottom: Vector2 = graph_rect.end
@@ -54,8 +55,8 @@ func _draw_axes(graph_rect: Rect2) -> void:
 	draw_line(left_bottom, right_bottom, axis_color, _line(1.2), true)
 	_draw_arrow_head(left_top, Vector2(0.0, -1.0), axis_color)
 	_draw_arrow_head(right_bottom, Vector2(1.0, 0.0), axis_color)
-	_draw_text("i", left_top + Vector2(_dim(6.0), _dim(14.0)), Color(0.78, 0.88, 0.94), 13)
-	_draw_text("Y", right_bottom + Vector2(_dim(-14.0), _dim(-8.0)), Color(0.78, 0.88, 0.94), 13)
+	_draw_text("i", left_top + Vector2(_dim(6.0), _dim(14.0)), ClassicalTheme.TEXT_SOFT, 13)
+	_draw_text("Y", right_bottom + Vector2(_dim(-14.0), _dim(-8.0)), ClassicalTheme.TEXT_SOFT, 13)
 
 
 func _draw_shock_graph(graph_rect: Rect2, shock_type: String) -> void:
@@ -104,10 +105,10 @@ func _draw_shock_graph(graph_rect: Rect2, shock_type: String) -> void:
 		_:
 			return
 
-	var is_color: Color = Color(0.58, 0.78, 1.0, 0.86)
-	var lm_color: Color = Color(0.70, 0.92, 0.78, 0.86)
-	var after_color: Color = Color(0.96, 0.82, 0.48, 0.95)
-	var shock_color: Color = Color(1.0, 0.35, 0.30, 0.95)
+	var is_color: Color = ClassicalTheme.ACCENT_BLUE
+	var lm_color: Color = ClassicalTheme.STABLE_GREEN
+	var after_color: Color = ClassicalTheme.ACCENT_GOLD
+	var shock_color: Color = ClassicalTheme.WARNING_RED
 
 	_draw_curve(is_start, is_end, is_color, "IS")
 	_draw_curve(lm_start, lm_end, lm_color, "LM")
@@ -122,7 +123,7 @@ func _draw_shock_graph(graph_rect: Rect2, shock_type: String) -> void:
 		e1 = _line_intersection(is_after_start, is_after_end, lm_start, lm_end)
 	else:
 		e1 = _line_intersection(is_start, is_end, lm_after_start, lm_after_end)
-	_draw_equilibrium(e0, "E0", Color(0.84, 0.90, 0.95, 0.95))
+	_draw_equilibrium(e0, "E0", ClassicalTheme.TEXT_MAIN)
 	_draw_equilibrium(e1, "E1", after_color)
 	_draw_arrow(arrow_start, arrow_end, shock_color)
 	_draw_text("冲击方向", arrow_end + Vector2(_dim(8.0), _dim(-8.0)), shock_color, 12)
@@ -160,9 +161,9 @@ func _draw_arrow_head(tip: Vector2, direction: Vector2, color: Color) -> void:
 
 
 func _draw_fallback() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.035, 0.048, 0.058, 0.98), true)
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.22, 0.42, 0.54, 0.70), false, _line(1.0))
-	_draw_text("当前关卡暂未配置冲击示意图", Vector2(_dim(18.0), _dim(52.0)), Color(0.82, 0.88, 0.92), 15)
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.045, 0.040, 0.033, 0.98), true)
+	draw_rect(Rect2(Vector2.ZERO, size), ClassicalTheme.BORDER_COPPER, false, _line(1.0))
+	_draw_text("当前关卡暂未配置冲击示意图", Vector2(_dim(18.0), _dim(52.0)), ClassicalTheme.TEXT_SOFT, 15)
 
 
 func _draw_text(text: String, position: Vector2, color: Color, base_size: int) -> void:

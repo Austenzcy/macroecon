@@ -3,6 +3,7 @@ extends PanelContainer
 signal closed
 
 const ISLMChart = preload("res://scripts/ui/ISLMChart.gd")
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 
 var _result: Dictionary = {}
 var _scenario: Dictionary = {}
@@ -51,6 +52,7 @@ func _build_ui() -> void:
 	close_button.text = "关闭"
 	close_button.custom_minimum_size = Vector2(_dim(92), _dim(40))
 	close_button.add_theme_font_size_override("font_size", _font(16))
+	ClassicalTheme.apply_button(close_button, _ui_scale, "quiet")
 	close_button.pressed.connect(func() -> void: closed.emit())
 	header.add_child(close_button)
 
@@ -170,20 +172,8 @@ func _font(value: int) -> int:
 
 
 func _make_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.065, 0.09, 0.11, 0.98)
-	style.border_color = Color(0.42, 0.62, 0.74, 0.92)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
-	style.shadow_size = _dim(24)
-	return style
+	return ClassicalTheme.panel_style("modal", _ui_scale)
 
 
 func _make_inner_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.045, 0.06, 0.072, 0.96)
-	style.border_color = Color(0.24, 0.42, 0.52, 0.82)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(6))
-	return style
+	return ClassicalTheme.panel_style("theory", _ui_scale)

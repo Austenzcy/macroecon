@@ -2,6 +2,8 @@ extends Control
 
 signal finished
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+
 var _steps: Array = []
 var _target_map: Dictionary = {}
 var _index: int = 0
@@ -13,6 +15,7 @@ var _text_label: RichTextLabel
 var _avatar_label: Label
 var _continue_label: Label
 var _current_target_id: String = ""
+var _current_speaker_id: String = ""
 
 
 func _ready() -> void:
@@ -24,6 +27,7 @@ func _ready() -> void:
 	_build_ui()
 	_set_non_interactive_children(self)
 	_show_current_step()
+	ClassicalTheme.fade_in(self, 0.18)
 
 
 func _notification(what: int) -> void:
@@ -91,7 +95,7 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.0, 0.0, 0.0, 0.58), true)
+	draw_rect(Rect2(Vector2.ZERO, size), ClassicalTheme.DIM_OVERLAY, true)
 	var current_target: Control = _lookup_target(_current_target_id)
 	if current_target == null or not current_target.visible:
 		return
@@ -101,8 +105,17 @@ func _draw() -> void:
 	var padding: float = 8.0
 	rect.position -= Vector2(padding, padding)
 	rect.size += Vector2(padding * 2.0, padding * 2.0)
-	draw_rect(rect, Color(0.95, 0.78, 0.30, 0.12), true)
-	draw_rect(rect, Color(1.0, 0.82, 0.32, 1.0), false, 3.0)
+	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) / 1000.0 * TAU / 1.25)
+	var glow_color: Color = Color(0.95, 0.68, 0.22, 0.10 + pulse * 0.08)
+	var edge_color: Color = Color(0.98, 0.75, 0.30, 0.78 + pulse * 0.20)
+	var glow: StyleBoxFlat = StyleBoxFlat.new()
+	glow.bg_color = glow_color
+	glow.border_color = edge_color
+	glow.set_border_width_all(2)
+	glow.set_corner_radius_all(10)
+	glow.shadow_color = Color(0.95, 0.60, 0.18, 0.20 + pulse * 0.16)
+	glow.shadow_size = 14
+	draw_style_box(glow, rect)
 
 
 func _build_ui() -> void:
@@ -142,6 +155,7 @@ func _build_ui() -> void:
 	_avatar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_avatar_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
+	_avatar_label.modulate = ClassicalTheme.TEXT_MAIN
 	row.add_child(_avatar_label)
 
 	var text_box: VBoxContainer = VBoxContainer.new()
@@ -150,7 +164,7 @@ func _build_ui() -> void:
 	row.add_child(text_box)
 
 	_speaker_label = Label.new()
-	_speaker_label.modulate = Color(0.92, 0.80, 0.46)
+	_speaker_label.modulate = ClassicalTheme.ACCENT_GOLD
 	text_box.add_child(_speaker_label)
 
 	_text_label = RichTextLabel.new()
@@ -158,13 +172,13 @@ func _build_ui() -> void:
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_text_label.modulate = Color(0.95, 0.98, 1.0)
+	_text_label.modulate = ClassicalTheme.TEXT_MAIN
 	text_box.add_child(_text_label)
 
 	_continue_label = Label.new()
 	_continue_label.text = "单击以继续"
 	_continue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_continue_label.modulate = Color(0.70, 0.80, 0.86)
+	_continue_label.modulate = Color(0.86, 0.68, 0.36, 0.92)
 	text_box.add_child(_continue_label)
 	_update_layout_metrics()
 
@@ -183,11 +197,13 @@ func _show_current_step() -> void:
 	var page_index: int = int(step.get("_page_index", 0))
 	var page_count: int = int(step.get("_page_count", 1))
 	var target_id: String = str(step.get("target", step.get("target_ui", "")))
+	_current_speaker_id = str(step.get("speaker_id", ""))
 
 	_speaker_label.text = speaker
 	_text_label.text = text
 	_continue_label.text = "%s  %d/%d" % [continue_text, page_index + 1, page_count] if page_count > 1 else continue_text
 	_avatar_label.text = _avatar_initial(speaker)
+	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
 	_current_target_id = target_id
 	queue_redraw()
 
@@ -345,20 +361,8 @@ func _avatar_initial(name: String) -> String:
 
 
 func _panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.075, 0.085, 0.98)
-	style.border_color = Color(0.42, 0.62, 0.74, 0.94)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(10)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	style.shadow_size = 18
-	return style
+	return ClassicalTheme.panel_style("dialogue", 1.0)
 
 
 func _avatar_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.22, 0.28, 1.0)
-	style.border_color = Color(0.66, 0.84, 0.94, 0.95)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(42)
-	return style
+	return ClassicalTheme.avatar_style(_current_speaker_id, 1.0)

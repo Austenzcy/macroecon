@@ -1,5 +1,6 @@
 extends Control
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const CONTENT_WIDTH: float = 980.0
 
 
@@ -14,7 +15,7 @@ func _build_ui() -> void:
 		child.queue_free()
 
 	var background: ColorRect = ColorRect.new()
-	background.color = Color(0.015, 0.018, 0.022, 1.0)
+	background.color = ClassicalTheme.BG_DEEP
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -79,6 +80,7 @@ func _build_header() -> HBoxContainer:
 	close_button.text = "关闭"
 	close_button.custom_minimum_size = Vector2(92, 40)
 	close_button.add_theme_font_size_override("font_size", 17)
+	ClassicalTheme.apply_button(close_button, 1.0, "quiet")
 	close_button.pressed.connect(_on_close_pressed)
 	row.add_child(close_button)
 
@@ -161,6 +163,7 @@ func _build_action_button(text: String, callback: Callable) -> Button:
 	button.custom_minimum_size = Vector2(260, 54)
 	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	button.add_theme_font_size_override("font_size", 20)
+	ClassicalTheme.apply_button(button, 1.0, "primary")
 	button.pressed.connect(callback)
 	return button
 
@@ -323,9 +326,4 @@ func _state_value(state: Dictionary, key: String) -> String:
 
 
 func _panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.075, 0.10, 0.12, 0.96)
-	style.border_color = Color(0.26, 0.48, 0.58, 0.88)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(8)
-	return style
+	return ClassicalTheme.panel_style("desk", 1.0)

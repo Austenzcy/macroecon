@@ -1,6 +1,7 @@
 extends Control
 
 const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const SCALE_STEP: float = 0.1
 const MIN_UI_SCALE: float = 0.8
 const MAX_UI_SCALE: float = 1.2
@@ -91,7 +92,7 @@ func _build_ui() -> void:
 		child.queue_free()
 
 	var background: ColorRect = ColorRect.new()
-	background.color = Color(0.045, 0.055, 0.065, 1.0)
+	background.color = ClassicalTheme.BG_DEEP
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -205,6 +206,7 @@ func _build_ui() -> void:
 	_next_button.custom_minimum_size = Vector2(260, 56) * _ui_scale
 	_next_button.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_next_button.add_theme_font_size_override("font_size", _fs(22))
+	ClassicalTheme.apply_button(_next_button, _ui_scale, "primary")
 	_next_button.pressed.connect(_on_next_pressed)
 	_content_box.add_child(_next_button)
 
@@ -277,23 +279,11 @@ func _maybe_play_opening_dialogue() -> void:
 
 
 func _make_panel_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.075, 0.11, 0.14, 0.96)
-	style.border_color = Color(0.32, 0.54, 0.68, 0.9)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
-	style.shadow_size = 18
-	return style
+	return ClassicalTheme.panel_style("chapter", _ui_scale)
 
 
 func _make_problem_style() -> StyleBoxFlat:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.13, 0.15, 0.96)
-	style.border_color = Color(0.45, 0.70, 0.86, 0.92)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(_dim(8))
-	return style
+	return ClassicalTheme.panel_style("problem", _ui_scale)
 
 
 func _set_ui_scale(value: float) -> void:

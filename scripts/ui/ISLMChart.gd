@@ -1,5 +1,7 @@
 extends Control
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+
 var _graph_data: Dictionary = {}
 var _ui_scale: float = 1.0
 
@@ -24,17 +26,17 @@ func _draw() -> void:
 	var plot: Rect2 = _plot_rect()
 	_draw_plot_background(plot)
 	_draw_axes(plot)
-	_draw_curve(plot, _graph_data.get("is_before", []), Color(0.45, 0.62, 0.78, 0.72), 2.0, "IS")
-	_draw_curve(plot, _graph_data.get("lm_before", []), Color(0.54, 0.78, 0.62, 0.72), 2.0, "LM")
-	_draw_curve(plot, _graph_data.get("is_after", []), Color(0.95, 0.74, 0.30, 1.0), 3.0, "IS'")
-	_draw_curve(plot, _graph_data.get("lm_after", []), Color(0.42, 0.86, 1.0, 1.0), 3.0, "LM'")
-	_draw_equilibrium(plot, _graph_data.get("equilibrium_before", {}), "E0", Color(0.86, 0.90, 0.95, 1.0))
-	_draw_equilibrium(plot, _graph_data.get("equilibrium_after", {}), "E1", Color(1.0, 0.82, 0.34, 1.0))
+	_draw_curve(plot, _graph_data.get("is_before", []), Color(ClassicalTheme.ACCENT_BLUE.r, ClassicalTheme.ACCENT_BLUE.g, ClassicalTheme.ACCENT_BLUE.b, 0.72), 2.0, "IS")
+	_draw_curve(plot, _graph_data.get("lm_before", []), Color(ClassicalTheme.STABLE_GREEN.r, ClassicalTheme.STABLE_GREEN.g, ClassicalTheme.STABLE_GREEN.b, 0.72), 2.0, "LM")
+	_draw_curve(plot, _graph_data.get("is_after", []), ClassicalTheme.ACCENT_GOLD, 3.0, "IS'")
+	_draw_curve(plot, _graph_data.get("lm_after", []), Color(0.78, 0.68, 0.48, 1.0), 3.0, "LM'")
+	_draw_equilibrium(plot, _graph_data.get("equilibrium_before", {}), "E0", ClassicalTheme.TEXT_MAIN)
+	_draw_equilibrium(plot, _graph_data.get("equilibrium_after", {}), "E1", ClassicalTheme.ACCENT_GOLD)
 	_draw_axis_labels(plot)
 
 
 func _draw_empty_state() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.04, 0.055, 0.065, 1.0), true)
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.045, 0.040, 0.033, 1.0), true)
 	_draw_text(Vector2(24, size.y * 0.5), "当前没有可用的 IS-LM 图形数据。", 18, Color(0.82, 0.88, 0.92, 1.0))
 
 
@@ -47,18 +49,18 @@ func _plot_rect() -> Rect2:
 
 
 func _draw_plot_background(plot: Rect2) -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.035, 0.048, 0.058, 1.0), true)
-	draw_rect(plot, Color(0.055, 0.075, 0.09, 1.0), true)
-	draw_rect(plot, Color(0.24, 0.42, 0.52, 0.9), false, maxf(1.0, 1.5 * _ui_scale))
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.045, 0.040, 0.033, 1.0), true)
+	draw_rect(plot, Color(0.030, 0.040, 0.040, 1.0), true)
+	draw_rect(plot, ClassicalTheme.BORDER_COPPER, false, maxf(1.0, 1.5 * _ui_scale))
 	for index in range(1, 4):
 		var x: float = plot.position.x + plot.size.x * float(index) / 4.0
 		var y: float = plot.position.y + plot.size.y * float(index) / 4.0
-		draw_line(Vector2(x, plot.position.y), Vector2(x, plot.end.y), Color(0.18, 0.28, 0.34, 0.58), 1.0)
-		draw_line(Vector2(plot.position.x, y), Vector2(plot.end.x, y), Color(0.18, 0.28, 0.34, 0.58), 1.0)
+		draw_line(Vector2(x, plot.position.y), Vector2(x, plot.end.y), Color(0.24, 0.20, 0.14, 0.58), 1.0)
+		draw_line(Vector2(plot.position.x, y), Vector2(plot.end.x, y), Color(0.24, 0.20, 0.14, 0.58), 1.0)
 
 
 func _draw_axes(plot: Rect2) -> void:
-	var axis_color: Color = Color(0.78, 0.88, 0.94, 0.96)
+	var axis_color: Color = Color(0.74, 0.68, 0.50, 0.96)
 	draw_line(Vector2(plot.position.x, plot.end.y), Vector2(plot.end.x, plot.end.y), axis_color, maxf(1.0, 2.0 * _ui_scale))
 	draw_line(Vector2(plot.position.x, plot.position.y), Vector2(plot.position.x, plot.end.y), axis_color, maxf(1.0, 2.0 * _ui_scale))
 	_draw_text(Vector2(plot.end.x - 8.0 * _ui_scale, plot.end.y + 30.0 * _ui_scale), "Y", 16, axis_color)

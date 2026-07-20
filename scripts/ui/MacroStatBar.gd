@@ -1,5 +1,7 @@
 extends Control
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+
 var _display_min: float = 0.0
 var _display_max: float = 1.0
 var _reference_value: float = 0.5
@@ -30,19 +32,19 @@ func _draw() -> void:
 	var bar_width: float = right - left
 	var base_rect: Rect2 = Rect2(left, center_y - bar_height * 0.5, bar_width, bar_height)
 
-	draw_rect(base_rect, Color(0.12, 0.20, 0.25, 1.0), true)
-	draw_rect(base_rect, Color(0.28, 0.48, 0.58, 0.85), false, maxf(1.0, 1.0 * _ui_scale))
+	draw_rect(base_rect, Color(0.095, 0.073, 0.050, 1.0), true)
+	draw_rect(base_rect, ClassicalTheme.BORDER_COPPER, false, maxf(1.0, 1.0 * _ui_scale))
 
 	var ref_x: float = left + bar_width * _normalized(_reference_value)
 	draw_line(
 		Vector2(ref_x, center_y - 10.0 * _ui_scale),
 		Vector2(ref_x, center_y + 10.0 * _ui_scale),
-		Color(0.92, 0.80, 0.46, 1.0),
+		ClassicalTheme.ACCENT_GOLD,
 		maxf(1.0, 1.4 * _ui_scale)
 	)
 
 	var pointer_x: float = left + bar_width * _normalized(_current_value)
-	var pointer_color: Color = Color(0.70, 0.92, 1.0, 1.0)
+	var pointer_color: Color = Color(0.92, 0.80, 0.52, 1.0)
 	var tri: PackedVector2Array = PackedVector2Array([
 		Vector2(pointer_x, center_y - 11.0 * _ui_scale),
 		Vector2(pointer_x - 4.5 * _ui_scale, center_y - 3.0 * _ui_scale),
@@ -65,7 +67,7 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_LEFT,
 			48.0 * _ui_scale,
 			int(roundf(10.0 * _ui_scale)),
-			Color(0.80, 0.72, 0.46, 0.95)
+			ClassicalTheme.TEXT_SOFT
 		)
 
 

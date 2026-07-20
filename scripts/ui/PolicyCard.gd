@@ -2,6 +2,8 @@ extends PanelContainer
 
 signal selected(policy_id: String, policy_name: String)
 
+const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+
 var policy_id: String = ""
 var policy_name: String = ""
 var policy_type: String = ""
@@ -13,6 +15,7 @@ var _name_label: Label
 var _type_label: Label
 var _cost_label: Label
 var _description_label: Label
+var _stamp_label: Label
 
 
 func _ready() -> void:
@@ -50,6 +53,7 @@ func set_ui_scale(value: float) -> void:
 		_type_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
 		_cost_label.add_theme_font_size_override("font_size", int(roundf(14.0 * _ui_scale)))
 		_description_label.add_theme_font_size_override("font_size", int(roundf(16.0 * _ui_scale)))
+		_stamp_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
 
 
 func set_cost(cost: int, show_cost: bool) -> void:
@@ -75,42 +79,49 @@ func _build_ui() -> void:
 	_name_label.text = policy_name
 	_name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_name_label.add_theme_font_size_override("font_size", 24)
+	ClassicalTheme.apply_label_color(_name_label, "title")
 	box.add_child(_name_label)
 
 	_type_label = Label.new()
 	_type_label.text = policy_type
 	_type_label.add_theme_font_size_override("font_size", 15)
-	_type_label.modulate = Color(0.72, 0.86, 1.0)
+	_type_label.modulate = ClassicalTheme.ACCENT_BLUE
 	box.add_child(_type_label)
 
 	_cost_label = Label.new()
 	_cost_label.visible = false
-	_cost_label.modulate = Color(0.92, 0.80, 0.46)
+	_cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_cost_label.modulate = ClassicalTheme.ACCENT_GOLD
 	box.add_child(_cost_label)
 
 	var line: ColorRect = ColorRect.new()
 	line.custom_minimum_size = Vector2(0, 2)
-	line.color = Color(0.38, 0.62, 0.86, 0.9)
+	line.color = Color(0.62, 0.43, 0.20, 0.86)
 	box.add_child(line)
 
 	_description_label = Label.new()
 	_description_label.text = description
 	_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_description_label.add_theme_font_size_override("font_size", 16)
-	_description_label.modulate = Color(0.86, 0.91, 0.95)
+	_description_label.modulate = ClassicalTheme.TEXT_SOFT
 	box.add_child(_description_label)
+
+	_stamp_label = Label.new()
+	_stamp_label.text = "已选"
+	_stamp_label.visible = false
+	_stamp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_stamp_label.modulate = ClassicalTheme.ACCENT_GOLD
+	box.add_child(_stamp_label)
 
 
 func _on_mouse_entered() -> void:
 	_apply_style(true, _is_selected)
-	var tween: Tween = create_tween()
-	tween.tween_property(self, "scale", Vector2(1.035, 1.035), 0.10)
+	ClassicalTheme.hover_to(self, Vector2(1.035, 1.035), 0.10)
 
 
 func _on_mouse_exited() -> void:
 	_apply_style(false, _is_selected)
-	var tween: Tween = create_tween()
-	tween.tween_property(self, "scale", Vector2.ONE, 0.10)
+	ClassicalTheme.hover_to(self, Vector2.ONE, 0.10)
 
 
 func _on_gui_input(event: InputEvent) -> void:
@@ -123,17 +134,7 @@ func _on_gui_input(event: InputEvent) -> void:
 
 
 func _apply_style(is_hover: bool, is_chosen: bool) -> void:
-	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.10, 0.15, 0.20, 0.96)
-	if is_hover:
-		style.bg_color = Color(0.13, 0.20, 0.27, 0.98)
-	if is_chosen:
-		style.bg_color = Color(0.16, 0.24, 0.30, 1.0)
-	style.border_color = Color(0.35, 0.55, 0.72, 0.85)
-	if is_chosen:
-		style.border_color = Color(0.92, 0.78, 0.38, 1.0)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
-	style.shadow_size = 8
-	add_theme_stylebox_override("panel", style)
+	var kind: String = "card_selected" if is_chosen else ("card_hover" if is_hover else "card")
+	add_theme_stylebox_override("panel", ClassicalTheme.panel_style(kind, _ui_scale))
+	if _stamp_label != null:
+		_stamp_label.visible = is_chosen
