@@ -74,6 +74,22 @@ Live text is still rendered by Godot, not baked into the image.
 - Body text has a small line separation increase.
 - Pagination remains active and uses conservative character limits for the lower frame.
 
+## Text Safe Area Recalibration
+
+After manual review, the frame image itself was kept unchanged and only the live Godot text layout was recalibrated.
+
+Changes:
+
+- `SpeakerNameLabel` and `DialogueBodyLabel` remain in `DialogueTextSafeArea`, but the safe area starts lower inside the frame.
+- Top safe margin now scales to roughly `44-60 px`, moving the speaker name and first body line away from the upper inner ornament.
+- Right safe margin now scales to roughly `150-220 px`, preventing long body lines from reaching the right corner decoration.
+- Bottom safe margin now scales to roughly `56-82 px`, reserving space for the independent continue prompt.
+- `ContinuePromptLabel` now lives in its own `ContinuePromptContainer` instead of sharing the body-text VBox.
+- Continue prompt right margin now scales to roughly `110-170 px`, and bottom margin to roughly `28-42 px`, keeping it away from the lower-right ornament.
+- Body line separation increased to make short and medium dialogue pages less cramped near the top.
+
+Portrait size, portrait position, portrait crop, frame image, frame size, NinePatch margins, click advance, highlight, input blocking, wheel forwarding, and narrative text were not changed in this recalibration pass.
+
 ## Fallback Rules
 
 `ArtAssetRegistry.texture_for_dialogue_frame()` checks:

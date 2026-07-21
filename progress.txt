@@ -730,3 +730,16 @@ DialogueOverlay text-safe frame v2:
 - Web export and CloudBase deployment completed for manual visual review. BuildId: `20260722-015949`.
 - Release URL: `/releases/20260722-015949/index.html`.
 - GitHub push not performed.
+
+DialogueOverlay text safe area recalibration:
+- Recalibrated only the live text layout inside the v2 dialogue frame.
+- Did not regenerate images, did not modify `dialogue_frame_bust_v2.png`, and did not change bust portrait position, size, crop, or resource mapping.
+- Split the continue prompt into an independent `ContinuePromptContainer`, separate from the speaker/body text flow.
+- Moved the speaker name and body text safe area downward so the first line no longer sits against the upper inner ornament.
+- Increased the body text right safe margin to keep long lines away from the right-side corner decoration.
+- Moved the continue prompt left/up through dynamic margins so it avoids the lower-right ornament.
+- Increased body line separation slightly and adjusted page character estimation to match the narrower safe width.
+- Preserved click advance, pagination mechanics, dim/highlight drawing, narrative input blocking, wheel forwarding, Ctrl+wheel behavior, scenario text, and all non-DialogueOverlay pages.
+- Web export and CloudBase deployment completed for manual visual review. BuildId: `20260722-023634`.
+- Release URL: `/releases/20260722-023634/index.html`.
+- GitHub push not performed.
