@@ -657,3 +657,23 @@ Round1 P0 art rendering deployment:
 - Release URL: `/releases/20260721-220203/index.html`.
 - Export sizes: `index.pck` 1,674,116 bytes; `index.wasm.gz` 10,111,653 bytes; `index.js` 279,815 bytes.
 - Root `latest.json`, root launcher `index.html`, and `health.html` were deployed.
+
+Art round2 core redesign and sizing fix:
+- Started `art round2: fix integration sizing + redesign core visual assets`.
+- Fixed current generated-asset sizing before introducing new resources.
+- Added fixed clipped art slots and `TextureRect.EXPAND_IGNORE_SIZE` so source PNG dimensions no longer expand UI layout.
+- Constrained DialogueOverlay and AdvisorPanel portraits inside clipped avatar frames.
+- Constrained PolicyDesk wisdom icon, PolicyCard policy type icons, PolicyCard card-art slot, MapRegion visual slot, and LevelSelect icon behavior.
+- Kept wisdom points icon, lock icon, level complete stamp, and small policy/map icons where appropriate.
+- Downgraded old character badges and old map-region badge icons to fallback / auxiliary use.
+- Generated new human character portraits for chief minister, economic advisor, fiscal minister, central bank governor, industry minister, and livelihood minister.
+- Generated new vertical policy-card visuals for government purchase, tax cut, expansionary monetary policy, contractionary fiscal policy, contractionary monetary policy, and keeping policy unchanged.
+- Generated new macro-map sandbox region visuals for consumption, industry, finance, and government regions.
+- Cropped, chroma-keyed, despilled, and resized the new assets to UI-appropriate transparent PNGs.
+- Integrated new portraits, policy-card art, and map region scenes through `ArtAssetRegistry.gd` with fallbacks preserved.
+- Added `docs/Art_Round2_Redesign_Plan.md` and `docs/Art_Round2_Asset_Manifest.md`.
+- Did not modify narrative text, gameplay logic, ISLMSolver, MacroEngine, or ScoreEngine.
+- Did not run broad automatic UI validation and did not push GitHub.
+- Web export and CloudBase deployment completed for this round. BuildId: `20260721-225644`.
+- Release URL: `/releases/20260721-225644/index.html`.
+- Current generated sizes: `index.pck` 4,030,672 bytes; `index.wasm.gz` 10,111,653 bytes; font subset 492,644 bytes.

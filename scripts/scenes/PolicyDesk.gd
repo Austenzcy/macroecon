@@ -251,6 +251,9 @@ func _build_wisdom_panel() -> PanelContainer:
 	var wisdom_icon_slot: PanelContainer = PanelContainer.new()
 	wisdom_icon_slot.name = "WisdomIconSlot"
 	wisdom_icon_slot.custom_minimum_size = Vector2(_dim(26), _dim(26))
+	wisdom_icon_slot.clip_contents = true
+	wisdom_icon_slot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	wisdom_icon_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	wisdom_icon_slot.add_theme_stylebox_override("panel", _make_icon_slot_style())
 	row.add_child(wisdom_icon_slot)
 
@@ -266,6 +269,7 @@ func _build_wisdom_panel() -> PanelContainer:
 		var wisdom_icon_texture: TextureRect = TextureRect.new()
 		wisdom_icon_texture.name = "WisdomIconTexture"
 		wisdom_icon_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+		wisdom_icon_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		wisdom_icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		wisdom_icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		wisdom_icon_texture.offset_left = 4

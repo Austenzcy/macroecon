@@ -135,6 +135,7 @@ func _build_level_button(level_number: int) -> Button:
 	button.custom_minimum_size = Vector2(_dim(104), _dim(104))
 	button.pivot_offset = button.custom_minimum_size * 0.5
 	button.add_theme_font_size_override("font_size", _font(34))
+	button.expand_icon = true
 	if GameState.is_visible_level_unlocked(level_number):
 		button.text = str(level_number)
 		if level_number < GameState.get_unlocked_visible_level():

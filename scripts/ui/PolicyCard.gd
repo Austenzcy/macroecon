@@ -17,6 +17,8 @@ var _type_label: Label
 var _type_icon_label: Label
 var _type_icon_texture: TextureRect
 var _type_icon_shell: PanelContainer
+var _art_texture: TextureRect
+var _art_shell: PanelContainer
 var _cost_label: Label
 var _description_label: Label
 var _stamp_label: Label
@@ -58,6 +60,8 @@ func set_ui_scale(value: float) -> void:
 		_type_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
 		_type_icon_label.add_theme_font_size_override("font_size", int(roundf(13.0 * _ui_scale)))
 		_type_icon_shell.custom_minimum_size = Vector2(28, 28) * _ui_scale
+		if _art_shell != null:
+			_art_shell.custom_minimum_size = Vector2(0, 74) * _ui_scale
 		_cost_label.add_theme_font_size_override("font_size", int(roundf(14.0 * _ui_scale)))
 		_description_label.add_theme_font_size_override("font_size", int(roundf(16.0 * _ui_scale)))
 		_stamp_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
@@ -89,12 +93,34 @@ func _build_ui() -> void:
 	ClassicalTheme.apply_label_color(_name_label, "title")
 	box.add_child(_name_label)
 
+	_art_shell = PanelContainer.new()
+	_art_shell.name = "PolicyCardArtSlot"
+	_art_shell.custom_minimum_size = Vector2(0, 74)
+	_art_shell.clip_contents = true
+	_art_shell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_art_shell.add_theme_stylebox_override("panel", _art_shell_style())
+	_art_shell.visible = false
+	box.add_child(_art_shell)
+
+	_art_texture = TextureRect.new()
+	_art_texture.name = "PolicyCardArtTexture"
+	_art_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_art_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_art_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_art_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_art_texture.offset_left = 5
+	_art_texture.offset_top = 4
+	_art_texture.offset_right = -5
+	_art_texture.offset_bottom = -4
+	_art_shell.add_child(_art_texture)
+
 	var type_row: HBoxContainer = HBoxContainer.new()
 	type_row.add_theme_constant_override("separation", 8)
 	box.add_child(type_row)
 
 	_type_icon_shell = PanelContainer.new()
 	_type_icon_shell.custom_minimum_size = Vector2(28, 28)
+	_type_icon_shell.clip_contents = true
 	_type_icon_shell.add_theme_stylebox_override("panel", _icon_shell_style())
 	type_row.add_child(_type_icon_shell)
 
@@ -108,6 +134,7 @@ func _build_ui() -> void:
 	_type_icon_texture = TextureRect.new()
 	_type_icon_texture.name = "PolicyTypeIconTexture"
 	_type_icon_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_type_icon_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_type_icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_type_icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_type_icon_texture.visible = false
@@ -154,6 +181,14 @@ func _build_ui() -> void:
 func _refresh_type_icon() -> void:
 	if _type_icon_label == null:
 		return
+	var art_texture := ArtAssetRegistry.texture_for_policy_card(policy_id, policy_type, policy_name)
+	if _art_shell != null:
+		if art_texture != null:
+			_art_texture.texture = art_texture
+			_art_shell.visible = true
+		else:
+			_art_texture.texture = null
+			_art_shell.visible = false
 	var texture := ArtAssetRegistry.texture_for_policy_type(policy_type, policy_id)
 	if texture != null:
 		_type_icon_texture.texture = texture
@@ -168,6 +203,15 @@ func _icon_shell_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.16, 0.12, 0.08, 0.92)
 	style.border_color = Color(0.62, 0.43, 0.20, 0.85)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	return style
+
+
+func _art_shell_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.10, 0.08, 0.055, 0.58)
+	style.border_color = Color(0.52, 0.38, 0.18, 0.56)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(6)
 	return style

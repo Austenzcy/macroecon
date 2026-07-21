@@ -158,11 +158,13 @@ func _build_ui() -> void:
 	_avatar_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
 	_avatar_label.modulate = ClassicalTheme.TEXT_MAIN
+	_avatar_label.clip_contents = true
 	row.add_child(_avatar_label)
 
 	_avatar_texture = TextureRect.new()
 	_avatar_texture.name = "SpeakerBadgeTexture"
 	_avatar_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_avatar_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_avatar_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_avatar_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_avatar_texture.visible = false

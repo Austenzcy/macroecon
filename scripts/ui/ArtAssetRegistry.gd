@@ -11,6 +11,15 @@ const CHARACTER_BADGES := {
 	"livelihood_minister": "res://assets/art/characters/badges/badge_livelihood_minister.png"
 }
 
+const CHARACTER_PORTRAITS := {
+	"chief_minister": "res://assets/art/characters/portraits/portrait_chief_minister.png",
+	"economic_advisor": "res://assets/art/characters/portraits/portrait_economic_advisor.png",
+	"fiscal_minister": "res://assets/art/characters/portraits/portrait_fiscal_minister.png",
+	"central_bank_governor": "res://assets/art/characters/portraits/portrait_central_bank_governor.png",
+	"industry_minister": "res://assets/art/characters/portraits/portrait_industry_minister.png",
+	"livelihood_minister": "res://assets/art/characters/portraits/portrait_livelihood_minister.png"
+}
+
 const AVATAR_TO_CHARACTER := {
 	"placeholder_chief_minister": "chief_minister",
 	"placeholder_advisor": "economic_advisor",
@@ -47,6 +56,15 @@ const POLICY_TYPE_ICONS := {
 	"financial_stability": "res://assets/art/icons/policies/icon_policy_financial_stability.png"
 }
 
+const POLICY_CARD_ART := {
+	"increase_government_purchase": "res://assets/art/policy_cards/policy_card_government_purchase.png",
+	"tax_cut": "res://assets/art/policy_cards/policy_card_tax_cut.png",
+	"expansionary_monetary_policy": "res://assets/art/policy_cards/policy_card_monetary_expand.png",
+	"contractionary_fiscal_policy": "res://assets/art/policy_cards/policy_card_fiscal_contract.png",
+	"contractionary_monetary_policy": "res://assets/art/policy_cards/policy_card_monetary_contract.png",
+	"keep_policy_unchanged": "res://assets/art/policy_cards/policy_card_keep_unchanged.png"
+}
+
 const POLICY_FALLBACK := {
 	"fiscal_expand": "财",
 	"fiscal_contract": "缩",
@@ -78,6 +96,13 @@ const MAP_REGION_ICONS := {
 	"government": "res://assets/art/icons/map/icon_region_government.png"
 }
 
+const MAP_REGION_SCENES := {
+	"consumption": "res://assets/art/map_regions/region_scene_consumption.png",
+	"industry": "res://assets/art/map_regions/region_scene_industry.png",
+	"finance": "res://assets/art/map_regions/region_scene_finance.png",
+	"government": "res://assets/art/map_regions/region_scene_government.png"
+}
+
 const MAP_REGION_FALLBACK := {
 	"consumption": "民",
 	"industry": "工",
@@ -94,6 +119,9 @@ const TEXTURE_SLOTS := {
 
 static func texture_for_character(speaker_id: String, avatar_id: String = "", speaker_name: String = "") -> Texture2D:
 	var character_key := normalize_character_key(speaker_id, avatar_id, speaker_name)
+	var portrait := _load_texture(str(CHARACTER_PORTRAITS.get(character_key, "")))
+	if portrait != null:
+		return portrait
 	return _load_texture(str(CHARACTER_BADGES.get(character_key, "")))
 
 
@@ -127,6 +155,27 @@ static func normalize_character_key(speaker_id: String, avatar_id: String = "", 
 static func texture_for_policy_type(policy_type: String, policy_id: String = "") -> Texture2D:
 	var key := normalize_policy_key(policy_type, policy_id)
 	return _load_texture(str(POLICY_TYPE_ICONS.get(key, "")))
+
+
+static func texture_for_policy_card(policy_id: String, policy_type: String = "", policy_name: String = "") -> Texture2D:
+	var direct := _load_texture(str(POLICY_CARD_ART.get(policy_id, "")))
+	if direct != null:
+		return direct
+	var source := "%s %s %s" % [policy_id, policy_type, policy_name]
+	var lowered := source.to_lower()
+	if lowered.find("government") >= 0 or source.find("政府") >= 0 or source.find("购买") >= 0:
+		return _load_texture(str(POLICY_CARD_ART.get("increase_government_purchase", "")))
+	if lowered.find("tax") >= 0 or source.find("税") >= 0:
+		return _load_texture(str(POLICY_CARD_ART.get("tax_cut", "")))
+	if (lowered.find("monetary") >= 0 or source.find("货币") >= 0) and (lowered.find("contract") >= 0 or source.find("紧缩") >= 0 or source.find("收缩") >= 0):
+		return _load_texture(str(POLICY_CARD_ART.get("contractionary_monetary_policy", "")))
+	if lowered.find("monetary") >= 0 or source.find("货币") >= 0:
+		return _load_texture(str(POLICY_CARD_ART.get("expansionary_monetary_policy", "")))
+	if lowered.find("contract") >= 0 or source.find("紧缩") >= 0 or source.find("收缩") >= 0:
+		return _load_texture(str(POLICY_CARD_ART.get("contractionary_fiscal_policy", "")))
+	if lowered.find("keep") >= 0 or source.find("不变") >= 0 or source.find("观望") >= 0:
+		return _load_texture(str(POLICY_CARD_ART.get("keep_policy_unchanged", "")))
+	return null
 
 
 static func placeholder_for_policy_type(policy_type: String, policy_id: String = "") -> String:
@@ -168,6 +217,10 @@ static func placeholder_for_ui(key: String) -> String:
 
 static func texture_for_map_region(region_key: String) -> Texture2D:
 	return _load_texture(str(MAP_REGION_ICONS.get(region_key, "")))
+
+
+static func texture_for_map_region_scene(region_key: String) -> Texture2D:
+	return _load_texture(str(MAP_REGION_SCENES.get(region_key, "")))
 
 
 static func placeholder_for_map_region(region_key: String) -> String:

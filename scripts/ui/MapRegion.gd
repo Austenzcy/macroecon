@@ -53,7 +53,7 @@ func set_ui_scale(value: float) -> void:
 	if _title_label != null:
 		_title_label.add_theme_font_size_override("font_size", int(roundf(19.0 * _ui_scale)))
 	if _icon_shell != null:
-		_icon_shell.custom_minimum_size = Vector2(34, 34) * _ui_scale
+		_icon_shell.custom_minimum_size = Vector2(86, 54) * _ui_scale
 	if _icon_label != null:
 		_icon_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
 	if _lines_box != null:
@@ -77,7 +77,9 @@ func _build_ui() -> void:
 	margin.add_child(box)
 
 	_icon_shell = PanelContainer.new()
-	_icon_shell.custom_minimum_size = Vector2(34, 34)
+	_icon_shell.custom_minimum_size = Vector2(86, 54)
+	_icon_shell.clip_contents = true
+	_icon_shell.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_icon_shell.add_theme_stylebox_override("panel", _icon_shell_style())
 	box.add_child(_icon_shell)
 
@@ -91,6 +93,7 @@ func _build_ui() -> void:
 	_icon_texture = TextureRect.new()
 	_icon_texture.name = "RegionIconTexture"
 	_icon_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_icon_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_icon_texture.visible = false
@@ -132,7 +135,9 @@ func _refresh_text() -> void:
 func _refresh_icon() -> void:
 	if _icon_label == null:
 		return
-	var texture := ArtAssetRegistry.texture_for_map_region(_region_icon_key)
+	var texture := ArtAssetRegistry.texture_for_map_region_scene(_region_icon_key)
+	if texture == null:
+		texture = ArtAssetRegistry.texture_for_map_region(_region_icon_key)
 	if texture != null:
 		_icon_texture.texture = texture
 		_icon_texture.visible = true
