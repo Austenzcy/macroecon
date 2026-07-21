@@ -593,3 +593,21 @@ Round1 formal art integration preparation:
 - Re-exported and deployed CloudBase successfully. BuildId: `20260721-124337`.
 - Online checks: latest.json and release index.html returned HTTP 200.
 - Current generated sizes: font subset 492,644 bytes; index.pck 737,000 bytes; index.wasm.gz 10,111,653 bytes.
+
+Round1 formal art asset generation:
+- Started the second round of first-pass formal art work: image two resource generation.
+- Used image two to generate the first P0 formal art batch.
+- Generated 6 character badge avatars: chief minister, economic advisor, fiscal minister, central bank governor, industry minister, and livelihood minister.
+- Generated 8 policy type icons: fiscal expansion, fiscal contraction, monetary expansion, monetary contraction, tax, investment, consumption, and financial stability / interest-rate related.
+- Generated the wisdom points icon.
+- Generated the level lock icon and level complete stamp.
+- Generated 4 MacroMap region icons: consumption, industry, finance, and government.
+- Saved final transparent PNG assets under `assets/art/characters/badges/`, `assets/art/icons/policies/`, `assets/art/icons/ui/`, `assets/art/icons/map/`, and `assets/art/stamps/`.
+- Current first art batch totals about 654KB after chroma-key removal, cropping, resizing, and PNG compression.
+- Updated `docs/Art_Round1_Asset_Manifest.md` with generated-file status and review notes.
+- Updated `docs/Art_Round1_ImageTwo_PromptPack.md` with the actual image two generation record.
+- P1 lightweight textures and dossier decorations remain deferred.
+- No broad UI integration, no gameplay logic changes, no narrative text changes, and no model / scoring / settlement logic changes.
+- No large automatic validation was performed; this round is prepared for user visual review.
+- Did not run font subset regeneration or deployment in order to avoid unnecessary build churn for a resource-generation-only pass.
+- Did not push to GitHub.

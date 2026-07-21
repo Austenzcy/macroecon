@@ -133,3 +133,34 @@
 4. Godot 启动时通过 `ArtAssetRegistry.gd` 自动检测并加载存在的贴图。
 5. 检查 LevelSelect、PolicyDesk、DialogueOverlay、PolicyCard、MacroMap 是否显示正式图标。
 6. 检查 `index.pck` 大小和 Web 加载速度。
+
+## 13. 第二轮资源生成状态
+
+本轮已使用 image two 生成并处理第一批 P0 正式资源。处理流程为：image two 生成绿幕源图，Pillow 本地去 chroma-key、裁切、方形补边、缩放并压缩为透明 PNG。未使用网络下载素材，未使用随机素材包。
+
+| 类别 | 文件 | 状态 | 备注 |
+|---|---|---|---|
+| 角色徽章 | `assets/art/characters/badges/badge_chief_minister.png` | 已生成，待人工验收 | 512x512，透明 PNG |
+| 角色徽章 | `assets/art/characters/badges/badge_economic_advisor.png` | 已生成，待人工验收 | 512x512，透明 PNG |
+| 角色徽章 | `assets/art/characters/badges/badge_fiscal_minister.png` | 已生成，待人工验收 | 512x512，透明 PNG |
+| 角色徽章 | `assets/art/characters/badges/badge_central_bank_governor.png` | 已生成，待人工验收 | 512x512，透明 PNG，使用纯纹章版 |
+| 角色徽章 | `assets/art/characters/badges/badge_industry_minister.png` | 已生成，待人工验收 | 512x512，透明 PNG |
+| 角色徽章 | `assets/art/characters/badges/badge_livelihood_minister.png` | 已生成，待人工验收 | 512x512，透明 PNG，使用纯纹章版 |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_fiscal_expand.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_fiscal_contract.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_monetary_expand.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_monetary_contract.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_tax.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_investment.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_consumption.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 政策类型图标 | `assets/art/icons/policies/icon_policy_financial_stability.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| UI 图标 | `assets/art/icons/ui/icon_wisdom_points.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| UI 图标 | `assets/art/icons/ui/icon_lock_level.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 印章 | `assets/art/stamps/stamp_level_complete.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 地图区域图标 | `assets/art/icons/map/icon_region_consumption.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 地图区域图标 | `assets/art/icons/map/icon_region_industry.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 地图区域图标 | `assets/art/icons/map/icon_region_finance.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 地图区域图标 | `assets/art/icons/map/icon_region_government.png` | 已生成，待人工验收 | 256x256，透明 PNG |
+| 轻量纹理 / 装饰 | 纸纹、木纹、卷宗角饰、政策确认盖章 | 待生成 | 本轮优先 P0 核心资源，P1 资源后置 |
+
+当前生成资源总体积约 654KB。由于上一轮已完成统一资源接入口，本轮未做额外 UI 接入改造；这些文件已位于 `ArtAssetRegistry.gd` 预设路径，后续运行 / 导出时会被自动识别。
