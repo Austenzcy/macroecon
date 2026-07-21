@@ -111,11 +111,19 @@ const MAP_REGION_FALLBACK := {
 }
 
 const TEXTURE_SLOTS := {
+	"dialogue_frame_bust": "res://assets/art/ui/dialogue_frame_bust_v2.png",
+	"dialogue_frame_bust_v2": "res://assets/art/ui/dialogue_frame_bust_v2.png",
+	"dialogue_frame_bust_v1": "res://assets/art/ui/dialogue_frame_bust_v1.png",
 	"paper": "res://assets/art/textures/texture_paper_light.png",
 	"wood": "res://assets/art/textures/texture_dark_wood.png",
 	"dossier_corner": "res://assets/art/textures/decor_dossier_corner.png",
 	"policy_stamp": "res://assets/art/stamps/stamp_policy_confirmed.png"
 }
+
+const DIALOGUE_FRAME_FALLBACKS := [
+	"res://assets/art/ui/dialogue_frame_bust_v2.png",
+	"res://assets/art/ui/dialogue_frame_bust_v1.png"
+]
 
 static func texture_for_character(speaker_id: String, avatar_id: String = "", speaker_name: String = "") -> Texture2D:
 	var character_key := normalize_character_key(speaker_id, avatar_id, speaker_name)
@@ -240,6 +248,14 @@ static func placeholder_for_map_region(region_key: String) -> String:
 
 static func texture_for_slot(slot_key: String) -> Texture2D:
 	return _load_texture(str(TEXTURE_SLOTS.get(slot_key, "")))
+
+
+static func texture_for_dialogue_frame() -> Texture2D:
+	for path: String in DIALOGUE_FRAME_FALLBACKS:
+		var texture := _load_texture(path)
+		if texture != null:
+			return texture
+	return null
 
 
 static func _load_texture(path: String) -> Texture2D:

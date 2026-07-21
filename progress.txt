@@ -701,3 +701,32 @@ DialogueOverlay bust portrait v1:
 - Web export and CloudBase deployment completed for this round. BuildId: `20260722-005140`.
 - Release URL: `/releases/20260722-005140/index.html`.
 - GitHub push was not performed.
+
+DialogueOverlay image-backed frame v1:
+- Followed the required three-step workflow: structure and position first, image-backed frame second, text polish third.
+- Lowered and shortened the dialogue box body so the existing bust portraits read more clearly as standing in front of the frame.
+- Kept the bust portrait layer independent and did not broadly change character position, scale, or clipping logic.
+- Used Image Two to generate a formal dark/gold dialogue frame asset with no baked-in dialogue text.
+- Saved the final transparent frame at `assets/art/ui/dialogue_frame_bust_v1.png`; removed the temporary chroma-key source from the project.
+- Added `ArtAssetRegistry.texture_for_slot("dialogue_frame_bust")` and rendered the frame through `DialogueOverlay.gd` as a `NinePatchRect`.
+- Preserved a procedural panel fallback if the frame image is missing.
+- Adjusted live Godot text styling after the image frame was connected: warm-gold speaker name, ivory body text, visible but quieter continue hint, tighter pagination limits.
+- Preserved click advance, long-text pagination, dim/highlight drawing, narrative input blocking, wheel forwarding, and Ctrl+wheel behavior.
+- Did not modify policy cards, macro map, theory panel, scoring, solvers, scenario content, or gameplay logic.
+- Web export and CloudBase deployment completed for manual visual review. BuildId: `20260722-012855`.
+- Release URL: `/releases/20260722-012855/index.html`.
+- GitHub push not performed.
+
+DialogueOverlay text-safe frame v2:
+- Replaced the v1 dialogue frame direction because v1 read too much like a decorative banner and its central/bottom ornaments competed with long dialogue text.
+- Kept the current bust portrait position, scale, crop, and foreground relationship broadly unchanged.
+- Used Image Two to generate a cleaner, text-safe dialogue frame v2 with restrained corner/edge ornament and no baked-in text.
+- Saved the optimized transparent PNG at `assets/art/ui/dialogue_frame_bust_v2.png`.
+- Kept `assets/art/ui/dialogue_frame_bust_v1.png` as fallback and did not delete or overwrite it.
+- Updated `ArtAssetRegistry.texture_for_dialogue_frame()` to prefer v2, then v1, then the procedural panel fallback.
+- Updated `DialogueOverlay.gd` to use v2-specific NinePatch margins: left 380, top 86, right 92, bottom 58.
+- Adjusted only the live text layer after v2 was connected: subtle line separation and existing warm gold / ivory text hierarchy.
+- Did not modify policy cards, macro map, level select, theory panel, score/model logic, or narrative text.
+- Web export and CloudBase deployment completed for manual visual review. BuildId: `20260722-015949`.
+- Release URL: `/releases/20260722-015949/index.html`.
+- GitHub push not performed.

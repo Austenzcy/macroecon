@@ -9,9 +9,11 @@ var _steps: Array = []
 var _target_map: Dictionary = {}
 var _index: int = 0
 var _last_advance_msec: int = 0
-var _dialogue_panel: PanelContainer
+var _dialogue_panel: Control
 var _bottom_layout: MarginContainer
 var _text_margin: MarginContainer
+var _dialogue_frame: NinePatchRect
+var _dialogue_fallback_panel: Panel
 var _speaker_label: Label
 var _text_label: RichTextLabel
 var _portrait_holder: Control
@@ -161,15 +163,39 @@ func _build_ui() -> void:
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vertical_layout.add_child(spacer)
 
-	_dialogue_panel = PanelContainer.new()
+	_dialogue_panel = Control.new()
 	_dialogue_panel.name = "DialogueBox"
 	_dialogue_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_dialogue_panel.size_flags_vertical = Control.SIZE_SHRINK_END
-	_dialogue_panel.add_theme_stylebox_override("panel", _panel_style())
 	vertical_layout.add_child(_dialogue_panel)
+
+	_dialogue_fallback_panel = Panel.new()
+	_dialogue_fallback_panel.name = "DialogueFallbackPanel"
+	_dialogue_fallback_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_dialogue_fallback_panel.add_theme_stylebox_override("panel", _panel_style())
+	_dialogue_fallback_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_panel.add_child(_dialogue_fallback_panel)
+
+	_dialogue_frame = NinePatchRect.new()
+	_dialogue_frame.name = "DialogueFrameArt"
+	_dialogue_frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_dialogue_frame.texture = ArtAssetRegistry.texture_for_dialogue_frame()
+	_dialogue_frame.patch_margin_left = 380
+	_dialogue_frame.patch_margin_top = 86
+	_dialogue_frame.patch_margin_right = 92
+	_dialogue_frame.patch_margin_bottom = 58
+	_dialogue_frame.axis_stretch_horizontal = NinePatchRect.AXIS_STRETCH_MODE_STRETCH
+	_dialogue_frame.axis_stretch_vertical = NinePatchRect.AXIS_STRETCH_MODE_STRETCH
+	_dialogue_frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_dialogue_frame.draw_center = true
+	_dialogue_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_frame.visible = _dialogue_frame.texture != null
+	_dialogue_panel.add_child(_dialogue_frame)
+	_dialogue_fallback_panel.visible = not _dialogue_frame.visible
 
 	_text_margin = MarginContainer.new()
 	_text_margin.name = "DialogueTextMargin"
+	_text_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_text_margin.add_theme_constant_override("margin_left", 220)
 	_text_margin.add_theme_constant_override("margin_top", 18)
 	_text_margin.add_theme_constant_override("margin_right", 24)
@@ -179,11 +205,11 @@ func _build_ui() -> void:
 	var text_box: VBoxContainer = VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	text_box.add_theme_constant_override("separation", 8)
+	text_box.add_theme_constant_override("separation", 7)
 	_text_margin.add_child(text_box)
 
 	_speaker_label = Label.new()
-	_speaker_label.modulate = ClassicalTheme.ACCENT_GOLD
+	_speaker_label.modulate = Color(1.0, 0.76, 0.34, 1.0)
 	text_box.add_child(_speaker_label)
 
 	_text_label = RichTextLabel.new()
@@ -191,13 +217,14 @@ func _build_ui() -> void:
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_text_label.modulate = ClassicalTheme.TEXT_MAIN
+	_text_label.modulate = Color(0.94, 0.86, 0.72, 1.0)
+	_text_label.add_theme_constant_override("line_separation", 4)
 	text_box.add_child(_text_label)
 
 	_continue_label = Label.new()
 	_continue_label.text = "单击以继续"
 	_continue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_continue_label.modulate = Color(0.86, 0.68, 0.36, 0.92)
+	_continue_label.modulate = Color(0.86, 0.64, 0.30, 0.96)
 	text_box.add_child(_continue_label)
 	_update_layout_metrics()
 
@@ -293,18 +320,18 @@ func _update_layout_metrics() -> void:
 	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
 		viewport_size = size
 	var side_margin: int = int(roundf(clampf(viewport_size.x * 0.045, 28.0, 72.0)))
-	var bottom_margin: int = int(roundf(clampf(viewport_size.y * 0.035, 20.0, 42.0)))
+	var bottom_margin: int = int(roundf(clampf(viewport_size.y * 0.018, 10.0, 24.0)))
 	_bottom_layout.add_theme_constant_override("margin_left", side_margin)
 	_bottom_layout.add_theme_constant_override("margin_top", 18)
 	_bottom_layout.add_theme_constant_override("margin_right", side_margin)
 	_bottom_layout.add_theme_constant_override("margin_bottom", bottom_margin)
 	if _dialogue_panel != null:
-		var panel_height: float = clampf(viewport_size.y * 0.30, 220.0, 324.0)
+		var panel_height: float = clampf(viewport_size.y * 0.245, 196.0, 276.0)
 		_dialogue_panel.custom_minimum_size = Vector2(0.0, panel_height)
 	var portrait_height: float = clampf(viewport_size.y * 0.47, 270.0, 390.0)
 	var portrait_width: float = clampf(portrait_height * 0.68, 180.0, 272.0)
 	var panel_bottom: float = viewport_size.y - float(bottom_margin)
-	var portrait_bottom: float = min(viewport_size.y + 8.0, panel_bottom + clampf(viewport_size.y * 0.025, 12.0, 24.0))
+	var portrait_bottom: float = min(viewport_size.y + 12.0, panel_bottom + clampf(viewport_size.y * 0.026, 12.0, 28.0))
 	if _portrait_holder != null:
 		_portrait_holder.position = Vector2(float(side_margin) + clampf(viewport_size.x * 0.006, 6.0, 16.0), portrait_bottom - portrait_height)
 		_portrait_holder.size = Vector2(portrait_width, portrait_height)
@@ -317,18 +344,18 @@ func _update_layout_metrics() -> void:
 	if _portrait_fallback != null:
 		_portrait_fallback.add_theme_font_size_override("font_size", int(roundf(clampf(portrait_height * 0.18, 42.0, 68.0))))
 	if _text_margin != null:
-		var reserved_left: int = int(roundf(clampf(portrait_width + 42.0, 190.0, 330.0)))
+		var reserved_left: int = int(roundf(clampf(portrait_width + 72.0, 248.0, 368.0)))
 		_text_margin.add_theme_constant_override("margin_left", reserved_left)
-		_text_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.026, 16.0, 24.0))))
-		_text_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.024, 20.0, 34.0))))
-		_text_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.022, 14.0, 22.0))))
+		_text_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.030, 22.0, 34.0))))
+		_text_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.036, 34.0, 62.0))))
+		_text_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.026, 18.0, 28.0))))
 	if _speaker_label != null:
-		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.026, 18.0, 23.0))))
+		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.027, 19.0, 25.0))))
 	if _text_label != null:
-		_text_label.custom_minimum_size = Vector2(0.0, clampf(viewport_size.y * 0.155, 118.0, 178.0))
-		_text_label.add_theme_font_size_override("normal_font_size", int(roundf(clampf(viewport_size.y * 0.025, 18.0, 22.0))))
+		_text_label.custom_minimum_size = Vector2(0.0, clampf(viewport_size.y * 0.128, 92.0, 142.0))
+		_text_label.add_theme_font_size_override("normal_font_size", int(roundf(clampf(viewport_size.y * 0.023, 17.0, 21.0))))
 	if _continue_label != null:
-		_continue_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.018, 13.0, 16.0))))
+		_continue_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.017, 13.0, 16.0))))
 
 
 func _paginate_dialogue_steps(raw_steps: Array) -> Array:
@@ -352,9 +379,9 @@ func _paginate_dialogue_steps(raw_steps: Array) -> Array:
 func _dialogue_page_char_limit() -> int:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	if viewport_size.x <= 1.0:
-		return 78
-	var text_width: float = viewport_size.x - clampf(viewport_size.x * 0.27, 210.0, 340.0)
-	return clampi(int(roundf(text_width / 15.0)), 56, 92)
+		return 70
+	var text_width: float = viewport_size.x - clampf(viewport_size.x * 0.31, 260.0, 410.0)
+	return clampi(int(roundf(text_width / 16.0)), 48, 78)
 
 
 func _split_text_to_pages(text: String, max_chars: int) -> Array[String]:
