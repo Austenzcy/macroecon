@@ -648,3 +648,12 @@ Round1 P0 art rendering fix:
 - Fallback text badges remain active if an asset is missing or invalid.
 - Updated `docs/Art_Round1_Minimal_Integration.md` and `docs/Art_Round1_Asset_Manifest.md`.
 - Did not modify PNG files, call image two, generate new images, run font subset regeneration, deploy CloudBase, or push to GitHub.
+
+Round1 P0 art rendering deployment:
+- Ran the standard Web export and CloudBase deployment after user approval.
+- Build pipeline regenerated the Chinese font subset, exported Godot Web, generated `index.wasm.gz`, and deployed to CloudBase.
+- Godot imported all 21 P0 PNG assets during export and generated corresponding `.png.import` metadata.
+- CloudBase deployment completed successfully. BuildId: `20260721-220203`.
+- Release URL: `/releases/20260721-220203/index.html`.
+- Export sizes: `index.pck` 1,674,116 bytes; `index.wasm.gz` 10,111,653 bytes; `index.js` 279,815 bytes.
+- Root `latest.json`, root launcher `index.html`, and `health.html` were deployed.
