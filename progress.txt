@@ -611,3 +611,12 @@ Round1 formal art asset generation:
 - No large automatic validation was performed; this round is prepared for user visual review.
 - Did not run font subset regeneration or deployment in order to avoid unnecessary build churn for a resource-generation-only pass.
 - Did not push to GitHub.
+
+Round1 formal art asset targeted revision:
+- Performed a small targeted image two revision pass after first visual review.
+- Replaced `icon_policy_tax.png` to remove the Chinese poet / East Asian scroll impression and use a western treasury ledger, scale, coins, and counting-board motif.
+- Replaced `badge_central_bank_governor.png`, `icon_region_finance.png`, `icon_region_government.png`, and `icon_policy_financial_stability.png` to reduce repeated parliament / Greek-temple / colonnade imagery.
+- New replacements use more varied symbolic motifs: minting press, financial dial, merchant ledger, treasury coffer, decree scroll, keys, fortress tower, stability shield, anchor, scale, and coins.
+- Kept the rest of the art batch unchanged; no full regeneration was performed.
+- Updated `docs/Art_Round1_Asset_Manifest.md` with the revision notes.
+- Did not change gameplay logic, UI wiring, narrative text, font subset scripts, model logic, deployment scripts, or GitHub remote.

@@ -164,3 +164,19 @@
 | 轻量纹理 / 装饰 | 纸纹、木纹、卷宗角饰、政策确认盖章 | 待生成 | 本轮优先 P0 核心资源，P1 资源后置 |
 
 当前生成资源总体积约 654KB。由于上一轮已完成统一资源接入口，本轮未做额外 UI 接入改造；这些文件已位于 `ArtAssetRegistry.gd` 预设路径，后续运行 / 导出时会被自动识别。
+
+## 14. 第一批资源小范围修订记录
+
+人工初看后发现两类风格问题：一是 `icon_policy_tax.png` 带有偏东方诗人 / 书卷文人感，和当前西欧中世纪 / 近现代政务风不统一；二是部分资源重复使用类似议政厅、银行柱廊或雅典卫城式建筑意象，视觉符号略显单一。
+
+本次仅小范围重做并替换以下 5 个资源，没有全量重生成：
+
+| 文件 | 修订原因 | 新方向 |
+|---|---|---|
+| `assets/art/icons/policies/icon_policy_tax.png` | 去除东方诗人 / 书卷文人感 | 西欧税务账册、天平、钱币、计数板 |
+| `assets/art/characters/badges/badge_central_bank_governor.png` | 减少柱廊 / 神庙重复 | 铸币机、利率曲线、金融罗盘、天平 |
+| `assets/art/icons/map/icon_region_finance.png` | 减少银行柱廊重复 | 商会账册、钱币、天平、金融仪表 |
+| `assets/art/icons/map/icon_region_government.png` | 减少议政厅 / 神庙建筑重复 | 国库、政令卷轴、钥匙、城堡塔楼 |
+| `assets/art/icons/policies/icon_policy_financial_stability.png` | 减少金融建筑重复 | 稳定盾徽、锚、天平、钱币和利率盘 |
+
+替换图仍使用 image two 生成，采用绿幕去底、裁切、透明 PNG 压缩流程。为控制 Web 包体，替换后的徽章保存为 256x256，替换后的图标保存为 192x192；游戏内显示尺寸较小，不影响当前 UI 接入。
