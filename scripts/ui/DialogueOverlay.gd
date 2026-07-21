@@ -11,10 +11,12 @@ var _index: int = 0
 var _last_advance_msec: int = 0
 var _dialogue_panel: PanelContainer
 var _bottom_layout: MarginContainer
+var _text_margin: MarginContainer
 var _speaker_label: Label
 var _text_label: RichTextLabel
-var _avatar_label: Label
-var _avatar_texture: TextureRect
+var _portrait_holder: Control
+var _portrait_texture: TextureRect
+var _portrait_fallback: Label
 var _continue_label: Label
 var _current_target_id: String = ""
 var _current_speaker_id: String = ""
@@ -126,6 +128,30 @@ func _build_ui() -> void:
 	_bottom_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_bottom_layout)
 
+	_portrait_holder = Control.new()
+	_portrait_holder.name = "SpeakerBustLayer"
+	_portrait_holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_portrait_holder)
+
+	_portrait_texture = TextureRect.new()
+	_portrait_texture.name = "SpeakerBustTexture"
+	_portrait_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_portrait_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_portrait_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_portrait_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_portrait_texture.visible = false
+	_portrait_holder.add_child(_portrait_texture)
+
+	_portrait_fallback = Label.new()
+	_portrait_fallback.name = "SpeakerBustFallback"
+	_portrait_fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_portrait_fallback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_portrait_fallback.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_portrait_fallback.modulate = ClassicalTheme.TEXT_MAIN
+	_portrait_fallback.add_theme_stylebox_override("normal", _avatar_style())
+	_portrait_fallback.visible = false
+	_portrait_holder.add_child(_portrait_fallback)
+
 	var vertical_layout: VBoxContainer = VBoxContainer.new()
 	vertical_layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vertical_layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -142,38 +168,19 @@ func _build_ui() -> void:
 	_dialogue_panel.add_theme_stylebox_override("panel", _panel_style())
 	vertical_layout.add_child(_dialogue_panel)
 
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	_dialogue_panel.add_child(margin)
-
-	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
-	margin.add_child(row)
-
-	_avatar_label = Label.new()
-	_avatar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_avatar_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
-	_avatar_label.modulate = ClassicalTheme.TEXT_MAIN
-	_avatar_label.clip_contents = true
-	row.add_child(_avatar_label)
-
-	_avatar_texture = TextureRect.new()
-	_avatar_texture.name = "SpeakerBadgeTexture"
-	_avatar_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_avatar_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_avatar_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_avatar_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_avatar_texture.visible = false
-	_avatar_label.add_child(_avatar_texture)
+	_text_margin = MarginContainer.new()
+	_text_margin.name = "DialogueTextMargin"
+	_text_margin.add_theme_constant_override("margin_left", 220)
+	_text_margin.add_theme_constant_override("margin_top", 18)
+	_text_margin.add_theme_constant_override("margin_right", 24)
+	_text_margin.add_theme_constant_override("margin_bottom", 16)
+	_dialogue_panel.add_child(_text_margin)
 
 	var text_box: VBoxContainer = VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_box.add_theme_constant_override("separation", 8)
-	row.add_child(text_box)
+	_text_margin.add_child(text_box)
 
 	_speaker_label = Label.new()
 	_speaker_label.modulate = ClassicalTheme.ACCENT_GOLD
@@ -215,17 +222,18 @@ func _show_current_step() -> void:
 	_speaker_label.text = speaker
 	_text_label.text = text
 	_continue_label.text = "%s  %d/%d" % [continue_text, page_index + 1, page_count] if page_count > 1 else continue_text
-	var badge_texture := ArtAssetRegistry.texture_for_character(_current_speaker_id, avatar_id, speaker)
-	if badge_texture != null:
-		_avatar_texture.texture = badge_texture
-		_avatar_texture.visible = true
-		_avatar_label.text = ""
+	var portrait_texture := ArtAssetRegistry.texture_for_dialogue_portrait(_current_speaker_id, avatar_id, speaker)
+	if portrait_texture != null:
+		_portrait_texture.texture = portrait_texture
+		_portrait_texture.visible = true
+		_portrait_fallback.visible = false
 	else:
-		_avatar_texture.visible = false
-		_avatar_label.text = ArtAssetRegistry.placeholder_for_character(_current_speaker_id, avatar_id, speaker)
-		if _avatar_label.text == "":
-			_avatar_label.text = _avatar_initial(speaker)
-	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
+		_portrait_texture.visible = false
+		_portrait_fallback.visible = true
+		_portrait_fallback.text = ArtAssetRegistry.placeholder_for_character(_current_speaker_id, avatar_id, speaker)
+		if _portrait_fallback.text == "":
+			_portrait_fallback.text = _avatar_initial(speaker)
+	_portrait_fallback.add_theme_stylebox_override("normal", _avatar_style())
 	_current_target_id = target_id
 	queue_redraw()
 
@@ -291,17 +299,29 @@ func _update_layout_metrics() -> void:
 	_bottom_layout.add_theme_constant_override("margin_right", side_margin)
 	_bottom_layout.add_theme_constant_override("margin_bottom", bottom_margin)
 	if _dialogue_panel != null:
-		var panel_height: float = clampf(viewport_size.y * 0.30, 220.0, 330.0)
+		var panel_height: float = clampf(viewport_size.y * 0.30, 220.0, 324.0)
 		_dialogue_panel.custom_minimum_size = Vector2(0.0, panel_height)
-	if _avatar_label != null:
-		var avatar_size: float = clampf(viewport_size.y * 0.105, 66.0, 92.0)
-		_avatar_label.custom_minimum_size = Vector2(avatar_size, avatar_size)
-		_avatar_label.add_theme_font_size_override("font_size", int(roundf(avatar_size * 0.34)))
-		if _avatar_texture != null:
-			_avatar_texture.offset_left = 6
-			_avatar_texture.offset_top = 6
-			_avatar_texture.offset_right = -6
-			_avatar_texture.offset_bottom = -6
+	var portrait_height: float = clampf(viewport_size.y * 0.47, 270.0, 390.0)
+	var portrait_width: float = clampf(portrait_height * 0.68, 180.0, 272.0)
+	var panel_bottom: float = viewport_size.y - float(bottom_margin)
+	var portrait_bottom: float = min(viewport_size.y + 8.0, panel_bottom + clampf(viewport_size.y * 0.025, 12.0, 24.0))
+	if _portrait_holder != null:
+		_portrait_holder.position = Vector2(float(side_margin) + clampf(viewport_size.x * 0.006, 6.0, 16.0), portrait_bottom - portrait_height)
+		_portrait_holder.size = Vector2(portrait_width, portrait_height)
+		_portrait_holder.custom_minimum_size = Vector2(portrait_width, portrait_height)
+	if _portrait_texture != null:
+		_portrait_texture.offset_left = 0
+		_portrait_texture.offset_top = 0
+		_portrait_texture.offset_right = 0
+		_portrait_texture.offset_bottom = 0
+	if _portrait_fallback != null:
+		_portrait_fallback.add_theme_font_size_override("font_size", int(roundf(clampf(portrait_height * 0.18, 42.0, 68.0))))
+	if _text_margin != null:
+		var reserved_left: int = int(roundf(clampf(portrait_width + 42.0, 190.0, 330.0)))
+		_text_margin.add_theme_constant_override("margin_left", reserved_left)
+		_text_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.026, 16.0, 24.0))))
+		_text_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.024, 20.0, 34.0))))
+		_text_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.022, 14.0, 22.0))))
 	if _speaker_label != null:
 		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.026, 18.0, 23.0))))
 	if _text_label != null:
@@ -332,8 +352,9 @@ func _paginate_dialogue_steps(raw_steps: Array) -> Array:
 func _dialogue_page_char_limit() -> int:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	if viewport_size.x <= 1.0:
-		return 84
-	return clampi(int(roundf(viewport_size.x / 15.0)), 64, 96)
+		return 78
+	var text_width: float = viewport_size.x - clampf(viewport_size.x * 0.27, 210.0, 340.0)
+	return clampi(int(roundf(text_width / 15.0)), 56, 92)
 
 
 func _split_text_to_pages(text: String, max_chars: int) -> Array[String]:

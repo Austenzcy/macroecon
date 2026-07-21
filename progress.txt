@@ -677,3 +677,27 @@ Art round2 core redesign and sizing fix:
 - Web export and CloudBase deployment completed for this round. BuildId: `20260721-225644`.
 - Release URL: `/releases/20260721-225644/index.html`.
 - Current generated sizes: `index.pck` 4,030,672 bytes; `index.wasm.gz` 10,111,653 bytes; font subset 492,644 bytes.
+
+Art reference direction alignment:
+- Reviewed the latest user-provided reference images for abstract national map, policy card, and bottom dialogue box.
+- Added `docs/Art_Reference_Direction_v1.md` to record the new highest-priority art direction for future rounds.
+- Clarified that future MacroMap work should move toward one unified abstract country map with irregular economic regions, not four isolated rectangular panels.
+- Clarified that future PolicyCard work should move toward complete vertical decree / policy card faces, not small text cards with inserted standalone icons.
+- Clarified that future DialogueOverlay / AdvisorPanel work should move toward visible character portraits or half-body speaking compositions, not pure badge-only avatars.
+- Noted that future new images should default to Image Two generation, while existing gameplay, model, scoring, narrative, input, fallback, and registry systems should be preserved.
+- No image generation, no UI restructuring, no CloudBase deployment, and no GitHub push were performed in this direction-recording pass.
+
+DialogueOverlay bust portrait v1:
+- Started the focused half-body DialogueOverlay implementation based on the latest user prompt.
+- Used Image Two to generate a unified 3x2 source sheet of six governance character bust portraits.
+- Split, chroma-keyed, despilled, cropped, and saved the six transparent portrait PNGs under `assets/art/characters/portraits/`.
+- Replaced portraits for chief minister, economic advisor, fiscal minister, central bank governor, industry minister, and livelihood minister.
+- Added `ArtAssetRegistry.texture_for_dialogue_portrait(...)`, which prefers role portraits, then a generic economic-advisor portrait, then badge/text fallback.
+- Reworked `DialogueOverlay.gd` into a bottom dialogue box plus independent left-side `SpeakerBustLayer`.
+- The bust portrait can extend above the dialogue box while `DialogueTextMargin` reserves space so body text remains readable.
+- Preserved DialogueOverlay click advance, pagination, dim/highlight drawing, wheel forwarding, Ctrl+wheel scaling, and gameplay input blocking.
+- Added `docs/DialogueOverlay_Bust_Portrait_v1.md`.
+- Did not modify MacroMap, PolicyCard, TheoryPanel, model replay, scenario text, ISLMSolver, MacroEngine, or ScoreEngine.
+- Web export and CloudBase deployment completed for this round. BuildId: `20260722-005140`.
+- Release URL: `/releases/20260722-005140/index.html`.
+- GitHub push was not performed.

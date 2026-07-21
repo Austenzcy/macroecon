@@ -125,6 +125,17 @@ static func texture_for_character(speaker_id: String, avatar_id: String = "", sp
 	return _load_texture(str(CHARACTER_BADGES.get(character_key, "")))
 
 
+static func texture_for_dialogue_portrait(speaker_id: String, avatar_id: String = "", speaker_name: String = "") -> Texture2D:
+	var character_key := normalize_character_key(speaker_id, avatar_id, speaker_name)
+	var portrait := _load_texture(str(CHARACTER_PORTRAITS.get(character_key, "")))
+	if portrait != null:
+		return portrait
+	var generic_portrait := _load_texture(str(CHARACTER_PORTRAITS.get("economic_advisor", "")))
+	if generic_portrait != null:
+		return generic_portrait
+	return _load_texture(str(CHARACTER_BADGES.get(character_key, "")))
+
+
 static func placeholder_for_character(speaker_id: String, avatar_id: String = "", speaker_name: String = "") -> String:
 	var character_key := normalize_character_key(speaker_id, avatar_id, speaker_name)
 	return str(CHARACTER_FALLBACK.get(character_key, "顾"))
