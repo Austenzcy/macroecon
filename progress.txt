@@ -579,3 +579,17 @@ Pre-polish UI skin stable restore:
 - Re-exported and deployed CloudBase successfully. BuildId: `20260721-120817`.
 - Current generated sizes: font subset 492,644 bytes; index.pck 724,324 bytes; index.wasm.gz 10,111,653 bytes; index.js 279,815 bytes.
 - Online checks: latest.json, release index.html, index.pck, and index.wasm.gz returned HTTP 200.
+
+Round1 formal art integration preparation:
+- Started the first formal art asset integration preparation based on the art spec and `docs/Art_Asset_Audit_v1.md`.
+- Added `docs/Art_Round1_Asset_Manifest.md` with the round1 resource list, target UI slots, recommended dimensions, formats, naming, and replacement paths.
+- Added `docs/Art_Round1_ImageTwo_PromptPack.md` for later image two generation of character badges, policy icons, wisdom icon, level state icons, map icons, and lightweight textures/decor.
+- Added `scripts/ui/ArtAssetRegistry.gd` as the unified runtime resource lookup and fallback registry.
+- Added placeholder asset directories under `assets/art/` for character badges, policy icons, UI icons, map icons, textures, and stamps.
+- Reserved image slots for DialogueOverlay speaker badges, AdvisorPanel badges, PolicyCard policy type icons, WisdomPanel icon, LevelSelect lock/completion icons, and MacroMap region icons.
+- Missing formal images now fall back to unified procedural/text placeholders instead of crashing.
+- Did not generate formal images, download assets, rewrite UI polish, change narrative text, alter gameplay logic, or modify ISLMSolver / MacroEngine / ScoreEngine.
+- Did not push to GitHub.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260721-124337`.
+- Online checks: latest.json and release index.html returned HTTP 200.
+- Current generated sizes: font subset 492,644 bytes; index.pck 737,000 bytes; index.wasm.gz 10,111,653 bytes.

@@ -1,8 +1,14 @@
 extends PanelContainer
 
+const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
+
 var _title_label: Label
+var _icon_shell: PanelContainer
+var _icon_label: Label
+var _icon_texture: TextureRect
 var _lines_box: VBoxContainer
 var _region_name: String = "区域"
+var _region_icon_key: String = ""
 var _lines: Array[Dictionary] = []
 var _brightness: float = 0.0
 var _ui_scale: float = 1.0
@@ -18,6 +24,11 @@ func _ready() -> void:
 func set_region_name(region_name: String) -> void:
 	_region_name = region_name
 	_refresh_text()
+
+
+func set_region_icon_key(icon_key: String) -> void:
+	_region_icon_key = icon_key
+	_refresh_icon()
 
 
 func set_highlighted(value: bool) -> void:
@@ -41,6 +52,10 @@ func set_ui_scale(value: float) -> void:
 	custom_minimum_size = Vector2(210, 132) * _ui_scale
 	if _title_label != null:
 		_title_label.add_theme_font_size_override("font_size", int(roundf(19.0 * _ui_scale)))
+	if _icon_shell != null:
+		_icon_shell.custom_minimum_size = Vector2(34, 34) * _ui_scale
+	if _icon_label != null:
+		_icon_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
 	if _lines_box != null:
 		_lines_box.add_theme_constant_override("separation", int(roundf(4.0 * _ui_scale)))
 		for child: Node in _lines_box.get_children():
@@ -61,6 +76,30 @@ func _build_ui() -> void:
 	box.add_theme_constant_override("separation", 8)
 	margin.add_child(box)
 
+	_icon_shell = PanelContainer.new()
+	_icon_shell.custom_minimum_size = Vector2(34, 34)
+	_icon_shell.add_theme_stylebox_override("panel", _icon_shell_style())
+	box.add_child(_icon_shell)
+
+	_icon_label = Label.new()
+	_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_icon_label.add_theme_font_size_override("font_size", 15)
+	_icon_label.modulate = Color(0.90, 0.78, 0.50, 1.0)
+	_icon_shell.add_child(_icon_label)
+
+	_icon_texture = TextureRect.new()
+	_icon_texture.name = "RegionIconTexture"
+	_icon_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_icon_texture.visible = false
+	_icon_texture.offset_left = 5
+	_icon_texture.offset_top = 5
+	_icon_texture.offset_right = -5
+	_icon_texture.offset_bottom = -5
+	_icon_shell.add_child(_icon_texture)
+
 	_title_label = Label.new()
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -76,6 +115,7 @@ func _build_ui() -> void:
 func _refresh_text() -> void:
 	if _title_label != null:
 		_title_label.text = _region_name
+	_refresh_icon()
 	if _lines_box == null:
 		return
 	for child: Node in _lines_box.get_children():
@@ -87,6 +127,28 @@ func _refresh_text() -> void:
 		label.modulate = _line_color(str(line.get("arrow", "→")))
 		label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
 		_lines_box.add_child(label)
+
+
+func _refresh_icon() -> void:
+	if _icon_label == null:
+		return
+	var texture := ArtAssetRegistry.texture_for_map_region(_region_icon_key)
+	if texture != null:
+		_icon_texture.texture = texture
+		_icon_texture.visible = true
+		_icon_label.text = ""
+	else:
+		_icon_texture.visible = false
+		_icon_label.text = ArtAssetRegistry.placeholder_for_map_region(_region_icon_key)
+
+
+func _icon_shell_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.11, 0.12, 0.76)
+	style.border_color = Color(0.45, 0.36, 0.22, 0.86)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	return style
 
 
 func _line_color(arrow: String) -> Color:

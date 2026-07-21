@@ -5,6 +5,7 @@ const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.ts
 const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
 const TheoryISLMGraphScript = preload("res://scripts/ui/TheoryISLMGraph.gd")
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
@@ -247,6 +248,35 @@ func _build_wisdom_panel() -> PanelContainer:
 	row.add_theme_constant_override("separation", _dim(8))
 	margin.add_child(row)
 
+	var wisdom_icon_slot: PanelContainer = PanelContainer.new()
+	wisdom_icon_slot.name = "WisdomIconSlot"
+	wisdom_icon_slot.custom_minimum_size = Vector2(_dim(26), _dim(26))
+	wisdom_icon_slot.add_theme_stylebox_override("panel", _make_icon_slot_style())
+	row.add_child(wisdom_icon_slot)
+
+	var wisdom_icon_label: Label = Label.new()
+	wisdom_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	wisdom_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	wisdom_icon_label.add_theme_font_size_override("font_size", _font(14))
+	wisdom_icon_label.modulate = ClassicalTheme.TEXT_MAIN
+	wisdom_icon_slot.add_child(wisdom_icon_label)
+
+	var wisdom_texture := ArtAssetRegistry.texture_for_ui("wisdom_points")
+	if wisdom_texture != null:
+		var wisdom_icon_texture: TextureRect = TextureRect.new()
+		wisdom_icon_texture.name = "WisdomIconTexture"
+		wisdom_icon_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+		wisdom_icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		wisdom_icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		wisdom_icon_texture.offset_left = 4
+		wisdom_icon_texture.offset_top = 4
+		wisdom_icon_texture.offset_right = -4
+		wisdom_icon_texture.offset_bottom = -4
+		wisdom_icon_texture.texture = wisdom_texture
+		wisdom_icon_slot.add_child(wisdom_icon_texture)
+	else:
+		wisdom_icon_label.text = ArtAssetRegistry.placeholder_for_ui("wisdom_points")
+
 	_wisdom_label = Label.new()
 	_wisdom_label.name = "WisdomPointsLabel"
 	_wisdom_label.custom_minimum_size = Vector2(_dim(86), _dim(30))
@@ -437,6 +467,8 @@ func _build_map_panel() -> PanelContainer:
 
 	var region_scene: PackedScene = preload("res://scenes/components/MapRegion.tscn")
 	var map_state: Dictionary = _visible_macro_state()
+	var region_icon_keys: Array[String] = ["consumption", "industry", "finance", "government"]
+	var region_index: int = 0
 	for config: Dictionary in MAP_REGION_CONFIGS:
 		var region: PanelContainer = region_scene.instantiate() as PanelContainer
 		region.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -448,7 +480,10 @@ func _build_map_panel() -> PanelContainer:
 			_map_region_lines(config, map_state),
 			_map_region_brightness(config, map_state)
 		)
+		if region.has_method("set_region_icon_key"):
+			region.call("set_region_icon_key", region_icon_keys[min(region_index, region_icon_keys.size() - 1)])
 		grid.add_child(region)
+		region_index += 1
 
 	_theory_panel = _build_theory_panel()
 	_theory_panel.name = "TheoryPanel"
@@ -1403,3 +1438,12 @@ func _make_chart_style() -> StyleBoxFlat:
 
 func _make_compact_panel_style() -> StyleBoxFlat:
 	return ClassicalTheme.panel_style("compact", _ui_scale)
+
+
+func _make_icon_slot_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.14, 0.10, 0.07, 0.88)
+	style.border_color = Color(0.58, 0.42, 0.22, 0.82)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(6))
+	return style

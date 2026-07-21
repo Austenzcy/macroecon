@@ -1,6 +1,7 @@
 extends Control
 
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
 const SCENARIO_INTRO_PATH: String = "res://scenes/ScenarioIntro.tscn"
 const SCALE_STEP: float = 0.1
@@ -136,8 +137,17 @@ func _build_level_button(level_number: int) -> Button:
 	button.add_theme_font_size_override("font_size", _font(34))
 	if GameState.is_visible_level_unlocked(level_number):
 		button.text = str(level_number)
+		if level_number < GameState.get_unlocked_visible_level():
+			var complete_icon := ArtAssetRegistry.texture_for_ui("level_complete")
+			if complete_icon != null:
+				button.icon = complete_icon
 	else:
-		button.text = "%d\n锁" % level_number
+		var lock_icon := ArtAssetRegistry.texture_for_ui("lock_level")
+		if lock_icon != null:
+			button.text = str(level_number)
+			button.icon = lock_icon
+		else:
+			button.text = "%d\n%s" % [level_number, ArtAssetRegistry.placeholder_for_ui("lock_level")]
 	_apply_level_button_style(button, level_number, false)
 	button.mouse_entered.connect(_on_level_button_hovered.bind(button, level_number, true))
 	button.mouse_exited.connect(_on_level_button_hovered.bind(button, level_number, false))

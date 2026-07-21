@@ -3,6 +3,7 @@ extends Control
 signal finished
 
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 
 var _steps: Array = []
 var _target_map: Dictionary = {}
@@ -13,6 +14,7 @@ var _bottom_layout: MarginContainer
 var _speaker_label: Label
 var _text_label: RichTextLabel
 var _avatar_label: Label
+var _avatar_texture: TextureRect
 var _continue_label: Label
 var _current_target_id: String = ""
 var _current_speaker_id: String = ""
@@ -158,6 +160,14 @@ func _build_ui() -> void:
 	_avatar_label.modulate = ClassicalTheme.TEXT_MAIN
 	row.add_child(_avatar_label)
 
+	_avatar_texture = TextureRect.new()
+	_avatar_texture.name = "SpeakerBadgeTexture"
+	_avatar_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_avatar_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_avatar_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_avatar_texture.visible = false
+	_avatar_label.add_child(_avatar_texture)
+
 	var text_box: VBoxContainer = VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_box.add_theme_constant_override("separation", 8)
@@ -198,11 +208,21 @@ func _show_current_step() -> void:
 	var page_count: int = int(step.get("_page_count", 1))
 	var target_id: String = str(step.get("target", step.get("target_ui", "")))
 	_current_speaker_id = str(step.get("speaker_id", ""))
+	var avatar_id: String = str(step.get("avatar", ""))
 
 	_speaker_label.text = speaker
 	_text_label.text = text
 	_continue_label.text = "%s  %d/%d" % [continue_text, page_index + 1, page_count] if page_count > 1 else continue_text
-	_avatar_label.text = _avatar_initial(speaker)
+	var badge_texture := ArtAssetRegistry.texture_for_character(_current_speaker_id, avatar_id)
+	if badge_texture != null:
+		_avatar_texture.texture = badge_texture
+		_avatar_texture.visible = true
+		_avatar_label.text = ""
+	else:
+		_avatar_texture.visible = false
+		_avatar_label.text = ArtAssetRegistry.placeholder_for_character(_current_speaker_id, avatar_id)
+		if _avatar_label.text == "":
+			_avatar_label.text = _avatar_initial(speaker)
 	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
 	_current_target_id = target_id
 	queue_redraw()
@@ -275,6 +295,11 @@ func _update_layout_metrics() -> void:
 		var avatar_size: float = clampf(viewport_size.y * 0.105, 66.0, 92.0)
 		_avatar_label.custom_minimum_size = Vector2(avatar_size, avatar_size)
 		_avatar_label.add_theme_font_size_override("font_size", int(roundf(avatar_size * 0.34)))
+		if _avatar_texture != null:
+			_avatar_texture.offset_left = 6
+			_avatar_texture.offset_top = 6
+			_avatar_texture.offset_right = -6
+			_avatar_texture.offset_bottom = -6
 	if _speaker_label != null:
 		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.026, 18.0, 23.0))))
 	if _text_label != null:
