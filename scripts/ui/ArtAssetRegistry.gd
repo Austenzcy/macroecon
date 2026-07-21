@@ -1,5 +1,7 @@
 extends RefCounted
 
+static var _texture_cache: Dictionary = {}
+
 const CHARACTER_BADGES := {
 	"chief_minister": "res://assets/art/characters/badges/badge_chief_minister.png",
 	"economic_advisor": "res://assets/art/characters/badges/badge_economic_advisor.png",
@@ -178,8 +180,29 @@ static func texture_for_slot(slot_key: String) -> Texture2D:
 
 static func _load_texture(path: String) -> Texture2D:
 	if path.is_empty() or not ResourceLoader.exists(path):
-		return null
-	var resource := load(path)
+		return _load_png_as_image_texture(path)
+	if _texture_cache.has(path):
+		return _texture_cache[path] as Texture2D
+	var resource: Resource = load(path)
 	if resource is Texture2D:
-		return resource
+		_texture_cache[path] = resource
+		return resource as Texture2D
+	var image_texture := _load_png_as_image_texture(path)
+	if image_texture != null:
+		_texture_cache[path] = image_texture
+		return image_texture
 	return null
+
+
+static func _load_png_as_image_texture(path: String) -> Texture2D:
+	if _texture_cache.has(path):
+		return _texture_cache[path] as Texture2D
+	if path.is_empty() or not path.ends_with(".png") or not FileAccess.file_exists(path):
+		return null
+	var image := Image.new()
+	var error := image.load(path)
+	if error != OK:
+		return null
+	var texture := ImageTexture.create_from_image(image)
+	_texture_cache[path] = texture
+	return texture

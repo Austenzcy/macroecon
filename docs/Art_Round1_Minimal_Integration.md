@@ -148,3 +148,33 @@ Please manually verify:
 - P1 textures and decorative corner assets remain unintegrated.
 - Policy matching is keyword-based and intentionally conservative; future policy categories may need new registry keys.
 - This pass does not optimize imported Godot texture settings; export/import verification should happen during the later deployment pass.
+
+## 11. P0 Asset Rendering Fix
+
+After manual review, the UI still showed text fallbacks such as `财`, `币`, `民`, `工`, `金`, and `政` instead of the generated PNG assets.
+
+Root cause:
+
+- The P0 PNG files existed under `assets/art/`.
+- The UI slots were already present: `PolicyTypeIconTexture`, `RegionIconTexture`, `WisdomIconTexture`, `SpeakerBadgeTexture`, and level button icons.
+- However, the generated PNG files did not have Godot `.png.import` metadata yet, so `ResourceLoader.exists(path)` returned false and `load(path)` never produced a `Texture2D`.
+- Because the registry returned `null`, each UI component correctly fell back to its procedural text badge.
+
+Fix:
+
+- `ArtAssetRegistry.gd` now keeps a small texture cache.
+- `_load_texture(path)` still prefers Godot-imported `Texture2D` resources when available.
+- If the imported resource is unavailable, the registry falls back to `FileAccess.file_exists(path)`, `Image.load(path)`, and `ImageTexture.create_from_image(image)`.
+- This allows the existing P0 PNG files to render immediately without requiring this pass to run Godot import, regenerate fonts, or deploy.
+
+Current priority render paths:
+
+- Policy cards: `PolicyCard.gd` continues to show `PolicyTypeIconTexture` first and hides the text badge when a texture is available.
+- MacroMap regions: `MapRegion.gd` continues to show `RegionIconTexture` first and hides `民` / `工` / `金` / `政` when a texture is available.
+- LevelSelect: `LevelSelect.gd` uses `Button.icon` for lock and completion assets when available.
+- Wisdom points: `PolicyDesk.gd` shows `WisdomIconTexture` when available.
+- Dialogue / advisor badges: `DialogueOverlay.gd` and `AdvisorPanel.gd` show role badge textures when the speaker can be matched.
+
+Fallback rule remains unchanged: if an image file is missing, invalid, or unmatched, the UI displays the original procedural text badge and does not crash.
+
+This fix did not modify PNG files, call image two, generate new art, run the font subset script, deploy CloudBase, or perform broad automated UI validation.

@@ -196,3 +196,19 @@
 | 纸纹 / 木纹 / 卷宗装饰 | 未接入 | `ArtAssetRegistry.texture_for_slot(...)` 仅保留入口 | 无 | 无 | P1 后续批次再处理 |
 
 本轮额外补强了角色匹配规则：`DialogueOverlay` 现在会同时将 `speaker_id`、`avatar` 和可见 `speaker` 名称交给注册表；注册表支持正式 JSON 的 `placeholder_*_minister` avatar id，以及首席大臣、首席经济顾问、财政大臣 / 财政部长、中央银行行长 / 央行行长、产业大臣 / 工业顾问、民生大臣 / 民生顾问等中文别名。
+
+## 16. P0 实际渲染修复状态
+
+人工查看后发现 UI 仍显示文字 fallback。根因不是插槽缺失，而是 P0 PNG 尚无 Godot `.png.import` 元数据，`ResourceLoader.exists()` 无法确认这些 PNG 为可加载 `Texture2D`。`ArtAssetRegistry.gd` 已补充运行时 PNG fallback：优先加载 Godot 导入后的 `Texture2D`，若不可用则用 `Image.load()` + `ImageTexture.create_from_image()` 从 `res://` PNG 直接创建贴图并缓存。
+
+当前状态更新：
+
+| 资源组 | 注册状态 | 实际渲染路径 | fallback |
+|---|---|---|---|
+| 角色徽章头像 | 已注册 | `ResourceLoader/load` 或 `ImageTexture.create_from_image` | 角色字徽章 |
+| 政策类型图标 | 已注册 | 同上，`PolicyTypeIconTexture` 优先显示 | 类型字徽章 |
+| 智慧点数图标 | 已注册 | 同上，`WisdomIconTexture` 优先显示 | `智` |
+| 锁图标 / 完成印章 | 已注册 | 同上，`Button.icon` 优先显示 | `锁` / 原状态样式 |
+| 地图四区域图标 | 已注册 | 同上，`RegionIconTexture` 优先显示 | `民` / `工` / `金` / `政` |
+
+P1 纹理和政策确认章仍只保留未来入口；它们缺失时返回 `null` 属于预期。
