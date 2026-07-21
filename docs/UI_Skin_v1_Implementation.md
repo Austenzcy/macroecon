@@ -146,3 +146,12 @@
 4. 给 DialogueOverlay 接入徽章头像资源；
 5. 第二轮再处理地图区域小图标和更细的图表外框；
 6. 每轮新增资源后继续检查 `index.pck` 和 Web 首屏加载时间。
+
+## Polish Pass Reverted
+
+- The polish: refine classical governance UI skin pass was abandoned and rolled back.
+- Reason: the visual gain was not clear enough, and the pass introduced a functional issue where the PolicyDesk policy-card area could become invisible or display incorrectly after entering a level.
+- Current stable code is restored to the pre-polish UI Skin v1 version: commit e0c3778 feat: add classical governance UI skin v1.
+- The project keeps the UI Skin v1 classical governance direction, including the first-pass LevelSelect, DialogueOverlay, PolicyCard, button, wisdom area, modal, and highlight styling.
+- We will not continue over-polishing the pure procedural UI pass. The next art step should move toward image two resource generation and controlled lightweight asset integration.
+- Re-exported and deployed the restored stable version. BuildId: 20260721-120817; index.pck 724,324 bytes; index.wasm.gz 10,111,653 bytes.

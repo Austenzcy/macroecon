@@ -567,3 +567,15 @@ Classical governance UI skin v1:
 - Added `docs/UI_Skin_v1_Implementation.md`.
 - Re-exported and deployed CloudBase successfully. BuildId: `20260720-224348`.
 - Current generated sizes: font subset 492,644 bytes; index.pck 724,324 bytes; index.wasm.gz 10,111,653 bytes; index.js 279,815 bytes.
+
+Pre-polish UI skin stable restore:
+- Abandoned the UI Skin v1 polish pass.
+- Reason: the polish gains were not obvious and it introduced a PolicyDesk policy-card visibility/display issue.
+- Restored code to the pre-polish stable version: `e0c3778 feat: add classical governance UI skin v1`.
+- Current version keeps the UI Skin v1 baseline classical governance style.
+- Next art direction should move to image two formal art resource generation and lightweight integration instead of continuing pure procedural UI polish.
+- Did not add features, generate images, change narrative text, change level data, or modify model/scoring/settlement logic.
+- Did not push to GitHub.
+- Re-exported and deployed CloudBase successfully. BuildId: `20260721-120817`.
+- Current generated sizes: font subset 492,644 bytes; index.pck 724,324 bytes; index.wasm.gz 10,111,653 bytes; index.js 279,815 bytes.
+- Online checks: latest.json, release index.html, index.pck, and index.wasm.gz returned HTTP 200.
