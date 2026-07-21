@@ -180,3 +180,19 @@
 | `assets/art/icons/policies/icon_policy_financial_stability.png` | 减少金融建筑重复 | 稳定盾徽、锚、天平、钱币和利率盘 |
 
 替换图仍使用 image two 生成，采用绿幕去底、裁切、透明 PNG 压缩流程。为控制 Web 包体，替换后的徽章保存为 256x256，替换后的图标保存为 192x192；游戏内显示尺寸较小，不影响当前 UI 接入。
+
+## 15. P0 最小接入状态
+
+本轮已将第一批 P0 正式资源按最小风险方式接入现有 UI 插槽。接入方式仍统一走 `scripts/ui/ArtAssetRegistry.gd`，不在各 UI 脚本散写图片路径；如果贴图缺失或匹配不到，继续显示原有程序化字徽章 / 文本占位。
+
+| 资源组 | 当前状态 | 接入脚本 / 节点 | 游戏内尺寸 | fallback | 待人工验收 |
+|---|---|---|---|---|---|
+| 角色徽章头像 | 已接入 | `DialogueOverlay.gd` / `SpeakerBadgeTexture`；`AdvisorPanel.gd` / `AdvisorBadgeTexture` | DialogueOverlay 约 66-92px；AdvisorPanel 70px | 角色字徽章 | 六个角色是否匹配正确，是否挤压对白 |
+| 政策类型图标 | 已接入 | `PolicyCard.gd` / `PolicyTypeIconTexture` | 约 28px，随 UI scale 缩放 | 类型字徽章 | 图标是否清楚，政策标题 / 描述是否未被挤压 |
+| 智慧点数图标 | 已接入 | `PolicyDesk.gd` / `WisdomIconSlot` / `WisdomIconTexture` | 约 26px，随 UI scale 缩放 | `智` | 图标与点数文字是否平衡 |
+| 关卡锁图标 | 已接入 | `LevelSelect.gd` / locked level `Button.icon` | 关卡按钮内置图标尺寸 | `锁` | 锁图标是否遮挡数字 |
+| 已完成印章 | 已接入 | `LevelSelect.gd` / completed level `Button.icon` | 关卡按钮内置图标尺寸 | 原完成状态样式 | 已完成状态是否清楚 |
+| 地图区域图标 | 已接入 | `MapRegion.gd` / `RegionIconTexture` | 约 34px，随 UI scale 缩放 | `民` / `工` / `金` / `政` | 是否遮挡区域名和变量箭头 |
+| 纸纹 / 木纹 / 卷宗装饰 | 未接入 | `ArtAssetRegistry.texture_for_slot(...)` 仅保留入口 | 无 | 无 | P1 后续批次再处理 |
+
+本轮额外补强了角色匹配规则：`DialogueOverlay` 现在会同时将 `speaker_id`、`avatar` 和可见 `speaker` 名称交给注册表；注册表支持正式 JSON 的 `placeholder_*_minister` avatar id，以及首席大臣、首席经济顾问、财政大臣 / 财政部长、中央银行行长 / 央行行长、产业大臣 / 工业顾问、民生大臣 / 民生顾问等中文别名。

@@ -12,10 +12,17 @@ const CHARACTER_BADGES := {
 const AVATAR_TO_CHARACTER := {
 	"placeholder_chief_minister": "chief_minister",
 	"placeholder_advisor": "economic_advisor",
+	"placeholder_economic_advisor": "economic_advisor",
 	"placeholder_fiscal": "fiscal_minister",
+	"placeholder_fiscal_minister": "fiscal_minister",
+	"placeholder_finance_minister": "fiscal_minister",
 	"placeholder_central_bank": "central_bank_governor",
+	"placeholder_central_bank_governor": "central_bank_governor",
 	"placeholder_industry": "industry_minister",
-	"placeholder_livelihood": "livelihood_minister"
+	"placeholder_industry_minister": "industry_minister",
+	"placeholder_livelihood": "livelihood_minister",
+	"placeholder_livelihood_minister": "livelihood_minister",
+	"placeholder_civil_affairs_minister": "livelihood_minister"
 }
 
 const CHARACTER_FALLBACK := {
@@ -35,8 +42,7 @@ const POLICY_TYPE_ICONS := {
 	"tax": "res://assets/art/icons/policies/icon_policy_tax.png",
 	"investment": "res://assets/art/icons/policies/icon_policy_investment.png",
 	"consumption": "res://assets/art/icons/policies/icon_policy_consumption.png",
-	"financial_stability": "res://assets/art/icons/policies/icon_policy_financial_stability.png",
-	"generic": "res://assets/art/icons/policies/icon_policy_generic.png"
+	"financial_stability": "res://assets/art/icons/policies/icon_policy_financial_stability.png"
 }
 
 const POLICY_FALLBACK := {
@@ -84,40 +90,41 @@ const TEXTURE_SLOTS := {
 	"policy_stamp": "res://assets/art/stamps/stamp_policy_confirmed.png"
 }
 
-static func texture_for_character(speaker_id: String, avatar_id: String = "") -> Texture2D:
-	var character_key := normalize_character_key(speaker_id, avatar_id)
+static func texture_for_character(speaker_id: String, avatar_id: String = "", speaker_name: String = "") -> Texture2D:
+	var character_key := normalize_character_key(speaker_id, avatar_id, speaker_name)
 	return _load_texture(str(CHARACTER_BADGES.get(character_key, "")))
 
 
-static func placeholder_for_character(speaker_id: String, avatar_id: String = "") -> String:
-	var character_key := normalize_character_key(speaker_id, avatar_id)
+static func placeholder_for_character(speaker_id: String, avatar_id: String = "", speaker_name: String = "") -> String:
+	var character_key := normalize_character_key(speaker_id, avatar_id, speaker_name)
 	return str(CHARACTER_FALLBACK.get(character_key, "顾"))
 
 
-static func normalize_character_key(speaker_id: String, avatar_id: String = "") -> String:
+static func normalize_character_key(speaker_id: String, avatar_id: String = "", speaker_name: String = "") -> String:
 	if CHARACTER_BADGES.has(speaker_id):
 		return speaker_id
 	if AVATAR_TO_CHARACTER.has(avatar_id):
 		return str(AVATAR_TO_CHARACTER[avatar_id])
-	var lowered := speaker_id.to_lower()
-	if lowered.find("fiscal") >= 0:
+	var source := "%s %s %s" % [speaker_id, avatar_id, speaker_name]
+	var lowered := source.to_lower()
+	if source.find("财政") >= 0 or source.find("财务") >= 0 or lowered.find("fiscal") >= 0 or lowered.find("finance_minister") >= 0:
 		return "fiscal_minister"
-	if lowered.find("central") >= 0 or lowered.find("bank") >= 0:
+	if source.find("中央银行") >= 0 or source.find("央行") >= 0 or lowered.find("central") >= 0 or lowered.find("bank") >= 0:
 		return "central_bank_governor"
-	if lowered.find("industry") >= 0:
+	if source.find("产业") >= 0 or source.find("工业") >= 0 or source.find("企业") >= 0 or lowered.find("industry") >= 0:
 		return "industry_minister"
-	if lowered.find("livelihood") >= 0:
+	if source.find("民生") >= 0 or source.find("居民") >= 0 or source.find("市场") >= 0 or lowered.find("livelihood") >= 0 or lowered.find("civil") >= 0:
 		return "livelihood_minister"
-	if lowered.find("advisor") >= 0:
+	if source.find("经济顾问") >= 0 or source.find("顾问") >= 0 or lowered.find("advisor") >= 0:
 		return "economic_advisor"
-	if lowered.find("chief") >= 0:
+	if source.find("首席大臣") >= 0 or source == "大臣" or lowered.find("chief") >= 0:
 		return "chief_minister"
-	return "economic_advisor"
+	return ""
 
 
 static func texture_for_policy_type(policy_type: String, policy_id: String = "") -> Texture2D:
 	var key := normalize_policy_key(policy_type, policy_id)
-	return _load_texture(str(POLICY_TYPE_ICONS.get(key, POLICY_TYPE_ICONS["generic"])))
+	return _load_texture(str(POLICY_TYPE_ICONS.get(key, "")))
 
 
 static func placeholder_for_policy_type(policy_type: String, policy_id: String = "") -> String:
@@ -136,13 +143,13 @@ static func normalize_policy_key(policy_type: String, policy_id: String = "") ->
 		return "consumption"
 	if source.find("金融") >= 0 or source.find("利率") >= 0 or lowered.find("financial") >= 0 or lowered.find("rate") >= 0:
 		return "financial_stability"
-	if source.find("紧缩") >= 0 and (source.find("货币") >= 0 or lowered.find("monetary") >= 0):
+	if (source.find("紧缩") >= 0 or lowered.find("contraction") >= 0 or lowered.find("contract") >= 0) and (source.find("货币") >= 0 or lowered.find("monetary") >= 0):
 		return "monetary_contract"
-	if source.find("扩张") >= 0 and (source.find("货币") >= 0 or lowered.find("monetary") >= 0):
+	if (source.find("扩张") >= 0 or lowered.find("expansion") >= 0 or lowered.find("expand") >= 0) and (source.find("货币") >= 0 or lowered.find("monetary") >= 0):
 		return "monetary_expand"
-	if source.find("紧缩") >= 0 and source.find("财政") >= 0:
+	if (source.find("紧缩") >= 0 or lowered.find("contraction") >= 0 or lowered.find("contract") >= 0) and (source.find("财政") >= 0 or lowered.find("fiscal") >= 0):
 		return "fiscal_contract"
-	if source.find("财政") >= 0 or source.find("政府") >= 0:
+	if source.find("财政") >= 0 or source.find("政府") >= 0 or lowered.find("fiscal") >= 0 or lowered.find("government_purchase") >= 0 or lowered.find("purchase") >= 0:
 		return "fiscal_expand"
 	if source.find("货币") >= 0:
 		return "monetary_expand"

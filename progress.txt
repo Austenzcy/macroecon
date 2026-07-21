@@ -620,3 +620,18 @@ Round1 formal art asset targeted revision:
 - Kept the rest of the art batch unchanged; no full regeneration was performed.
 - Updated `docs/Art_Round1_Asset_Manifest.md` with the revision notes.
 - Did not change gameplay logic, UI wiring, narrative text, font subset scripts, model logic, deployment scripts, or GitHub remote.
+
+Round1 P0 formal art minimal integration:
+- Integrated the first P0 formal art batch through the existing `ArtAssetRegistry.gd` resource registry.
+- Connected character badge avatars to DialogueOverlay and the bottom AdvisorPanel while preserving text-badge fallbacks.
+- Expanded character matching to support formal JSON avatar ids and common Chinese aliases for chief minister, economic advisor, fiscal / finance minister, central bank governor, industry minister, and livelihood / civil affairs minister.
+- Connected policy type icons to PolicyCard through policy type / policy id keyword mapping.
+- Connected the wisdom points icon to the PolicyDesk wisdom points area.
+- Connected the lock icon and completed stamp to LevelSelect level buttons.
+- Connected the four MacroMap region icons to MapRegion.
+- Kept P1 textures, dossier decorations, policy-confirm stamp animation, large backgrounds, portraits, audio, and video unintegrated.
+- Did not modify original PNG assets in this pass.
+- Did not call image two, generate new images, rewrite UI layout, change gameplay logic, alter narrative text, or modify ISLMSolver / MacroEngine / ScoreEngine.
+- Did not run font subset regeneration, CloudBase deployment, or broad automatic validation.
+- Added `docs/Art_Round1_Minimal_Integration.md` and updated `docs/Art_Round1_Asset_Manifest.md`.
+- Did not push to GitHub.

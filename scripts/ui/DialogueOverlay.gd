@@ -213,14 +213,14 @@ func _show_current_step() -> void:
 	_speaker_label.text = speaker
 	_text_label.text = text
 	_continue_label.text = "%s  %d/%d" % [continue_text, page_index + 1, page_count] if page_count > 1 else continue_text
-	var badge_texture := ArtAssetRegistry.texture_for_character(_current_speaker_id, avatar_id)
+	var badge_texture := ArtAssetRegistry.texture_for_character(_current_speaker_id, avatar_id, speaker)
 	if badge_texture != null:
 		_avatar_texture.texture = badge_texture
 		_avatar_texture.visible = true
 		_avatar_label.text = ""
 	else:
 		_avatar_texture.visible = false
-		_avatar_label.text = ArtAssetRegistry.placeholder_for_character(_current_speaker_id, avatar_id)
+		_avatar_label.text = ArtAssetRegistry.placeholder_for_character(_current_speaker_id, avatar_id, speaker)
 		if _avatar_label.text == "":
 			_avatar_label.text = _avatar_initial(speaker)
 	_avatar_label.add_theme_stylebox_override("normal", _avatar_style())
