@@ -51,3 +51,13 @@ This pass did not change:
 
 The DialogueOverlay left-edge body-text blur issue remains intentionally out of scope.
 
+## Follow-Up Calibration Notes
+
+The next calibration pass kept the same safe-area system and only adjusted the affected text zones:
+
+- PolicyCard formal art no longer displays the middle category text label (`财政政策`, `货币政策`, etc.). That label remains available for procedural fallback, but the generated v2 card art now relies on title, description, and cost zones as the main readable text hierarchy.
+- PolicyCard descriptions were moved upward by changing `description_rect`, not by adding per-node offsets. This reuses the lower parchment area after the category label was hidden.
+- PolicyCard cost remains dynamic and number-only. Its `cost_rect` was moved lower and slightly enlarged so the number sits closer to the badge center.
+- DialogueOverlay long speaker names are handled by widening the frame-local `speaker_rect` and applying a small long-name font fallback. Short four-character names keep the larger default size.
+
+For future image-backed UI, long labels should first be solved by safe-area width and component-local fit rules. Per-name hard-coded offsets should remain a last resort.

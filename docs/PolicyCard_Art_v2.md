@@ -107,6 +107,19 @@ The description area intentionally leaves the right side clear for the policy po
 
 `ArtLayoutSpecs.DEBUG_SAFE_AREAS` can be enabled during development to draw title/category/description/cost safe rectangles. It is disabled by default.
 
+## Lower Text Calibration
+
+The follow-up pass keeps the existing v2 card images and card structure, but simplifies the lower text hierarchy:
+
+- On formal v2 card art, the middle policy-type text label is hidden. The node remains available for procedural fallback.
+- The old policy-type icon and one-character fallback remain fallback-only and do not drive the formal card layout.
+- `description_rect` now starts higher and uses more of the parchment body area, avoiding the bottom ornament and the right-side cost badge.
+- Description text is darker, slightly larger, and visually stronger for default-size readability.
+- The policy point badge displays only the dynamic number. `cost_rect` was moved lower and slightly enlarged so the number is closer to the circular badge center.
+- No policy ids, descriptions, costs, or policy effects were changed.
+
+This is intentionally a spec-level recalibration, not a replacement of the generated policy-card art.
+
 ## Interaction States
 
 Preserved:

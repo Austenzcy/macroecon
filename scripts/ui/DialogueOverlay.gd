@@ -268,6 +268,7 @@ func _show_current_step() -> void:
 	var avatar_id: String = str(step.get("avatar", ""))
 
 	_speaker_label.text = speaker
+	_update_layout_metrics()
 	_text_label.text = text
 	_continue_label.text = "%s  %d/%d" % [continue_text, page_index + 1, page_count] if page_count > 1 else continue_text
 	var portrait_texture := ArtAssetRegistry.texture_for_dialogue_portrait(_current_speaker_id, avatar_id, speaker)
@@ -373,13 +374,30 @@ func _update_layout_metrics() -> void:
 	if _continue_margin != null:
 		ArtLayoutSpecs.apply_margin_rect(_continue_margin, text_spec[ArtLayoutSpecs.SAFE_CONTINUE], panel_size)
 	if _speaker_label != null:
-		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * float(text_spec.get("speaker_font_viewport_ratio", 0.035)), float(text_spec.get("speaker_font_min", 27)), float(text_spec.get("speaker_font_max", 34))))))
+		_speaker_label.add_theme_font_size_override("font_size", _speaker_font_size(viewport_size, text_spec))
 	if _text_label != null:
 		_text_label.custom_minimum_size = Vector2(0.0, clampf(viewport_size.y * 0.100, 72.0, 112.0))
 		_text_label.add_theme_font_size_override("normal_font_size", int(roundf(clampf(viewport_size.y * float(text_spec.get("body_font_viewport_ratio", 0.025)), float(text_spec.get("body_font_min", 19)), float(text_spec.get("body_font_max", 23))))))
 		_text_label.add_theme_constant_override("line_separation", int(roundf(clampf(viewport_size.y * 0.010, float(text_spec.get("body_line_separation_min", 7)), float(text_spec.get("body_line_separation_max", 10))))))
 	if _continue_label != null:
 		_continue_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * float(text_spec.get("continue_font_viewport_ratio", 0.017)), float(text_spec.get("continue_font_min", 13)), float(text_spec.get("continue_font_max", 16))))))
+
+
+func _speaker_font_size(viewport_size: Vector2, text_spec: Dictionary) -> int:
+	var base_size := int(roundf(clampf(
+		viewport_size.y * float(text_spec.get("speaker_font_viewport_ratio", 0.035)),
+		float(text_spec.get("speaker_font_min", 27)),
+		float(text_spec.get("speaker_font_max", 34))
+	)))
+	if _speaker_label == null:
+		return base_size
+	var name_length := _speaker_label.text.length()
+	var threshold := int(text_spec.get("speaker_long_name_threshold", 5))
+	if name_length >= threshold:
+		var delta := int(text_spec.get("speaker_long_name_font_delta", 3))
+		var long_min := int(text_spec.get("speaker_long_name_font_min", text_spec.get("speaker_font_min", 27)))
+		return maxi(base_size - delta, long_min)
+	return base_size
 
 
 func _paginate_dialogue_steps(raw_steps: Array) -> Array:

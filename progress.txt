@@ -776,3 +776,18 @@ Art-aligned text specs and policy-card typography:
 - Release URL: `/releases/20260724-125156/index.html`.
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - GitHub push not performed.
+
+PolicyCard lower text and long speaker names:
+- Continued using the existing `ArtLayoutSpecs.gd` safe-area mechanism instead of scattered offsets.
+- Hid the middle PolicyCard category text label on formal v2 card art while keeping it available for procedural fallback.
+- Moved PolicyCard descriptions upward into the parchment text area and made them darker, larger, and visually stronger.
+- Kept policy descriptions, policy ids, policy costs, selection behavior, and MacroEngine inputs unchanged.
+- Moved the number-only policy cost zone lower and enlarged the gold number styling so it sits closer to the badge center.
+- Widened and slightly left-shifted the DialogueOverlay speaker-name safe area.
+- Added a small long-name speaker font fallback so `首席经济顾问` fits without shrinking short names.
+- Did not regenerate images, did not call Image Two, did not modify card/frame/portrait PNG files, and did not handle the DialogueOverlay left-edge body-text blur issue.
+- Did not modify ISLMSolver, MacroEngine, ScoreEngine, scenario data, or narrative text.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260724-134134`.
+- Release URL: `/releases/20260724-134134/index.html`.
+- GitHub push not performed.

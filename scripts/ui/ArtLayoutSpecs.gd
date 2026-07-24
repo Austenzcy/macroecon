@@ -20,12 +20,15 @@ static func dialogue_frame_spec() -> Dictionary:
 	return {
 		SAFE_FRAME_CONTENT: Rect2(0.030, 0.080, 0.920, 0.820),
 		SAFE_PORTRAIT_OVERLAP: Rect2(0.000, -0.440, 0.235, 1.420),
-		SAFE_SPEAKER: Rect2(0.188, 0.125, 0.455, 0.145),
+		SAFE_SPEAKER: Rect2(0.172, 0.125, 0.505, 0.145),
 		SAFE_BODY: Rect2(0.232, 0.405, 0.600, 0.325),
 		SAFE_CONTINUE: Rect2(0.705, 0.725, 0.170, 0.130),
 		"speaker_font_min": 27,
 		"speaker_font_max": 34,
 		"speaker_font_viewport_ratio": 0.035,
+		"speaker_long_name_threshold": 5,
+		"speaker_long_name_font_delta": 3,
+		"speaker_long_name_font_min": 25,
 		"body_font_min": 19,
 		"body_font_max": 23,
 		"body_font_viewport_ratio": 0.025,
@@ -43,13 +46,13 @@ static func default_policy_card_spec() -> Dictionary:
 		SAFE_ILLUSTRATION: Rect2(0.095, 0.210, 0.810, 0.425),
 		SAFE_TITLE: Rect2(0.105, 0.103, 0.790, 0.095),
 		SAFE_CATEGORY: Rect2(0.245, 0.646, 0.510, 0.064),
-		SAFE_DESCRIPTION: Rect2(0.125, 0.708, 0.585, 0.170),
-		SAFE_COST: Rect2(0.745, 0.786, 0.178, 0.128),
+		SAFE_DESCRIPTION: Rect2(0.118, 0.652, 0.600, 0.226),
+		SAFE_COST: Rect2(0.742, 0.812, 0.184, 0.126),
 		"title_font": 22,
 		"category_font": 12,
-		"description_font": 15,
-		"description_line_spacing": 4,
-		"cost_font": 31,
+		"description_font": 16,
+		"description_line_spacing": 5,
+		"cost_font": 35,
 		"type_icon_size": 18,
 		"stamp_font": 14
 	}
@@ -61,12 +64,12 @@ static func policy_card_spec(policy_id: String, _card_art_key: String = "") -> D
 		"expansionary_monetary_policy":
 			spec[SAFE_TITLE] = Rect2(0.105, 0.108, 0.790, 0.095)
 			spec[SAFE_CATEGORY] = Rect2(0.255, 0.640, 0.490, 0.064)
-			spec[SAFE_DESCRIPTION] = Rect2(0.125, 0.700, 0.585, 0.172)
-			spec[SAFE_COST] = Rect2(0.748, 0.780, 0.176, 0.130)
+			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.646, 0.600, 0.228)
+			spec[SAFE_COST] = Rect2(0.744, 0.808, 0.184, 0.128)
 		"tax_cut":
-			spec[SAFE_DESCRIPTION] = Rect2(0.125, 0.704, 0.585, 0.172)
+			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.650, 0.600, 0.226)
 		"keep_policy_unchanged":
-			spec[SAFE_DESCRIPTION] = Rect2(0.125, 0.706, 0.585, 0.170)
+			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.652, 0.600, 0.224)
 	return spec
 
 

@@ -108,6 +108,19 @@ Changes:
 
 Portrait size, portrait position, portrait crop, frame image, frame size, NinePatch margins, click advance, highlight, input blocking, wheel forwarding, and narrative text were not changed in this recalibration pass.
 
+## Long Speaker Name Calibration
+
+The follow-up pass keeps the accepted bust portrait, frame art, body text, and continue prompt unchanged.
+
+Changes are limited to the speaker-name safe area:
+
+- `speaker_rect` is slightly farther left and wider inside the same frame-local coordinate system.
+- Four-character names such as `首席大臣` and `财政大臣` keep the normal speaker-name size.
+- Longer names such as `首席经济顾问` trigger a small font-size fallback after the wider safe area is applied.
+- The body text safe area, portrait layer, frame image, NinePatch margins, pagination, click advance, highlight, and input-blocking logic are unchanged.
+
+This keeps long-name support in the layout spec rather than adding one-off offsets for individual speakers.
+
 ## Fallback Rules
 
 `ArtAssetRegistry.texture_for_dialogue_frame()` checks:

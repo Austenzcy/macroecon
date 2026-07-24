@@ -169,7 +169,7 @@ func _build_ui() -> void:
 	_description_label.text = description
 	_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_description_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	_description_label.modulate = Color(0.070, 0.045, 0.024, 1.0)
+	_description_label.modulate = Color(0.040, 0.028, 0.016, 1.0)
 	_description_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_description_area.add_child(_description_label)
 
@@ -257,10 +257,13 @@ func _apply_typography() -> void:
 	_description_label.add_theme_font_size_override("font_size", ArtLayoutSpecs.scaled_int(spec, "description_font", _ui_scale))
 	_description_label.add_theme_constant_override("line_spacing", ArtLayoutSpecs.scaled_int(spec, "description_line_spacing", _ui_scale))
 	_description_label.add_theme_constant_override("outline_size", 1)
-	_description_label.add_theme_color_override("font_outline_color", Color(0.070, 0.045, 0.024, 0.22))
+	_description_label.add_theme_color_override("font_outline_color", Color(0.040, 0.028, 0.016, 0.28))
 	_cost_label.add_theme_font_size_override("font_size", ArtLayoutSpecs.scaled_int(spec, "cost_font", _ui_scale))
-	_cost_label.add_theme_constant_override("outline_size", 1)
-	_cost_label.add_theme_color_override("font_outline_color", Color(0.10, 0.055, 0.020, 0.78))
+	_cost_label.add_theme_constant_override("outline_size", 2)
+	_cost_label.add_theme_color_override("font_outline_color", Color(0.10, 0.055, 0.020, 0.88))
+	_cost_label.add_theme_color_override("font_shadow_color", Color(0.11, 0.060, 0.018, 0.50))
+	_cost_label.add_theme_constant_override("shadow_offset_x", 1)
+	_cost_label.add_theme_constant_override("shadow_offset_y", 1)
 	_stamp_label.add_theme_font_size_override("font_size", ArtLayoutSpecs.scaled_int(spec, "stamp_font", _ui_scale))
 
 
@@ -306,15 +309,18 @@ func _refresh_art() -> void:
 		_type_icon_texture.texture = null
 		_type_icon_texture.visible = false
 		_type_icon_label.visible = false
+		_type_label.visible = false
 	elif type_texture != null:
 		_type_icon_texture.texture = type_texture
 		_type_icon_texture.visible = true
 		_type_icon_label.visible = false
+		_type_label.visible = true
 	else:
 		_type_icon_texture.texture = null
 		_type_icon_texture.visible = false
 		_type_icon_label.visible = true
 		_type_icon_label.text = ArtAssetRegistry.placeholder_for_policy_type(policy_type, policy_id)
+		_type_label.visible = true
 	_position_type_fallback_icon()
 
 
