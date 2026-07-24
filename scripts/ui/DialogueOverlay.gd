@@ -4,6 +4,7 @@ signal finished
 
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
+const ArtLayoutSpecs = preload("res://scripts/ui/ArtLayoutSpecs.gd")
 
 var _steps: Array = []
 var _target_map: Dictionary = {}
@@ -104,6 +105,7 @@ func _gui_input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), ClassicalTheme.DIM_OVERLAY, true)
+	_draw_debug_safe_areas()
 	var current_target: Control = _lookup_target(_current_target_id)
 	if current_target == null or not current_target.visible:
 		return
@@ -347,6 +349,8 @@ func _update_layout_metrics() -> void:
 	if _dialogue_panel != null:
 		var panel_height: float = clampf(viewport_size.y * 0.245, 196.0, 276.0)
 		_dialogue_panel.custom_minimum_size = Vector2(0.0, panel_height)
+	var panel_size := Vector2(maxf(viewport_size.x - float(side_margin * 2), 1.0), clampf(viewport_size.y * 0.245, 196.0, 276.0))
+	var text_spec := ArtLayoutSpecs.dialogue_frame_spec()
 	var portrait_height: float = clampf(viewport_size.y * 0.47, 270.0, 390.0)
 	var portrait_width: float = clampf(portrait_height * 0.68, 180.0, 272.0)
 	var panel_bottom: float = viewport_size.y - float(bottom_margin)
@@ -363,29 +367,19 @@ func _update_layout_metrics() -> void:
 	if _portrait_fallback != null:
 		_portrait_fallback.add_theme_font_size_override("font_size", int(roundf(clampf(portrait_height * 0.18, 42.0, 68.0))))
 	if _text_margin != null:
-		var reserved_left: int = int(roundf(clampf(portrait_width + 72.0, 248.0, 368.0)))
-		_text_margin.add_theme_constant_override("margin_left", reserved_left)
-		_text_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.100, 92.0, 112.0))))
-		_text_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.12, 150.0, 220.0))))
-		_text_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.074, 56.0, 82.0))))
+		ArtLayoutSpecs.apply_margin_rect(_text_margin, text_spec[ArtLayoutSpecs.SAFE_BODY], panel_size)
 	if _speaker_margin != null:
-		var speaker_left: int = int(roundf(clampf(portrait_width + 48.0, 224.0, 344.0)))
-		_speaker_margin.add_theme_constant_override("margin_left", speaker_left)
-		_speaker_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.044, 36.0, 50.0))))
-		_speaker_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.12, 150.0, 220.0))))
-		_speaker_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.72, 540.0, 760.0))))
+		ArtLayoutSpecs.apply_margin_rect(_speaker_margin, text_spec[ArtLayoutSpecs.SAFE_SPEAKER], panel_size)
 	if _continue_margin != null:
-		_continue_margin.add_theme_constant_override("margin_left", int(roundf(clampf(viewport_size.x * 0.34, 320.0, 520.0))))
-		_continue_margin.add_theme_constant_override("margin_top", 0)
-		_continue_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.090, 110.0, 170.0))))
-		_continue_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.039, 28.0, 42.0))))
+		ArtLayoutSpecs.apply_margin_rect(_continue_margin, text_spec[ArtLayoutSpecs.SAFE_CONTINUE], panel_size)
 	if _speaker_label != null:
-		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.030, 22.0, 29.0))))
+		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * float(text_spec.get("speaker_font_viewport_ratio", 0.035)), float(text_spec.get("speaker_font_min", 27)), float(text_spec.get("speaker_font_max", 34))))))
 	if _text_label != null:
 		_text_label.custom_minimum_size = Vector2(0.0, clampf(viewport_size.y * 0.100, 72.0, 112.0))
-		_text_label.add_theme_font_size_override("normal_font_size", int(roundf(clampf(viewport_size.y * 0.023, 17.0, 21.0))))
+		_text_label.add_theme_font_size_override("normal_font_size", int(roundf(clampf(viewport_size.y * float(text_spec.get("body_font_viewport_ratio", 0.025)), float(text_spec.get("body_font_min", 19)), float(text_spec.get("body_font_max", 23))))))
+		_text_label.add_theme_constant_override("line_separation", int(roundf(clampf(viewport_size.y * 0.010, float(text_spec.get("body_line_separation_min", 7)), float(text_spec.get("body_line_separation_max", 10))))))
 	if _continue_label != null:
-		_continue_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.017, 13.0, 16.0))))
+		_continue_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * float(text_spec.get("continue_font_viewport_ratio", 0.017)), float(text_spec.get("continue_font_min", 13)), float(text_spec.get("continue_font_max", 16))))))
 
 
 func _paginate_dialogue_steps(raw_steps: Array) -> Array:
@@ -471,3 +465,27 @@ func _panel_style() -> StyleBoxFlat:
 
 func _avatar_style() -> StyleBoxFlat:
 	return ClassicalTheme.avatar_style(_current_speaker_id, 1.0)
+
+
+func _draw_debug_safe_areas() -> void:
+	if not ArtLayoutSpecs.DEBUG_SAFE_AREAS or _dialogue_panel == null:
+		return
+	var panel_rect: Rect2 = _dialogue_panel.get_global_rect()
+	var origin: Vector2 = get_global_rect().position
+	var panel_local := Rect2(panel_rect.position - origin, panel_rect.size)
+	var spec := ArtLayoutSpecs.dialogue_frame_spec()
+	_draw_named_safe_rect(panel_local, spec[ArtLayoutSpecs.SAFE_SPEAKER], "speaker", Color(1.0, 0.72, 0.22, 0.9))
+	_draw_named_safe_rect(panel_local, spec[ArtLayoutSpecs.SAFE_BODY], "body", Color(0.50, 0.85, 1.0, 0.9))
+	_draw_named_safe_rect(panel_local, spec[ArtLayoutSpecs.SAFE_CONTINUE], "continue", Color(0.60, 1.0, 0.55, 0.9))
+
+
+func _draw_named_safe_rect(panel_rect: Rect2, rect_ratio: Rect2, label: String, color: Color) -> void:
+	var rect := Rect2(
+		panel_rect.position + Vector2(rect_ratio.position.x * panel_rect.size.x, rect_ratio.position.y * panel_rect.size.y),
+		Vector2(rect_ratio.size.x * panel_rect.size.x, rect_ratio.size.y * panel_rect.size.y)
+	)
+	draw_rect(rect, Color(color.r, color.g, color.b, 0.08), true)
+	draw_rect(rect, color, false, 1.0)
+	var font := get_theme_default_font()
+	if font != null:
+		draw_string(font, rect.position + Vector2(4, 14), label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 11, color)

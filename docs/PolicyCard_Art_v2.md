@@ -94,14 +94,18 @@ Default display size is `240x360` at 100% UI scale. The source asset is `360x540
 
 ## Text Safe Areas
 
-Text is positioned as a fraction of the card face:
+Text is now positioned through `scripts/ui/ArtLayoutSpecs.gd`, using normalized card-local rectangles instead of one-off offsets in `PolicyCard.gd`.
 
-- Title: top nameplate, roughly `10.5%-89.5%` width and `7.5%-18.5%` height.
-- Type badge: centered small lower badge, roughly `29.5%-70.5%` width and `69.3%-74.8%` height.
-- Description: lower parchment area, roughly `13.5%-69.5%` width and `77.2%-92.8%` height.
-- Cost: bottom-right badge, roughly `73.0%-93.5%` width and `79.0%-93.5%` height.
+- Title: `title_rect`, centered in the top nameplate and moved down from the previous over-high position.
+- Type badge: `category_rect`, centered on the lower badge. On formal card art, the old policy-type icon is hidden so it no longer pushes the label right/down.
+- Description: `description_rect`, moved upward into the parchment text panel with stronger dark text.
+- Cost: `cost_rect`, centered in the bottom-right badge and now displays only the dynamic number.
 
 The description area intentionally leaves the right side clear for the policy point badge.
+
+`ArtLayoutSpecs.policy_card_spec(policy_id)` supports per-policy overrides. The first override is used for `expansionary_monetary_policy`, whose generated art needed a slightly different title/category/description/cost calibration.
+
+`ArtLayoutSpecs.DEBUG_SAFE_AREAS` can be enabled during development to draw title/category/description/cost safe rectangles. It is disabled by default.
 
 ## Interaction States
 
@@ -142,3 +146,5 @@ Missing image assets should not crash the card.
 - Confirm whether policy point display should stay visible even in single-policy teaching levels.
 - Confirm whether the `1.04` hover scale feels good inside the ScrollContainer.
 - Confirm whether a later round should add an optional hover enlargement preview.
+- Confirm the new number-only cost display is visually centered in each badge.
+- Confirm the darker description text is readable enough at the default `240x360` display size.

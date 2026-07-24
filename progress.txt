@@ -758,3 +758,21 @@ PolicyCard art v2 and speaker-label refinement:
 - Web export and CloudBase deployment completed for this round. BuildId: `20260722-042608`.
 - Release URL: `/releases/20260722-042608/index.html`.
 - GitHub push not performed.
+
+Art-aligned text specs and policy-card typography:
+- Established `scripts/ui/ArtLayoutSpecs.gd` as the lightweight safe-area spec registry for image-backed UI text.
+- DialogueOverlay now uses frame-local `speaker_rect`, `body_rect`, and `continue_rect` instead of scattered viewport offsets for live text placement.
+- PolicyCard now uses card-local `title_rect`, `category_rect`, `description_rect`, and `cost_rect`, with per-policy override support.
+- Added a default-off `DEBUG_SAFE_AREAS` switch for development-only safe-area visualization.
+- Moved the DialogueOverlay speaker name left/up through `speaker_rect`, increased its font size, and slightly improved body text size/line spacing.
+- Recalibrated PolicyCard title, category, description, and cost text zones against the card art.
+- Formal policy-card art now hides the old policy-type icon from the centered category label flow; the old icon remains fallback only.
+- Policy cost display now shows only the dynamic number, not the extra policy-point label.
+- Policy description text is darker, larger, and visually stronger while preserving dynamic policy text and meaning.
+- Did not regenerate images, did not call Image Two, did not modify portraits/frame/card PNG files, and did not handle the DialogueOverlay left-edge body-text blur issue.
+- Did not modify ISLMSolver, MacroEngine, ScoreEngine, policy effects, policy costs, scenario data, or narrative text.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260724-125156`.
+- Release URL: `/releases/20260724-125156/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- GitHub push not performed.

@@ -74,6 +74,24 @@ Live text is still rendered by Godot, not baked into the image.
 - Body text has a small line separation increase.
 - Pagination remains active and uses conservative character limits for the lower frame.
 
+## Art-Aligned Text Spec
+
+The live text layer now uses `scripts/ui/ArtLayoutSpecs.gd` instead of viewport-scattered offsets.
+
+Current frame-local safe areas:
+
+| Area | Purpose |
+| --- | --- |
+| `speaker_rect` | Speaker name only. This replaces the old portrait-width offset rule and moves the name slightly left/up with a larger font. |
+| `body_rect` | Dialogue body text. Its position remains broadly consistent with the accepted v2 layout, with slightly larger text and line spacing. |
+| `continue_rect` | Independent bottom-right continue/page prompt. |
+| `portrait_overlap_rect` | Documents the left portrait overlap zone for future art calibration. |
+| `frame_content_rect` | Documents the general clean content area inside the frame. |
+
+Coordinates are normalized to the displayed `DialogueBox` frame, so the same spec applies at common UI scales such as 90%, 100%, and 110%.
+
+`ArtLayoutSpecs.DEBUG_SAFE_AREAS` can be enabled during development to draw the safe rectangles. It is disabled by default.
+
 ## Text Safe Area Recalibration
 
 After manual review, the frame image itself was kept unchanged and only the live Godot text layout was recalibrated.
@@ -118,3 +136,5 @@ This pass did not change:
 - Confirm the left portrait overlap feels natural.
 - Confirm long Chinese dialogue remains readable at common browser zoom levels.
 - Confirm the v2 9-slice does not distort visibly on wide and narrow desktop viewports.
+- Confirm the new speaker-name safe area is far enough left/up without overlapping the bust portrait.
+- The left-edge body-text blur issue was not handled in this pass.
