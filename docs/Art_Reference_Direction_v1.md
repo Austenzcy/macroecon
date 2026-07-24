@@ -86,6 +86,12 @@ Likely future work:
 - Decide whether card text remains Godot-rendered for readability, or whether only the card frame / illustration comes from Image Two while dynamic text remains native UI.
 - If needed later, add hover enlargement carefully so small card text remains readable without changing policy selection logic.
 
+Implementation note:
+
+- `PolicyCard Art v2` now uses Image Two generated complete card-face backgrounds per active policy.
+- Godot still renders policy title, type, description, and policy point dynamically over text-safe blank areas.
+- Old circular policy icons are retained only as small type badges / fallback, not as the primary card visual.
+
 ## 5. Bottom Dialogue / Character Speaking Direction
 
 The target is a formal bottom dialogue frame with a visible character portrait, not a small emblem-only avatar.

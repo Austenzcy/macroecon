@@ -743,3 +743,18 @@ DialogueOverlay text safe area recalibration:
 - Web export and CloudBase deployment completed for manual visual review. BuildId: `20260722-023634`.
 - Release URL: `/releases/20260722-023634/index.html`.
 - GitHub push not performed.
+
+PolicyCard art v2 and speaker-label refinement:
+- Refined only the DialogueOverlay speaker name: separated it into `SpeakerNameContainer`, moved it left/up relative to the previous label position, and increased its font size.
+- Did not modify DialogueOverlay bust portraits, frame image, body text layout intent, continue prompt logic, narrative text, or font rendering.
+- Audited the current IS-LM policy list and confirmed six active policy cards: `increase_government_purchase`, `tax_cut`, `expansionary_monetary_policy`, `contractionary_fiscal_policy`, `contractionary_monetary_policy`, and `keep_policy_unchanged`.
+- Used Image Two to generate six complete vertical policy-card faces based on the user's government-purchase card reference direction.
+- Replaced the previous policy card images with transparent `360x540` PNG card faces under `assets/art/policy_cards/`.
+- Reworked `PolicyCard.gd` from a panel-plus-image-slot layout into a full card-face layout with Godot-rendered title, type, description, policy point, hover, and selected overlays.
+- Kept policy ids, costs, selection behavior, MacroEngine input, ISLMSolver, MacroEngine, ScoreEngine, scenario data, and narrative data unchanged.
+- Old policy type icons remain only as small type badges / fallback, not as the card's main visual.
+- Did not address the DialogueOverlay body first-character blur issue.
+- Added `docs/PolicyCard_Art_v2.md` and updated `docs/Art_Reference_Direction_v1.md`.
+- Web export and CloudBase deployment completed for this round. BuildId: `20260722-042608`.
+- Release URL: `/releases/20260722-042608/index.html`.
+- GitHub push not performed.

@@ -11,6 +11,7 @@ var _index: int = 0
 var _last_advance_msec: int = 0
 var _dialogue_panel: Control
 var _bottom_layout: MarginContainer
+var _speaker_margin: MarginContainer
 var _text_margin: MarginContainer
 var _continue_margin: MarginContainer
 var _dialogue_frame: NinePatchRect
@@ -210,10 +211,15 @@ func _build_ui() -> void:
 	text_box.add_theme_constant_override("separation", 14)
 	_text_margin.add_child(text_box)
 
+	_speaker_margin = MarginContainer.new()
+	_speaker_margin.name = "SpeakerNameContainer"
+	_speaker_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_dialogue_panel.add_child(_speaker_margin)
+
 	_speaker_label = Label.new()
 	_speaker_label.name = "SpeakerNameLabel"
 	_speaker_label.modulate = Color(1.0, 0.76, 0.34, 1.0)
-	text_box.add_child(_speaker_label)
+	_speaker_margin.add_child(_speaker_label)
 
 	_text_label = RichTextLabel.new()
 	_text_label.name = "DialogueBodyLabel"
@@ -359,16 +365,22 @@ func _update_layout_metrics() -> void:
 	if _text_margin != null:
 		var reserved_left: int = int(roundf(clampf(portrait_width + 72.0, 248.0, 368.0)))
 		_text_margin.add_theme_constant_override("margin_left", reserved_left)
-		_text_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.054, 44.0, 60.0))))
+		_text_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.100, 92.0, 112.0))))
 		_text_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.12, 150.0, 220.0))))
 		_text_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.074, 56.0, 82.0))))
+	if _speaker_margin != null:
+		var speaker_left: int = int(roundf(clampf(portrait_width + 48.0, 224.0, 344.0)))
+		_speaker_margin.add_theme_constant_override("margin_left", speaker_left)
+		_speaker_margin.add_theme_constant_override("margin_top", int(roundf(clampf(viewport_size.y * 0.044, 36.0, 50.0))))
+		_speaker_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.12, 150.0, 220.0))))
+		_speaker_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.72, 540.0, 760.0))))
 	if _continue_margin != null:
 		_continue_margin.add_theme_constant_override("margin_left", int(roundf(clampf(viewport_size.x * 0.34, 320.0, 520.0))))
 		_continue_margin.add_theme_constant_override("margin_top", 0)
 		_continue_margin.add_theme_constant_override("margin_right", int(roundf(clampf(viewport_size.x * 0.090, 110.0, 170.0))))
 		_continue_margin.add_theme_constant_override("margin_bottom", int(roundf(clampf(viewport_size.y * 0.039, 28.0, 42.0))))
 	if _speaker_label != null:
-		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.027, 19.0, 25.0))))
+		_speaker_label.add_theme_font_size_override("font_size", int(roundf(clampf(viewport_size.y * 0.030, 22.0, 29.0))))
 	if _text_label != null:
 		_text_label.custom_minimum_size = Vector2(0.0, clampf(viewport_size.y * 0.100, 72.0, 112.0))
 		_text_label.add_theme_font_size_override("normal_font_size", int(roundf(clampf(viewport_size.y * 0.023, 17.0, 21.0))))

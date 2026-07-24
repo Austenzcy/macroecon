@@ -9,18 +9,21 @@ var policy_id: String = ""
 var policy_name: String = ""
 var policy_type: String = ""
 var description: String = ""
+var policy_cost: int = 0
 var _is_selected: bool = false
 var _ui_scale: float = 1.0
 
-var _name_label: Label
+var _card_root: Control
+var _card_texture: TextureRect
+var _fallback_panel: Panel
+var _title_label: Label
 var _type_label: Label
-var _type_icon_label: Label
 var _type_icon_texture: TextureRect
-var _type_icon_shell: PanelContainer
-var _art_texture: TextureRect
-var _art_shell: PanelContainer
-var _cost_label: Label
+var _type_icon_label: Label
 var _description_label: Label
+var _cost_label: Label
+var _selected_overlay: Panel
+var _disabled_overlay: ColorRect
 var _stamp_label: Label
 
 
@@ -39,11 +42,13 @@ func set_policy(data: Dictionary) -> void:
 	policy_name = str(data.get("name", "政策卡"))
 	policy_type = str(data.get("type", "政策"))
 	description = str(data.get("description", ""))
-	if _name_label != null:
-		_name_label.text = policy_name
+	policy_cost = int(data.get("cost", data.get("default_cost", policy_cost)))
+	if _title_label != null:
+		_title_label.text = policy_name
 		_type_label.text = policy_type
 		_description_label.text = description
-		_refresh_type_icon()
+		_cost_label.text = "政策点\n%d" % policy_cost
+		_refresh_art()
 
 
 func set_selected(value: bool) -> void:
@@ -53,173 +58,206 @@ func set_selected(value: bool) -> void:
 
 func set_ui_scale(value: float) -> void:
 	_ui_scale = clampf(value, 0.8, 1.2)
-	custom_minimum_size = Vector2(210, 180) * _ui_scale
+	custom_minimum_size = Vector2(240, 360) * _ui_scale
 	pivot_offset = custom_minimum_size * 0.5
-	if _name_label != null:
-		_name_label.add_theme_font_size_override("font_size", int(roundf(24.0 * _ui_scale)))
-		_type_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
-		_type_icon_label.add_theme_font_size_override("font_size", int(roundf(13.0 * _ui_scale)))
-		_type_icon_shell.custom_minimum_size = Vector2(28, 28) * _ui_scale
-		if _art_shell != null:
-			_art_shell.custom_minimum_size = Vector2(0, 74) * _ui_scale
-		_cost_label.add_theme_font_size_override("font_size", int(roundf(14.0 * _ui_scale)))
-		_description_label.add_theme_font_size_override("font_size", int(roundf(16.0 * _ui_scale)))
-		_stamp_label.add_theme_font_size_override("font_size", int(roundf(15.0 * _ui_scale)))
+	if _title_label != null:
+		_title_label.add_theme_font_size_override("font_size", int(roundf(20.0 * _ui_scale)))
+		_type_label.add_theme_font_size_override("font_size", int(roundf(12.0 * _ui_scale)))
+		_type_icon_label.add_theme_font_size_override("font_size", int(roundf(10.0 * _ui_scale)))
+		_description_label.add_theme_font_size_override("font_size", int(roundf(13.0 * _ui_scale)))
+		_description_label.add_theme_constant_override("line_spacing", int(roundf(2.0 * _ui_scale)))
+		_cost_label.add_theme_font_size_override("font_size", int(roundf(12.0 * _ui_scale)))
+		_stamp_label.add_theme_font_size_override("font_size", int(roundf(14.0 * _ui_scale)))
 
 
-func set_cost(cost: int, show_cost: bool) -> void:
+func set_cost(cost: int, _show_cost: bool) -> void:
+	policy_cost = cost
 	if _cost_label == null:
 		return
-	_cost_label.visible = show_cost
-	_cost_label.text = "消耗 %d 点" % cost
+	_cost_label.visible = true
+	_cost_label.text = "政策点\n%d" % policy_cost
 
 
 func _build_ui() -> void:
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 14)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	add_child(margin)
+	add_theme_stylebox_override("panel", _transparent_panel_style())
+	clip_contents = false
 
-	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	margin.add_child(box)
+	_card_root = Control.new()
+	_card_root.name = "PolicyCardFace"
+	_card_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_card_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_card_root)
 
-	_name_label = Label.new()
-	_name_label.text = policy_name
-	_name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_name_label.add_theme_font_size_override("font_size", 24)
-	ClassicalTheme.apply_label_color(_name_label, "title")
-	box.add_child(_name_label)
+	_card_texture = TextureRect.new()
+	_card_texture.name = "PolicyCardFaceTexture"
+	_card_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_card_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_card_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_card_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_card_root.add_child(_card_texture)
 
-	_art_shell = PanelContainer.new()
-	_art_shell.name = "PolicyCardArtSlot"
-	_art_shell.custom_minimum_size = Vector2(0, 74)
-	_art_shell.clip_contents = true
-	_art_shell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_art_shell.add_theme_stylebox_override("panel", _art_shell_style())
-	_art_shell.visible = false
-	box.add_child(_art_shell)
+	_fallback_panel = Panel.new()
+	_fallback_panel.name = "PolicyCardProceduralFallback"
+	_fallback_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fallback_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fallback_panel.add_theme_stylebox_override("panel", ClassicalTheme.panel_style("card", _ui_scale))
+	_card_root.add_child(_fallback_panel)
 
-	_art_texture = TextureRect.new()
-	_art_texture.name = "PolicyCardArtTexture"
-	_art_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_art_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_art_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_art_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_art_texture.offset_left = 5
-	_art_texture.offset_top = 4
-	_art_texture.offset_right = -5
-	_art_texture.offset_bottom = -4
-	_art_shell.add_child(_art_texture)
+	var title_margin := MarginContainer.new()
+	title_margin.name = "TitleArea"
+	_set_fractional_rect(title_margin, 0.105, 0.075, 0.895, 0.185)
+	_card_root.add_child(title_margin)
 
-	var type_row: HBoxContainer = HBoxContainer.new()
-	type_row.add_theme_constant_override("separation", 8)
-	box.add_child(type_row)
+	_title_label = Label.new()
+	_title_label.text = policy_name
+	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_title_label.modulate = Color(1.0, 0.78, 0.36, 1.0)
+	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_margin.add_child(_title_label)
 
-	_type_icon_shell = PanelContainer.new()
-	_type_icon_shell.custom_minimum_size = Vector2(28, 28)
-	_type_icon_shell.clip_contents = true
-	_type_icon_shell.add_theme_stylebox_override("panel", _icon_shell_style())
-	type_row.add_child(_type_icon_shell)
-
-	_type_icon_label = Label.new()
-	_type_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_type_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_type_icon_label.add_theme_font_size_override("font_size", 13)
-	_type_icon_label.modulate = ClassicalTheme.TEXT_MAIN
-	_type_icon_shell.add_child(_type_icon_label)
+	var type_area := HBoxContainer.new()
+	type_area.name = "TypeBadgeArea"
+	type_area.add_theme_constant_override("separation", 5)
+	_set_fractional_rect(type_area, 0.295, 0.693, 0.705, 0.748)
+	_card_root.add_child(type_area)
 
 	_type_icon_texture = TextureRect.new()
-	_type_icon_texture.name = "PolicyTypeIconTexture"
-	_type_icon_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_type_icon_texture.custom_minimum_size = Vector2(20, 20)
 	_type_icon_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_type_icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_type_icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_type_icon_texture.visible = false
-	_type_icon_texture.offset_left = 4
-	_type_icon_texture.offset_top = 4
-	_type_icon_texture.offset_right = -4
-	_type_icon_texture.offset_bottom = -4
-	_type_icon_shell.add_child(_type_icon_texture)
+	type_area.add_child(_type_icon_texture)
+
+	_type_icon_label = Label.new()
+	_type_icon_label.custom_minimum_size = Vector2(20, 20)
+	_type_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_type_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_type_icon_label.modulate = Color(0.95, 0.78, 0.42, 0.95)
+	_type_icon_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	type_area.add_child(_type_icon_label)
 
 	_type_label = Label.new()
 	_type_label.text = policy_type
-	_type_label.add_theme_font_size_override("font_size", 15)
-	_type_label.modulate = ClassicalTheme.ACCENT_BLUE
+	_type_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_type_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_type_label.clip_text = true
+	_type_label.modulate = Color(0.95, 0.79, 0.45, 0.98)
 	_type_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	type_row.add_child(_type_label)
+	_type_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	type_area.add_child(_type_label)
 
-	_cost_label = Label.new()
-	_cost_label.visible = false
-	_cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_cost_label.modulate = ClassicalTheme.ACCENT_GOLD
-	box.add_child(_cost_label)
-
-	var line: ColorRect = ColorRect.new()
-	line.custom_minimum_size = Vector2(0, 2)
-	line.color = Color(0.62, 0.43, 0.20, 0.86)
-	box.add_child(line)
+	var description_margin := MarginContainer.new()
+	description_margin.name = "DescriptionArea"
+	_set_fractional_rect(description_margin, 0.135, 0.772, 0.695, 0.928)
+	description_margin.add_theme_constant_override("margin_left", 4)
+	description_margin.add_theme_constant_override("margin_top", 3)
+	description_margin.add_theme_constant_override("margin_right", 4)
+	description_margin.add_theme_constant_override("margin_bottom", 3)
+	_card_root.add_child(description_margin)
 
 	_description_label = Label.new()
 	_description_label.text = description
 	_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_description_label.add_theme_font_size_override("font_size", 16)
-	_description_label.modulate = ClassicalTheme.TEXT_SOFT
-	box.add_child(_description_label)
+	_description_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_description_label.modulate = Color(0.19, 0.13, 0.075, 0.98)
+	_description_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	description_margin.add_child(_description_label)
+
+	var cost_margin := MarginContainer.new()
+	cost_margin.name = "CostBadgeArea"
+	_set_fractional_rect(cost_margin, 0.730, 0.790, 0.935, 0.935)
+	_card_root.add_child(cost_margin)
+
+	_cost_label = Label.new()
+	_cost_label.text = "政策点\n%d" % policy_cost
+	_cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_cost_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_cost_label.modulate = Color(1.0, 0.78, 0.36, 1.0)
+	_cost_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cost_margin.add_child(_cost_label)
+
+	_selected_overlay = Panel.new()
+	_selected_overlay.name = "SelectedOverlay"
+	_selected_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_selected_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_selected_overlay.add_theme_stylebox_override("panel", _selected_overlay_style())
+	_selected_overlay.visible = false
+	_card_root.add_child(_selected_overlay)
+
+	_disabled_overlay = ColorRect.new()
+	_disabled_overlay.name = "DisabledOverlay"
+	_disabled_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_disabled_overlay.color = Color(0.02, 0.018, 0.014, 0.0)
+	_disabled_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_card_root.add_child(_disabled_overlay)
 
 	_stamp_label = Label.new()
+	_stamp_label.name = "SelectedStamp"
 	_stamp_label.text = "已选"
+	_stamp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_stamp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_stamp_label.modulate = Color(1.0, 0.76, 0.32, 1.0)
 	_stamp_label.visible = false
-	_stamp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_stamp_label.modulate = ClassicalTheme.ACCENT_GOLD
-	box.add_child(_stamp_label)
-	_refresh_type_icon()
+	_set_fractional_rect(_stamp_label, 0.125, 0.205, 0.345, 0.275)
+	_card_root.add_child(_stamp_label)
+	_refresh_art()
 
 
-func _refresh_type_icon() -> void:
-	if _type_icon_label == null:
-		return
-	var art_texture := ArtAssetRegistry.texture_for_policy_card(policy_id, policy_type, policy_name)
-	if _art_shell != null:
-		if art_texture != null:
-			_art_texture.texture = art_texture
-			_art_shell.visible = true
-		else:
-			_art_texture.texture = null
-			_art_shell.visible = false
-	var texture := ArtAssetRegistry.texture_for_policy_type(policy_type, policy_id)
-	if texture != null:
-		_type_icon_texture.texture = texture
-		_type_icon_texture.visible = true
-		_type_icon_label.text = ""
+func _set_fractional_rect(control: Control, left: float, top: float, right: float, bottom: float) -> void:
+	control.anchor_left = left
+	control.anchor_top = top
+	control.anchor_right = right
+	control.anchor_bottom = bottom
+	control.offset_left = 0
+	control.offset_top = 0
+	control.offset_right = 0
+	control.offset_bottom = 0
+	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+
+func _refresh_art() -> void:
+	var card_texture := ArtAssetRegistry.texture_for_policy_card(policy_id, policy_type, policy_name)
+	if card_texture != null:
+		_card_texture.texture = card_texture
+		_card_texture.visible = true
+		_fallback_panel.visible = false
 	else:
+		_card_texture.texture = null
+		_card_texture.visible = false
+		_fallback_panel.visible = true
+	var type_texture := ArtAssetRegistry.texture_for_policy_type(policy_type, policy_id)
+	if type_texture != null:
+		_type_icon_texture.texture = type_texture
+		_type_icon_texture.visible = true
+		_type_icon_label.visible = false
+	else:
+		_type_icon_texture.texture = null
 		_type_icon_texture.visible = false
+		_type_icon_label.visible = true
 		_type_icon_label.text = ArtAssetRegistry.placeholder_for_policy_type(policy_type, policy_id)
 
 
-func _icon_shell_style() -> StyleBoxFlat:
+func _transparent_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.16, 0.12, 0.08, 0.92)
-	style.border_color = Color(0.62, 0.43, 0.20, 0.85)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+	style.bg_color = Color(0, 0, 0, 0)
+	style.border_color = Color(0, 0, 0, 0)
 	return style
 
 
-func _art_shell_style() -> StyleBoxFlat:
+func _selected_overlay_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.10, 0.08, 0.055, 0.58)
-	style.border_color = Color(0.52, 0.38, 0.18, 0.56)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+	style.bg_color = Color(1.0, 0.70, 0.22, 0.035)
+	style.border_color = Color(1.0, 0.76, 0.28, 0.92)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(18)
 	return style
 
 
 func _on_mouse_entered() -> void:
 	_apply_style(true, _is_selected)
-	ClassicalTheme.hover_to(self, Vector2(1.035, 1.035), 0.10)
+	ClassicalTheme.hover_to(self, Vector2(1.04, 1.04), 0.10)
 
 
 func _on_mouse_exited() -> void:
@@ -237,7 +275,15 @@ func _on_gui_input(event: InputEvent) -> void:
 
 
 func _apply_style(is_hover: bool, is_chosen: bool) -> void:
-	var kind: String = "card_selected" if is_chosen else ("card_hover" if is_hover else "card")
-	add_theme_stylebox_override("panel", ClassicalTheme.panel_style(kind, _ui_scale))
+	if _selected_overlay != null:
+		_selected_overlay.visible = is_chosen or is_hover
+		var style := _selected_overlay_style()
+		if is_hover and not is_chosen:
+			style.bg_color = Color(1.0, 0.76, 0.32, 0.025)
+			style.border_color = Color(0.86, 0.62, 0.26, 0.55)
+			style.set_border_width_all(2)
+		_selected_overlay.add_theme_stylebox_override("panel", style)
 	if _stamp_label != null:
 		_stamp_label.visible = is_chosen
+	if _disabled_overlay != null:
+		_disabled_overlay.color = Color(0.02, 0.018, 0.014, 0.0)
