@@ -791,3 +791,14 @@ PolicyCard lower text and long speaker names:
 - CloudBase deployment completed. BuildId: `20260724-134134`.
 - Release URL: `/releases/20260724-134134/index.html`.
 - GitHub push not performed.
+
+PolicyCard description legibility follow-up:
+- Adjusted only the lower PolicyCard description text layout after screenshot review.
+- Moved the `expansionary_monetary_policy` and `tax_cut` description safe areas slightly lower to avoid the parchment area's upper edge.
+- Changed PolicyCard description text to vertical-center within its safe area so short two-line descriptions no longer cling to the top.
+- Increased description font size and strengthened the dark outline to make the text read bolder without introducing a new font.
+- Did not regenerate images, did not call Image Two, did not change policy art, policy data, costs, or gameplay logic.
+- Web export completed successfully through the standard build flow.
+- CloudBase deployment completed. BuildId: `20260726-140613`.
+- Release URL: `/releases/20260726-140613/index.html`.
+- GitHub push not performed.

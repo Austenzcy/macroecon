@@ -168,8 +168,8 @@ func _build_ui() -> void:
 	_description_label.name = "DescriptionLabel"
 	_description_label.text = description
 	_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_description_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	_description_label.modulate = Color(0.040, 0.028, 0.016, 1.0)
+	_description_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_description_label.modulate = Color(0.020, 0.014, 0.008, 1.0)
 	_description_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_description_area.add_child(_description_label)
 
@@ -256,8 +256,8 @@ func _apply_typography() -> void:
 	_type_icon_label.add_theme_font_size_override("font_size", int(roundf(10.0 * _ui_scale)))
 	_description_label.add_theme_font_size_override("font_size", ArtLayoutSpecs.scaled_int(spec, "description_font", _ui_scale))
 	_description_label.add_theme_constant_override("line_spacing", ArtLayoutSpecs.scaled_int(spec, "description_line_spacing", _ui_scale))
-	_description_label.add_theme_constant_override("outline_size", 1)
-	_description_label.add_theme_color_override("font_outline_color", Color(0.040, 0.028, 0.016, 0.28))
+	_description_label.add_theme_constant_override("outline_size", 2)
+	_description_label.add_theme_color_override("font_outline_color", Color(0.020, 0.014, 0.008, 0.42))
 	_cost_label.add_theme_font_size_override("font_size", ArtLayoutSpecs.scaled_int(spec, "cost_font", _ui_scale))
 	_cost_label.add_theme_constant_override("outline_size", 2)
 	_cost_label.add_theme_color_override("font_outline_color", Color(0.10, 0.055, 0.020, 0.88))
