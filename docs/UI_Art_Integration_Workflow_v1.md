@@ -61,3 +61,17 @@ The next calibration pass kept the same safe-area system and only adjusted the a
 - DialogueOverlay long speaker names are handled by widening the frame-local `speaker_rect` and applying a small long-name font fallback. Short four-character names keep the larger default size.
 
 For future image-backed UI, long labels should first be solved by safe-area width and component-local fit rules. Per-name hard-coded offsets should remain a last resort.
+
+## Unified MacroMap Case
+
+MacroMap v2 extends the same workflow to non-rectangular map art:
+
+1. Treat the national map as one static Image Two master illustration.
+2. Keep all live gameplay content outside the image: region names, variables, arrows, values, and state feedback remain Godot-rendered.
+3. Store map-local normalized polygon specs for each irregular region.
+4. Store separate label and variable safe areas for each region.
+5. Split each variable row into a variable label plus a fixed-width arrow slot. Arrow changes must not move the variable text.
+6. Render state feedback as a translucent polygon overlay above the map art, not as a baked image variation.
+7. Keep the old four-rectangle `MapRegion` grid as fallback if the map master texture is missing.
+
+This map workflow should replace the old "four separate panels with icons" approach for future national-map iterations. The map art and dynamic economic teaching layer must remain separate.

@@ -103,6 +103,10 @@ const MAP_REGION_SCENES := {
 	"government": "res://assets/art/map_regions/region_scene_government.png"
 }
 
+const UNIFIED_MACRO_MAP := {
+	"master_v1": "res://assets/art/map/macro_map_master_v1.webp"
+}
+
 const MAP_REGION_FALLBACK := {
 	"consumption": "民",
 	"industry": "工",
@@ -242,6 +246,10 @@ static func texture_for_map_region_scene(region_key: String) -> Texture2D:
 	return _load_texture(str(MAP_REGION_SCENES.get(region_key, "")))
 
 
+static func texture_for_unified_macro_map() -> Texture2D:
+	return _load_texture(str(UNIFIED_MACRO_MAP.get("master_v1", "")))
+
+
 static func placeholder_for_map_region(region_key: String) -> String:
 	return str(MAP_REGION_FALLBACK.get(region_key, "区"))
 
@@ -260,24 +268,24 @@ static func texture_for_dialogue_frame() -> Texture2D:
 
 static func _load_texture(path: String) -> Texture2D:
 	if path.is_empty() or not ResourceLoader.exists(path):
-		return _load_png_as_image_texture(path)
+		return _load_image_as_texture(path)
 	if _texture_cache.has(path):
 		return _texture_cache[path] as Texture2D
 	var resource: Resource = load(path)
 	if resource is Texture2D:
 		_texture_cache[path] = resource
 		return resource as Texture2D
-	var image_texture := _load_png_as_image_texture(path)
+	var image_texture := _load_image_as_texture(path)
 	if image_texture != null:
 		_texture_cache[path] = image_texture
 		return image_texture
 	return null
 
 
-static func _load_png_as_image_texture(path: String) -> Texture2D:
+static func _load_image_as_texture(path: String) -> Texture2D:
 	if _texture_cache.has(path):
 		return _texture_cache[path] as Texture2D
-	if path.is_empty() or not path.ends_with(".png") or not FileAccess.file_exists(path):
+	if path.is_empty() or not FileAccess.file_exists(path):
 		return null
 	var image := Image.new()
 	var error := image.load(path)

@@ -58,6 +58,13 @@ Likely future work:
 - Keep existing variable-binding and brightness logic, but render it over a unified map.
 - Preserve fallback for simple four-region layout if a large map asset is missing.
 
+Implementation note:
+
+- `MacroMap Art v2` now uses an Image Two generated unified national map master image.
+- Godot overlays region names, variables, arrows, and state tint dynamically.
+- Four normalized polygon specs replace the visual meaning of the old four independent map cards.
+- The old `MapRegion` grid remains fallback only.
+
 ## 4. Policy Card Direction
 
 The target is a complete vertical decree / policy card, not a small text card with an inserted icon.

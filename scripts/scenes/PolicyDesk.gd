@@ -2,6 +2,7 @@ extends Control
 
 const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
 const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
+const UnifiedMacroMapScene = preload("res://scenes/components/UnifiedMacroMap.tscn")
 const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
 const TheoryISLMGraphScript = preload("res://scripts/ui/TheoryISLMGraph.gd")
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
@@ -462,15 +463,39 @@ func _build_map_panel() -> PanelContainer:
 	_theory_button.pressed.connect(_on_toggle_theory_panel)
 	title_row.add_child(_theory_button)
 
+	var map_state: Dictionary = _visible_macro_state()
+	box.add_child(_build_macro_map_view(map_state))
+
+	_theory_panel = _build_theory_panel()
+	_theory_panel.name = "TheoryPanel"
+	_theory_panel.visible = _is_theory_open
+	box.add_child(_theory_panel)
+
+	return panel
+
+
+func _build_macro_map_view(map_state: Dictionary) -> Control:
+	var unified_map: Control = UnifiedMacroMapScene.instantiate() as Control
+	unified_map.name = "UnifiedMacroMap"
+	unified_map.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	unified_map.custom_minimum_size = Vector2(_dim(500), _dim(360))
+	if unified_map.has_method("set_ui_scale"):
+		unified_map.call("set_ui_scale", _ui_scale)
+	if unified_map.has_method("has_master_texture") and bool(unified_map.call("has_master_texture")):
+		unified_map.call("set_regions", _unified_map_region_data(map_state))
+		return unified_map
+	unified_map.queue_free()
+	return _build_legacy_map_grid(map_state)
+
+
+func _build_legacy_map_grid(map_state: Dictionary) -> GridContainer:
 	var grid: GridContainer = GridContainer.new()
 	grid.columns = 2
 	grid.custom_minimum_size = Vector2(_dim(500), _dim(310))
 	grid.add_theme_constant_override("h_separation", _dim(14))
 	grid.add_theme_constant_override("v_separation", _dim(14))
-	box.add_child(grid)
 
 	var region_scene: PackedScene = preload("res://scenes/components/MapRegion.tscn")
-	var map_state: Dictionary = _visible_macro_state()
 	var region_icon_keys: Array[String] = ["consumption", "industry", "finance", "government"]
 	var region_index: int = 0
 	for config: Dictionary in MAP_REGION_CONFIGS:
@@ -488,13 +513,21 @@ func _build_map_panel() -> PanelContainer:
 			region.call("set_region_icon_key", region_icon_keys[min(region_index, region_icon_keys.size() - 1)])
 		grid.add_child(region)
 		region_index += 1
+	return grid
 
-	_theory_panel = _build_theory_panel()
-	_theory_panel.name = "TheoryPanel"
-	_theory_panel.visible = _is_theory_open
-	box.add_child(_theory_panel)
 
-	return panel
+func _unified_map_region_data(map_state: Dictionary) -> Array[Dictionary]:
+	var region_ids: Array[String] = ["consumption", "industry", "finance", "government"]
+	var regions: Array[Dictionary] = []
+	for index: int in range(MAP_REGION_CONFIGS.size()):
+		var config: Dictionary = MAP_REGION_CONFIGS[index]
+		regions.append({
+			"region_id": region_ids[min(index, region_ids.size() - 1)],
+			"name": str(config.get("name", "区域")),
+			"lines": _map_region_lines(config, map_state),
+			"brightness": _map_region_brightness(config, map_state)
+		})
+	return regions
 
 
 func _build_theory_panel() -> PanelContainer:

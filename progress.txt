@@ -830,3 +830,19 @@ PolicyCard cost visibility deployment:
 - Release URL: `/releases/20260728-002134/index.html`.
 - Core artifact sizes after export: `index.pck` 6,796,420 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push requested by the user for this deployed build.
+
+Unified abstract national map:
+- Replaced the visual direction of the PolicyDesk macro map from four independent rectangular region panels to one unified national-map master image with dynamic overlays.
+- Generated `assets/art/map/macro_map_master_v1.webp` with Image Two, then optimized the project copy to `1440x1080` WebP at 475,352 bytes.
+- Added `scripts/ui/map/MacroMapArtSpec.gd` with normalized polygons, label rects, variable rects, arrow slot widths, tint values, and a default-off debug boundary switch.
+- Added `scenes/components/UnifiedMacroMap.tscn` and `scripts/ui/UnifiedMacroMap.gd` to draw the map art, non-rectangular region state overlays, dynamic region names, and fixed-slot variable arrows.
+- Kept the old `MapRegion.tscn` / `MapRegion.gd` four-panel map as fallback when the unified map texture is unavailable.
+- Preserved existing variable bindings: consumption `C`, industry `Y/I`, finance `i`, government `G/Debt`.
+- Preserved existing arrow calculation, region brightness calculation, model logic, policy logic, narrative text, DialogueOverlay, PolicyCard, ISLMSolver, MacroEngine, and ScoreEngine.
+- Updated `docs/MacroMap_Art_v2.md`, `docs/Art_Reference_Direction_v1.md`, and `docs/UI_Art_Integration_Workflow_v1.md`.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-011554`.
+- Release URL: `/releases/20260728-011554/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 8,958,600 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.
