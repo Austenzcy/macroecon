@@ -1,5 +1,6 @@
 extends Node
 
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 const SCENARIOS_PATH: String = "res://data/scenarios.json"
 
 var current_scenario_id: String = "consumer_confidence_drop_basic"
@@ -254,7 +255,7 @@ func consume_return_to_confirmed_policy_desk() -> bool:
 
 
 func set_ui_scale(value: float) -> void:
-	ui_scale = clampf(value, 0.8, 1.2)
+	ui_scale = UIInteractionConfig.normalized_scale(value)
 
 
 func _load_initial_state() -> Dictionary:

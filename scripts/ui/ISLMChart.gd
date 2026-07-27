@@ -1,6 +1,7 @@
 extends Control
 
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 
 var _graph_data: Dictionary = {}
 var _ui_scale: float = 1.0
@@ -12,7 +13,7 @@ func set_graph_data(graph_data: Dictionary) -> void:
 
 
 func set_ui_scale(value: float) -> void:
-	_ui_scale = clampf(value, 0.8, 1.2)
+	_ui_scale = UIInteractionConfig.normalized_scale(value)
 	custom_minimum_size = Vector2(560, 360) * _ui_scale
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	queue_redraw()

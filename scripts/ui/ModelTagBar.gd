@@ -1,5 +1,7 @@
 extends HBoxContainer
 
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
+
 var _ui_scale: float = 1.0
 var _tags: Array = []
 
@@ -24,7 +26,7 @@ func set_tags(tags: Array) -> void:
 
 
 func set_ui_scale(value: float) -> void:
-	_ui_scale = clampf(value, 0.8, 1.2)
+	_ui_scale = UIInteractionConfig.normalized_scale(value)
 	add_theme_constant_override("separation", int(roundf(8.0 * _ui_scale)))
 	set_tags(_tags)
 

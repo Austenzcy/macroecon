@@ -4,6 +4,7 @@ signal closed
 
 const ISLMChart = preload("res://scripts/ui/ISLMChart.gd")
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 
 var _result: Dictionary = {}
 var _scenario: Dictionary = {}
@@ -13,7 +14,7 @@ var _ui_scale: float = 1.0
 func setup(result: Dictionary, scenario: Dictionary, ui_scale: float) -> void:
 	_result = result
 	_scenario = scenario
-	_ui_scale = clampf(ui_scale, 0.8, 1.2)
+	_ui_scale = UIInteractionConfig.normalized_scale(ui_scale)
 	_build_ui()
 
 

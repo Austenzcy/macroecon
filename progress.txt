@@ -904,3 +904,19 @@ Layered macro map preparation - stage 3:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 10,657,072 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Smooth page scrolling and extended UI zoom range:
+- Added centralized `scripts/ui/UIInteractionConfig.gd` for UI scale and page scroll parameters.
+- Extended internal UI scale range to 50% - 150% with 5% steps and normalized scale values to avoid floating-point drift.
+- Updated GameState, PolicyDesk, LevelSelect, ScenarioIntro, PolicyCard, UnifiedMacroMap, MacroStatBar, ISLMChart, ISLMReplayPanel, MapRegion, and ModelTagBar to use the centralized scale normalization.
+- Replaced PolicyDesk default large wheel jumps with target-based smooth vertical scrolling.
+- Ordinary wheel now controls page scroll; Ctrl + wheel controls UI scale and consumes the event so it does not also scroll the page.
+- PolicyDesk scroll step is calculated from the current scrollable range using `SCROLL_TARGET_DIVISIONS = 6.5`, with min/max step limits and a 0.14s smooth tween.
+- UI scale changes now preserve the approximate viewport center after rebuilding scaled layout.
+- Did not modify map labels, map art, policy cards, DialogueOverlay, economic model logic, policy effects, scoring, narrative text, or font subset scripts.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-034544`.
+- Release URL: `/releases/20260728-034544/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 10,655,500 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.

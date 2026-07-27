@@ -2,6 +2,7 @@ extends Control
 
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const MacroMapArtSpec = preload("res://scripts/ui/map/MacroMapArtSpec.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 
 var _ui_scale: float = 1.0
 var _map_texture: Texture2D
@@ -31,7 +32,7 @@ func has_master_texture() -> bool:
 
 
 func set_ui_scale(value: float) -> void:
-	_ui_scale = clampf(value, 0.8, 1.2)
+	_ui_scale = UIInteractionConfig.normalized_scale(value)
 	custom_minimum_size = MacroMapArtSpec.MINIMUM_SIZE * _ui_scale
 	for panel: Variant in _region_panels.values():
 		if panel is Control:

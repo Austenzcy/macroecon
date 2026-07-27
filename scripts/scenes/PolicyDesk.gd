@@ -7,13 +7,14 @@ const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
 const TheoryISLMGraphScript = preload("res://scripts/ui/TheoryISLMGraph.gd")
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
 const OUTER_MARGIN_BOTTOM: int = 144
-const SCALE_STEP: float = 0.1
-const MIN_UI_SCALE: float = 0.8
-const MAX_UI_SCALE: float = 1.2
+const SCALE_STEP: float = UIInteractionConfig.UI_SCALE_STEP
+const MIN_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MIN
+const MAX_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MAX
 const STAT_DISPLAY_DEFAULTS: Dictionary = {
 	"Y": {"display_min": 80.0, "display_max": 130.0, "reference_value": 110.0},
 	"u": {"display_min": 2.0, "display_max": 10.0, "reference_value": 4.5},
@@ -57,6 +58,8 @@ var _is_theory_open: bool = false
 var _is_replay_open: bool = false
 var _ui_scale: float = 1.0
 var _guide_targets: Dictionary = {}
+var _target_scroll_y: float = 0.0
+var _scroll_tween: Tween
 
 
 func _ready() -> void:
@@ -82,14 +85,23 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
-		if not mouse_event.pressed or not mouse_event.ctrl_pressed:
+		if not mouse_event.pressed:
 			return
-		if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			_set_ui_scale(_ui_scale + SCALE_STEP)
+		if mouse_event.button_index != MOUSE_BUTTON_WHEEL_UP and mouse_event.button_index != MOUSE_BUTTON_WHEEL_DOWN:
+			return
+		if _is_gameplay_input_blocked():
+			return
+		if mouse_event.ctrl_pressed:
+			if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				_set_ui_scale(_ui_scale + SCALE_STEP)
+			else:
+				_set_ui_scale(_ui_scale - SCALE_STEP)
 			get_viewport().set_input_as_handled()
-		elif mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_set_ui_scale(_ui_scale - SCALE_STEP)
-			get_viewport().set_input_as_handled()
+			return
+		if _replay_overlay != null:
+			return
+		_scroll_page_from_wheel(mouse_event.button_index, mouse_event.factor)
+		get_viewport().set_input_as_handled()
 
 
 func _build_ui() -> void:
@@ -132,6 +144,7 @@ func _build_ui() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	add_child(scroll)
+	_target_scroll_y = 0.0
 
 	_outer_margin = MarginContainer.new()
 	_outer_margin.custom_minimum_size = _scaled_content_size() + Vector2(float(OUTER_MARGIN_X * 2), float(OUTER_MARGIN_TOP + OUTER_MARGIN_BOTTOM))
@@ -1059,13 +1072,14 @@ func _on_zoom_reset() -> void:
 
 
 func _set_ui_scale(value: float) -> void:
-	var next_scale: float = clampf(roundf(value / SCALE_STEP) * SCALE_STEP, MIN_UI_SCALE, MAX_UI_SCALE)
+	var next_scale: float = UIInteractionConfig.normalized_scale(value)
 	if is_equal_approx(next_scale, _ui_scale):
 		return
+	var center_ratio: float = _capture_scroll_center_ratio()
 	_ui_scale = next_scale
 	GameState.set_ui_scale(_ui_scale)
 	_build_ui()
-	call_deferred("_refresh_initial_layout")
+	call_deferred("_restore_scroll_after_scale", center_ratio)
 
 
 func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
@@ -1077,8 +1091,7 @@ func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
 		return
 	if _main_scroll == null:
 		return
-	var delta: int = -84 if button_index == MOUSE_BUTTON_WHEEL_UP else 84
-	_main_scroll.scroll_vertical = maxi(0, _main_scroll.scroll_vertical + delta)
+	_scroll_page_from_wheel(button_index, 1.0)
 
 
 func _refresh_initial_layout() -> void:
@@ -1086,7 +1099,94 @@ func _refresh_initial_layout() -> void:
 		_content_margin.queue_sort()
 	if _outer_margin != null:
 		_outer_margin.queue_sort()
+	if _main_scroll != null:
+		_target_scroll_y = float(_main_scroll.scroll_vertical)
 	_register_guide_targets()
+
+
+func _scroll_page_from_wheel(button_index: int, event_factor: float = 1.0) -> void:
+	if _main_scroll == null:
+		return
+	var max_scroll: float = _scrollable_range()
+	if max_scroll <= 0.0:
+		_set_scroll_immediate(0.0)
+		return
+	var direction: float = -1.0 if button_index == MOUSE_BUTTON_WHEEL_UP else 1.0
+	var factor: float = absf(event_factor)
+	if is_zero_approx(factor):
+		factor = 1.0
+	factor = clampf(factor, 0.05, 3.0)
+	var current_scroll: float = float(_main_scroll.scroll_vertical)
+	if _scroll_tween == null or not _scroll_tween.is_running():
+		_target_scroll_y = current_scroll
+	_target_scroll_y = clampf(_target_scroll_y + direction * _scroll_step() * factor, 0.0, max_scroll)
+	_smooth_scroll_to(_target_scroll_y)
+
+
+func _scroll_step() -> float:
+	var scrollable_range: float = _scrollable_range()
+	if scrollable_range <= 0.0:
+		return 0.0
+	return clampf(
+		scrollable_range / UIInteractionConfig.SCROLL_TARGET_DIVISIONS,
+		UIInteractionConfig.SCROLL_MIN_STEP,
+		UIInteractionConfig.SCROLL_MAX_STEP
+	)
+
+
+func _scrollable_range() -> float:
+	if _main_scroll == null:
+		return 0.0
+	var bar: VScrollBar = _main_scroll.get_v_scroll_bar()
+	if bar == null:
+		return 0.0
+	return maxf(0.0, float(bar.max_value - bar.page))
+
+
+func _smooth_scroll_to(value: float) -> void:
+	if _main_scroll == null:
+		return
+	var max_scroll: float = _scrollable_range()
+	var next_value: float = clampf(value, 0.0, max_scroll)
+	if _scroll_tween != null and _scroll_tween.is_running():
+		_scroll_tween.kill()
+	_scroll_tween = create_tween()
+	_scroll_tween.set_trans(Tween.TRANS_SINE)
+	_scroll_tween.set_ease(Tween.EASE_OUT)
+	_scroll_tween.tween_property(_main_scroll, "scroll_vertical", int(roundf(next_value)), UIInteractionConfig.SCROLL_SMOOTH_DURATION)
+
+
+func _set_scroll_immediate(value: float) -> void:
+	if _scroll_tween != null and _scroll_tween.is_running():
+		_scroll_tween.kill()
+	if _main_scroll == null:
+		return
+	var next_value: float = clampf(value, 0.0, _scrollable_range())
+	_main_scroll.scroll_vertical = int(roundf(next_value))
+	_target_scroll_y = next_value
+
+
+func _capture_scroll_center_ratio() -> float:
+	if _main_scroll == null:
+		return 0.0
+	var max_scroll: float = _scrollable_range()
+	var viewport_height: float = maxf(_main_scroll.size.y, 1.0)
+	var content_height: float = maxf(max_scroll + viewport_height, viewport_height)
+	var center_y: float = float(_main_scroll.scroll_vertical) + viewport_height * 0.5
+	return clampf(center_y / content_height, 0.0, 1.0)
+
+
+func _restore_scroll_after_scale(center_ratio: float) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if _main_scroll == null:
+		return
+	var max_scroll: float = _scrollable_range()
+	var viewport_height: float = maxf(_main_scroll.size.y, 1.0)
+	var content_height: float = maxf(max_scroll + viewport_height, viewport_height)
+	var target: float = center_ratio * content_height - viewport_height * 0.5
+	_set_scroll_immediate(target)
+	_refresh_initial_layout()
 
 
 func _register_guide_targets() -> void:

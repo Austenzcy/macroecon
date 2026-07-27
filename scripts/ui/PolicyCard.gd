@@ -5,6 +5,7 @@ signal selected(policy_id: String, policy_name: String)
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const ArtLayoutSpecs = preload("res://scripts/ui/ArtLayoutSpecs.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 
 var policy_id: String = ""
 var policy_name: String = ""
@@ -74,7 +75,7 @@ func set_selected(value: bool) -> void:
 
 
 func set_ui_scale(value: float) -> void:
-	_ui_scale = clampf(value, 0.8, 1.2)
+	_ui_scale = UIInteractionConfig.normalized_scale(value)
 	custom_minimum_size = Vector2(240, 360) * _ui_scale
 	pivot_offset = custom_minimum_size * 0.5
 	_apply_typography()

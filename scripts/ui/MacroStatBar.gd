@@ -1,6 +1,7 @@
 extends Control
 
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 
 var _display_min: float = 0.0
 var _display_max: float = 1.0
@@ -19,7 +20,7 @@ func setup(config: Dictionary, current_value: float, ui_scale: float) -> void:
 	_display_max = float(config.get("display_max", 1.0))
 	_reference_value = float(config.get("reference_value", 0.5))
 	_current_value = current_value
-	_ui_scale = clampf(ui_scale, 0.8, 1.2)
+	_ui_scale = UIInteractionConfig.normalized_scale(ui_scale)
 	custom_minimum_size = Vector2(96.0, 28.0) * _ui_scale
 	queue_redraw()
 

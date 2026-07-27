@@ -1,6 +1,7 @@
 extends PanelContainer
 
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 
 var _title_label: Label
 var _icon_shell: PanelContainer
@@ -48,7 +49,7 @@ func set_region_data(region_name: String, lines: Array, brightness: float) -> vo
 
 
 func set_ui_scale(value: float) -> void:
-	_ui_scale = clampf(value, 0.8, 1.2)
+	_ui_scale = UIInteractionConfig.normalized_scale(value)
 	custom_minimum_size = Vector2(210, 132) * _ui_scale
 	if _title_label != null:
 		_title_label.add_theme_font_size_override("font_size", int(roundf(19.0 * _ui_scale)))

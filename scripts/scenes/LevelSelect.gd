@@ -2,11 +2,12 @@ extends Control
 
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
+const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
 const SCENARIO_INTRO_PATH: String = "res://scenes/ScenarioIntro.tscn"
-const SCALE_STEP: float = 0.1
-const MIN_UI_SCALE: float = 0.8
-const MAX_UI_SCALE: float = 1.2
+const SCALE_STEP: float = UIInteractionConfig.UI_SCALE_STEP
+const MIN_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MIN
+const MAX_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MAX
 
 var _main_scroll: ScrollContainer
 var _status_label: Label
@@ -194,7 +195,7 @@ func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
 
 
 func _set_ui_scale(value: float) -> void:
-	var next_scale: float = clampf(roundf(value / SCALE_STEP) * SCALE_STEP, MIN_UI_SCALE, MAX_UI_SCALE)
+	var next_scale: float = UIInteractionConfig.normalized_scale(value)
 	if is_equal_approx(next_scale, _ui_scale):
 		return
 	_ui_scale = next_scale
