@@ -1,10 +1,12 @@
 extends RefCounted
 
 const DEBUG_BOUNDARIES: bool = false
+const SHOW_REGION_OVERLAYS: bool = false
 
 const MASTER_MAP_TEXTURE: String = "res://assets/art/map/macro_map_master_v1.webp"
 const PREFERRED_ASPECT_RATIO: float = 4.0 / 3.0
-const MINIMUM_SIZE: Vector2 = Vector2(500.0, 360.0)
+const MINIMUM_SIZE: Vector2 = Vector2(540.0, 405.0)
+const MAP_DRAW_SCALE: float = 1.12
 const MAP_CONTENT_RECT: Rect2 = Rect2(Vector2(0.035, 0.035), Vector2(0.930, 0.930))
 
 const NORMAL_TINT: Color = Color(0.08, 0.11, 0.12, 0.00)

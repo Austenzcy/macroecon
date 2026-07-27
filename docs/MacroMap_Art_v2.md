@@ -103,9 +103,20 @@ Fallback order:
 
 The unified map follows the existing PolicyDesk UI scale (`0.8` to `1.2`). Coordinates are normalized relative to the rendered map rectangle, so label and polygon placement scale with the image at 90%, 100%, and 110%.
 
+## Round 2 Readability And Fill Pass
+
+The second pass focused only on the unified national map:
+
+- Enlarged the map canvas by reducing the PolicyDesk map panel margins and increasing the unified map minimum display size.
+- Added `MAP_DRAW_SCALE = 1.12`, so the master map draws slightly larger than the available fit rect and becomes the central panel's main visual instead of a small inserted image.
+- Added `SHOW_REGION_OVERLAYS = false`. The polygon tint and outline layer remains available for later state/highlight work, but it is visually hidden by default in this pass.
+- Kept `DEBUG_BOUNDARIES = false` by default; if enabled, only debug boundary lines are drawn.
+- Reduced the region label panel margins, border alpha, background alpha, corner radius, and font sizes so labels read more like embedded map tags than floating UI cards.
+- Kept the stable variable + fixed-width arrow-slot layout for all region variables.
+
 ## Pending Manual Review
 
 - Whether the generated map's region boundaries feel close enough to the reference.
 - Whether the four label groups need minor per-region anchor adjustment.
-- Whether state tint strength should be stronger or quieter.
+- Whether state tint should be reintroduced later with better mask/color tuning.
 - Whether the map panel needs a later larger-layout pass after art approval.

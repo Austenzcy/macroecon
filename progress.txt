@@ -846,3 +846,17 @@ Unified abstract national map:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 8,958,600 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Unified abstract national map round 2:
+- Enlarged the unified map inside the PolicyDesk center panel by reducing map-panel margins, increasing the map view minimum size, and drawing the master map at `MAP_DRAW_SCALE = 1.12`.
+- Hid the visible polygon tint / outline layer by default through `MacroMapArtSpec.SHOW_REGION_OVERLAYS = false`.
+- Kept the polygon overlay structure and debug boundary switch for later map state work.
+- Lightened region labels by reducing the label panel background alpha, border alpha, padding, corner radius, and font sizes.
+- Preserved dynamic region names, variables, and fixed-width arrow slots.
+- Did not modify PolicyCard, DialogueOverlay, level flow, narrative text, policy logic, ISLMSolver, MacroEngine, or ScoreEngine.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-015500`.
+- Release URL: `/releases/20260728-015500/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 8,959,032 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.

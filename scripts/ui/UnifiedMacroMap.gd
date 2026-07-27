@@ -36,7 +36,7 @@ func set_ui_scale(value: float) -> void:
 			_apply_region_panel_style(panel as Control)
 	for title: Variant in _region_titles.values():
 		if title is Label:
-			(title as Label).add_theme_font_size_override("font_size", _font(17))
+			(title as Label).add_theme_font_size_override("font_size", _font(15))
 	for box: Variant in _region_line_boxes.values():
 		if box is VBoxContainer:
 			(box as VBoxContainer).add_theme_constant_override("separation", _dim(2))
@@ -86,6 +86,8 @@ func _calculate_map_rect() -> Rect2:
 	if height > available.y:
 		height = available.y
 		width = height * aspect
+	width *= MacroMapArtSpec.MAP_DRAW_SCALE
+	height *= MacroMapArtSpec.MAP_DRAW_SCALE
 	var pos: Vector2 = (available - Vector2(width, height)) * 0.5
 	return Rect2(pos, Vector2(width, height))
 
@@ -96,6 +98,11 @@ func _draw_region_overlay(region_id: String) -> void:
 		return
 	var polygon: PackedVector2Array = _polygon_points(spec)
 	if polygon.size() < 3:
+		return
+	if not MacroMapArtSpec.SHOW_REGION_OVERLAYS:
+		if MacroMapArtSpec.DEBUG_BOUNDARIES:
+			for i: int in range(polygon.size()):
+				draw_line(polygon[i], polygon[(i + 1) % polygon.size()], Color(0.2, 0.85, 1.0, 0.90), 2.0, true)
 		return
 	var brightness: float = _region_brightness(region_id)
 	var tint: Color = spec.get("region_tint_color", Color(0.8, 0.7, 0.4, 0.14))
@@ -141,10 +148,10 @@ func _rebuild_region_nodes() -> void:
 
 		var margin: MarginContainer = MarginContainer.new()
 		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		margin.add_theme_constant_override("margin_left", _dim(8))
-		margin.add_theme_constant_override("margin_top", _dim(5))
-		margin.add_theme_constant_override("margin_right", _dim(8))
-		margin.add_theme_constant_override("margin_bottom", _dim(6))
+		margin.add_theme_constant_override("margin_left", _dim(5))
+		margin.add_theme_constant_override("margin_top", _dim(3))
+		margin.add_theme_constant_override("margin_right", _dim(5))
+		margin.add_theme_constant_override("margin_bottom", _dim(4))
 		panel.add_child(margin)
 
 		var box: VBoxContainer = VBoxContainer.new()
@@ -158,8 +165,8 @@ func _rebuild_region_nodes() -> void:
 		title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		title.autowrap_mode = TextServer.AUTOWRAP_OFF
 		title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		title.modulate = Color(0.96, 0.86, 0.58, 1.0)
-		title.add_theme_font_size_override("font_size", _font(17))
+		title.modulate = Color(0.98, 0.86, 0.56, 0.96)
+		title.add_theme_font_size_override("font_size", _font(15))
 		title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(title)
 		_region_titles[region_id] = title
@@ -201,8 +208,8 @@ func _make_variable_row(region_id: String, line: Dictionary) -> HBoxContainer:
 	variable_label.custom_minimum_size = Vector2(_variable_label_width(region_id), _dim(20))
 	variable_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	variable_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	variable_label.modulate = Color(0.88, 0.92, 0.90, 1.0)
-	variable_label.add_theme_font_size_override("font_size", _font(15))
+	variable_label.modulate = Color(0.90, 0.92, 0.86, 0.94)
+	variable_label.add_theme_font_size_override("font_size", _font(14))
 	variable_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(variable_label)
 
@@ -213,7 +220,7 @@ func _make_variable_row(region_id: String, line: Dictionary) -> HBoxContainer:
 	arrow_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	arrow_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	arrow_label.modulate = _line_color(arrow)
-	arrow_label.add_theme_font_size_override("font_size", _font(16))
+	arrow_label.add_theme_font_size_override("font_size", _font(15))
 	arrow_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(arrow_label)
 	return row
@@ -247,19 +254,19 @@ func _combined_label_bounds(spec: Dictionary, data: Dictionary) -> Rect2:
 	var lines: Array = data.get("lines", []) as Array
 	if lines.size() > 1:
 		bounds.size.y += 0.025 * float(lines.size() - 1)
-	return bounds.grow(0.010)
+	return bounds.grow(0.004)
 
 
 func _apply_region_panel_style(panel: Control) -> void:
 	if not panel is PanelContainer:
 		return
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.035, 0.045, 0.050, 0.56)
-	style.border_color = Color(0.72, 0.56, 0.30, 0.62)
+	style.bg_color = Color(0.025, 0.030, 0.030, 0.24)
+	style.border_color = Color(0.72, 0.56, 0.30, 0.22)
 	style.set_border_width_all(maxi(1, _dim(1)))
-	style.set_corner_radius_all(_dim(6))
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.30)
-	style.shadow_size = _dim(5)
+	style.set_corner_radius_all(_dim(4))
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	style.shadow_size = _dim(3)
 	(panel as PanelContainer).add_theme_stylebox_override("panel", style)
 
 

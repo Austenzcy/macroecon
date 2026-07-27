@@ -429,19 +429,19 @@ func _build_map_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "MacroMapPanel"
 	_map_panel = panel
-	panel.custom_minimum_size = Vector2(_dim(560), _dim(520))
+	panel.custom_minimum_size = Vector2(_dim(580), _dim(540))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _make_map_panel_style())
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(18))
-	margin.add_theme_constant_override("margin_top", _dim(18))
-	margin.add_theme_constant_override("margin_right", _dim(18))
-	margin.add_theme_constant_override("margin_bottom", _dim(18))
+	margin.add_theme_constant_override("margin_left", _dim(10))
+	margin.add_theme_constant_override("margin_top", _dim(12))
+	margin.add_theme_constant_override("margin_right", _dim(10))
+	margin.add_theme_constant_override("margin_bottom", _dim(10))
 	panel.add_child(margin)
 
 	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", _dim(14))
+	box.add_theme_constant_override("separation", _dim(8))
 	margin.add_child(box)
 
 	var title_row: HBoxContainer = HBoxContainer.new()
@@ -478,7 +478,7 @@ func _build_macro_map_view(map_state: Dictionary) -> Control:
 	var unified_map: Control = UnifiedMacroMapScene.instantiate() as Control
 	unified_map.name = "UnifiedMacroMap"
 	unified_map.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	unified_map.custom_minimum_size = Vector2(_dim(500), _dim(360))
+	unified_map.custom_minimum_size = Vector2(_dim(540), _dim(405))
 	if unified_map.has_method("set_ui_scale"):
 		unified_map.call("set_ui_scale", _ui_scale)
 	if unified_map.has_method("has_master_texture") and bool(unified_map.call("has_master_texture")):
