@@ -802,3 +802,14 @@ PolicyCard description legibility follow-up:
 - CloudBase deployment completed. BuildId: `20260726-140613`.
 - Release URL: `/releases/20260726-140613/index.html`.
 - GitHub push not performed.
+
+PolicyCard description tag-clearance follow-up:
+- Corrected the interpretation of the lower PolicyCard issue: the description text must begin below the card art's black middle label, not merely look vertically centered.
+- Moved `description_rect` down to start below the black label area.
+- Restored description text to top alignment inside that lowered safe area, making the text upper edge deterministic.
+- Kept the darker, larger, stronger description styling from the previous pass.
+- Did not regenerate images, did not call Image Two, and did not change policy logic, policy costs, map, dialogue, or model code.
+- Web export completed successfully through the standard build flow.
+- CloudBase deployment completed. BuildId: `20260728-000209`.
+- Release URL: `/releases/20260728-000209/index.html`.
+- GitHub push not performed.

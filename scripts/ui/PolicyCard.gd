@@ -168,7 +168,7 @@ func _build_ui() -> void:
 	_description_label.name = "DescriptionLabel"
 	_description_label.text = description
 	_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_description_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_description_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_description_label.modulate = Color(0.020, 0.014, 0.008, 1.0)
 	_description_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_description_area.add_child(_description_label)

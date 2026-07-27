@@ -46,7 +46,7 @@ static func default_policy_card_spec() -> Dictionary:
 		SAFE_ILLUSTRATION: Rect2(0.095, 0.210, 0.810, 0.425),
 		SAFE_TITLE: Rect2(0.105, 0.103, 0.790, 0.095),
 		SAFE_CATEGORY: Rect2(0.245, 0.646, 0.510, 0.064),
-		SAFE_DESCRIPTION: Rect2(0.118, 0.652, 0.600, 0.226),
+		SAFE_DESCRIPTION: Rect2(0.118, 0.724, 0.600, 0.170),
 		SAFE_COST: Rect2(0.742, 0.812, 0.184, 0.126),
 		"title_font": 22,
 		"category_font": 12,
@@ -64,12 +64,12 @@ static func policy_card_spec(policy_id: String, _card_art_key: String = "") -> D
 		"expansionary_monetary_policy":
 			spec[SAFE_TITLE] = Rect2(0.105, 0.108, 0.790, 0.095)
 			spec[SAFE_CATEGORY] = Rect2(0.255, 0.640, 0.490, 0.064)
-			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.662, 0.600, 0.212)
+			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.724, 0.600, 0.170)
 			spec[SAFE_COST] = Rect2(0.744, 0.808, 0.184, 0.128)
 		"tax_cut":
-			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.660, 0.600, 0.214)
+			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.724, 0.600, 0.170)
 		"keep_policy_unchanged":
-			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.652, 0.600, 0.224)
+			spec[SAFE_DESCRIPTION] = Rect2(0.118, 0.724, 0.600, 0.170)
 	return spec
 
 
