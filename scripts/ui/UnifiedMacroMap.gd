@@ -80,16 +80,28 @@ func _calculate_map_rect() -> Rect2:
 	var available: Vector2 = size
 	if available.x <= 1.0 or available.y <= 1.0:
 		available = custom_minimum_size
+	var safe_inset: Vector2 = MacroMapArtSpec.MAP_EDGE_SAFE_INSET * _ui_scale
+	safe_inset.x = clampf(safe_inset.x, 0.0, maxf(0.0, available.x * 0.05))
+	safe_inset.y = clampf(safe_inset.y, 0.0, maxf(0.0, available.y * 0.05))
+	var safe_available: Vector2 = Vector2(
+		maxf(1.0, available.x - safe_inset.x * 2.0),
+		maxf(1.0, available.y - safe_inset.y * 2.0)
+	)
 	var aspect: float = MacroMapArtSpec.PREFERRED_ASPECT_RATIO
-	var width: float = available.x
+	var width: float = safe_available.x
 	var height: float = width / aspect
-	if height > available.y:
-		height = available.y
+	if height > safe_available.y:
+		height = safe_available.y
 		width = height * aspect
-	width *= MacroMapArtSpec.MAP_DRAW_SCALE
-	height *= MacroMapArtSpec.MAP_DRAW_SCALE
+	var requested_scale: float = maxf(1.0, MacroMapArtSpec.MAP_DRAW_SCALE)
+	var max_scale: float = minf(safe_available.x / width, safe_available.y / height)
+	var scale: float = minf(requested_scale, max_scale)
+	width *= scale
+	height *= scale
 	var pos: Vector2 = (available - Vector2(width, height)) * 0.5
-	return Rect2(pos, Vector2(width, height))
+	pos = Vector2(roundf(pos.x), roundf(pos.y))
+	var rect_size := Vector2(floorf(width), floorf(height))
+	return Rect2(pos, rect_size)
 
 
 func _draw_region_overlay(region_id: String) -> void:

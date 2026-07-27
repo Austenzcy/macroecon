@@ -114,6 +114,18 @@ The second pass focused only on the unified national map:
 - Reduced the region label panel margins, border alpha, background alpha, corner radius, and font sizes so labels read more like embedded map tags than floating UI cards.
 - Kept the stable variable + fixed-width arrow-slot layout for all region variables.
 
+## Layered Map Preparation Stage 1
+
+Stage 1 only fixes the edge clipping caused by the enlarged map draw rect:
+
+- Root cause: `UnifiedMacroMap` used `clip_contents = true`, while the previous draw rect multiplied the fitted map size by `MAP_DRAW_SCALE = 1.12`. When the scaled draw height exceeded the control height, the top and bottom map border were clipped by the control.
+- The map rect calculation now uses a frame-local safe available size and clamps the requested draw scale to the available width/height instead of allowing the final rect to exceed the clipped control bounds.
+- Added `MAP_EDGE_SAFE_INSET = Vector2(0.0, 4.0)`, giving the master map about 4 px of vertical safety at 100% UI scale.
+- Increased the unified map minimum height from 405 px to 413 px so the full 4:3 map can still occupy the same horizontal width while preserving the top and bottom edges.
+- Added integer pixel alignment to the final draw rect to reduce sub-pixel edge clipping at common UI scales.
+- No Image Two assets were generated in this stage.
+- No polygon, label anchor, label style, hover, or interaction changes were made in this stage.
+
 ## Pending Manual Review
 
 - Whether the generated map's region boundaries feel close enough to the reference.

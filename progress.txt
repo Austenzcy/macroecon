@@ -860,3 +860,17 @@ Unified abstract national map round 2:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 8,959,032 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Layered macro map preparation - stage 1:
+- Fixed the enlarged unified map's top/bottom edge clipping without starting region-layer work.
+- Root cause: the fitted map draw rect was multiplied by `MAP_DRAW_SCALE = 1.12` inside a clipped `UnifiedMacroMap` control, so the scaled height could exceed the control bounds.
+- Added a frame-local vertical safety inset and scale clamp in `UnifiedMacroMap._calculate_map_rect()`.
+- Increased the unified map minimum height from 405 px to 413 px, preserving the full horizontal map width while leaving about 4 px top/bottom safety at 100% scale.
+- Pixel-aligned the final draw rect to reduce sub-pixel edge clipping at common UI scales.
+- Did not call Image Two, did not generate region layers, did not modify polygons, labels, hover, policy cards, DialogueOverlay, model logic, policy logic, narrative text, or scoring.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-022123`.
+- Release URL: `/releases/20260728-022123/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 8,959,592 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.

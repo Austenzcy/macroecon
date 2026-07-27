@@ -478,7 +478,7 @@ func _build_macro_map_view(map_state: Dictionary) -> Control:
 	var unified_map: Control = UnifiedMacroMapScene.instantiate() as Control
 	unified_map.name = "UnifiedMacroMap"
 	unified_map.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	unified_map.custom_minimum_size = Vector2(_dim(540), _dim(405))
+	unified_map.custom_minimum_size = Vector2(_dim(540), _dim(413))
 	if unified_map.has_method("set_ui_scale"):
 		unified_map.call("set_ui_scale", _ui_scale)
 	if unified_map.has_method("has_master_texture") and bool(unified_map.call("has_master_texture")):
