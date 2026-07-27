@@ -813,3 +813,11 @@ PolicyCard description tag-clearance follow-up:
 - CloudBase deployment completed. BuildId: `20260728-000209`.
 - Release URL: `/releases/20260728-000209/index.html`.
 - GitHub push not performed.
+
+PolicyCard cost visibility fix:
+- Fixed `PolicyCard.set_cost(cost, show_cost)` so the `show_cost` flag is honored.
+- Single-policy scenarios now hide the lower-right policy-point number on cards.
+- Budget / combination scenarios still show the dynamic policy-point number.
+- Did not change policy costs, selection logic, card art, scenario data, or model code.
+- Web export and deployment not run for this small local fix.
+- GitHub push not performed.

@@ -14,6 +14,7 @@ var policy_cost: int = 0
 var _is_selected: bool = false
 var _ui_scale: float = 1.0
 var _has_card_art: bool = false
+var _show_cost_value: bool = true
 
 var _card_root: Control
 var _card_texture: TextureRect
@@ -62,6 +63,7 @@ func set_policy(data: Dictionary) -> void:
 		_type_label.text = policy_type
 		_description_label.text = description
 		_cost_label.text = "%d" % policy_cost
+		_cost_label.visible = _show_cost_value
 		_refresh_art()
 		_apply_layout_spec()
 
@@ -79,11 +81,12 @@ func set_ui_scale(value: float) -> void:
 	_apply_layout_spec()
 
 
-func set_cost(cost: int, _show_cost: bool) -> void:
+func set_cost(cost: int, show_cost: bool) -> void:
 	policy_cost = cost
+	_show_cost_value = show_cost
 	if _cost_label == null:
 		return
-	_cost_label.visible = true
+	_cost_label.visible = _show_cost_value
 	_cost_label.text = "%d" % policy_cost
 
 
