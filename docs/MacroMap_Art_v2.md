@@ -162,6 +162,44 @@ Godot structure:
 - Labels, polygons, variable bindings, fixed arrow slots, and label positions were not changed in this stage.
 - Runtime needs only the four formal region layers. The guide, mask, recombined, and difference PNGs are excluded from Web export through `export_presets.cfg`.
 
+## Layered Map Preparation Stage 3
+
+Stage 3 fixes region label anchoring and UI-scale stability without changing map art, region layers, hover, or label styling.
+
+Root cause:
+
+- Labels were already positioned relative to the rendered map rect, but the layout used the combined label/variable bounds' top-left corner as the placement point.
+- That made the visible label group behave like a top-left anchored overlay instead of a center-anchored map label.
+- After map scaling and edge-safe rect changes, this made label groups feel offset from their intended regional centers.
+
+Updated positioning:
+
+- `UnifiedMacroMap._map_normalized_to_local()` converts map-normalized coordinates through the actual `_map_rect`.
+- Each region now defines `label_group_anchor` in `MacroMapArtSpec.REGION_SPECS`.
+- The label panel is positioned as `anchor_pixel - panel.size * 0.5`, so each tag is centered on its visual anchor.
+- Final panel positions are pixel-rounded to reduce drift at common UI scales.
+- The existing `label_rect` / `variable_rect` still define group size and safe area; `label_group_anchor` defines where that group sits on the map.
+
+Current anchors:
+
+- `consumption`: `Vector2(0.370, 0.430)`
+- `industry`: `Vector2(0.775, 0.405)`
+- `finance`: `Vector2(0.355, 0.715)`
+- `government`: `Vector2(0.748, 0.700)`
+
+Scope:
+
+- No Image Two assets were generated.
+- No hover, right-side details, region click behavior, polygon changes, or economic variable logic changes were added.
+- Labels keep the previous lightweight map-tag style and fixed-width arrow slots.
+
+Build and deployment:
+
+- Web export completed through the standard project flow.
+- CloudBase deployment completed with BuildId `20260728-033032`.
+- Release URL: `/releases/20260728-033032/index.html`.
+- Core artifact sizes: `index.pck` 10,657,072 bytes; `index.wasm.gz` 10,111,653 bytes.
+
 ## Pending Manual Review
 
 - Whether the generated map's region boundaries feel close enough to the reference.

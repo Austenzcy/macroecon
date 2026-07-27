@@ -891,3 +891,16 @@ Layered macro map preparation - stage 2:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 10,656,704 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Layered macro map preparation - stage 3:
+- Fixed macro map label positioning to use map-local normalized anchors rather than the combined label bounds' top-left corner.
+- Added `label_group_anchor` entries for consumption, industry, finance, and government in `MacroMapArtSpec.gd`.
+- Added `_map_normalized_to_local()` and center-based label placement in `UnifiedMacroMap.gd`.
+- Kept label style, variable rows, fixed arrow slots, region layers, BaseMap, polygon data, and hidden overlay behavior unchanged.
+- Did not implement hover, right-side region details, region click behavior, policy cards, DialogueOverlay, model logic, policy logic, narrative text, or scoring changes.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-033032`.
+- Release URL: `/releases/20260728-033032/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 10,657,072 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.

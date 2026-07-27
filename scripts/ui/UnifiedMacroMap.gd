@@ -267,9 +267,21 @@ func _layout_region_nodes() -> void:
 			continue
 		var spec: Dictionary = MacroMapArtSpec.region_spec(region_id)
 		var bounds: Rect2 = _combined_label_bounds(spec, _regions.get(region_id, {}))
-		panel.position = _map_rect.position + bounds.position * _map_rect.size
 		panel.size = bounds.size * _map_rect.size
+		var anchor: Vector2 = _label_group_anchor(spec, bounds)
+		panel.position = _map_normalized_to_local(anchor) - panel.size * 0.5
+		panel.position = Vector2(roundf(panel.position.x), roundf(panel.position.y))
 		panel.pivot_offset = panel.size * 0.5
+
+
+func _map_normalized_to_local(normalized_point: Vector2) -> Vector2:
+	return _map_rect.position + normalized_point * _map_rect.size
+
+
+func _label_group_anchor(spec: Dictionary, bounds: Rect2) -> Vector2:
+	if spec.has("label_group_anchor"):
+		return spec.get("label_group_anchor", bounds.get_center()) as Vector2
+	return bounds.get_center()
 
 
 func _combined_label_bounds(spec: Dictionary, data: Dictionary) -> Rect2:
