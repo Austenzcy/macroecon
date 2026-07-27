@@ -874,3 +874,20 @@ Layered macro map preparation - stage 1:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 8,959,592 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Layered macro map preparation - stage 2:
+- Called Image Two using the current `assets/art/map/macro_map_master_v1.webp` as the reference and generated a four-color region guide.
+- Saved the guide, overlay, four masks, four formal same-canvas transparent region layers, a recombined validation image, and a difference validation image under `assets/art/map/regions/`.
+- Formal region layers were extracted from the original master map pixels through the masks; Image Two did not redraw the four region illustrations independently.
+- Updated `ArtAssetRegistry.gd` with unified macro map region layer texture entries.
+- Updated `UnifiedMacroMap.gd` to draw BaseMap first, then draw the four same-rect region layers above it.
+- Kept the old polygon tint overlay hidden and preserved the polygon structure for future interaction work.
+- Added `REGION_LAYER_DEBUG_REGION` as a default-off development isolation switch.
+- Excluded guide/mask/recombined/difference validation PNGs from Web export while keeping the four formal region layers in the runtime package.
+- Did not implement hover, right-side region details, label repositioning, policy cards, DialogueOverlay, model logic, policy logic, narrative text, or scoring changes.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-031808`.
+- Release URL: `/releases/20260728-031808/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 10,656,704 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.

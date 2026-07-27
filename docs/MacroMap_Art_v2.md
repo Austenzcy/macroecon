@@ -126,9 +126,46 @@ Stage 1 only fixes the edge clipping caused by the enlarged map draw rect:
 - No Image Two assets were generated in this stage.
 - No polygon, label anchor, label style, hover, or interaction changes were made in this stage.
 
+## Layered Map Preparation Stage 2
+
+Stage 2 prepares the unified map for future region-level visual control without changing labels, hover, or economic logic.
+
+Image Two output:
+
+- Generated a four-color region segmentation reference from the current master map.
+- Saved the resized project reference as `assets/art/map/regions/macro_map_region_guide_v1.png` (`1440x1080`, 19,998 bytes).
+- Saved the human-check overlay as `assets/art/map/regions/macro_map_region_guide_overlay_v1.png` (`1440x1080`, 3,260,425 bytes).
+
+Mask and region extraction:
+
+- Built all masks from the same four-color guide:
+  - `macro_map_mask_consumption_v1.png` (`1440x1080`, 5,900 bytes)
+  - `macro_map_mask_industry_v1.png` (`1440x1080`, 5,873 bytes)
+  - `macro_map_mask_finance_v1.png` (`1440x1080`, 4,801 bytes)
+  - `macro_map_mask_government_v1.png` (`1440x1080`, 5,181 bytes)
+- Extracted the formal region layers from `macro_map_master_v1.webp` pixels, preserving the original art inside each mask:
+  - `macro_map_region_consumption_v1.png` (`1440x1080`, 775,406 bytes)
+  - `macro_map_region_industry_v1.png` (`1440x1080`, 660,073 bytes)
+  - `macro_map_region_finance_v1.png` (`1440x1080`, 590,039 bytes)
+  - `macro_map_region_government_v1.png` (`1440x1080`, 697,547 bytes)
+- Saved validation outputs:
+  - `macro_map_regions_recombined_v1.png` (`1440x1080`, 2,645,556 bytes)
+  - `macro_map_regions_difference_v1.png` (`1440x1080`, 974,748 bytes)
+
+Godot structure:
+
+- `UnifiedMacroMap` still draws the complete BaseMap first.
+- Four same-canvas transparent region layers now draw above BaseMap using the exact same `_map_rect`.
+- Normal state draws all region layers at unchanged brightness; this should visually match the current master map.
+- `REGION_LAYER_DEBUG_REGION` is default empty, meaning no debug isolation mode. Setting it to a region id can isolate one region for development checks.
+- `SHOW_REGION_OVERLAYS` remains `false`, so the old white polygon tint layer stays hidden.
+- Labels, polygons, variable bindings, fixed arrow slots, and label positions were not changed in this stage.
+- Runtime needs only the four formal region layers. The guide, mask, recombined, and difference PNGs are excluded from Web export through `export_presets.cfg`.
+
 ## Pending Manual Review
 
 - Whether the generated map's region boundaries feel close enough to the reference.
 - Whether the four label groups need minor per-region anchor adjustment.
+- Whether the region layer seams are acceptable when future hover/highlight states are enabled.
 - Whether state tint should be reintroduced later with better mask/color tuning.
 - Whether the map panel needs a later larger-layout pass after art approval.

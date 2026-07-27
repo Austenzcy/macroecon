@@ -2,8 +2,15 @@ extends RefCounted
 
 const DEBUG_BOUNDARIES: bool = false
 const SHOW_REGION_OVERLAYS: bool = false
+const REGION_LAYER_DEBUG_REGION: String = ""
 
 const MASTER_MAP_TEXTURE: String = "res://assets/art/map/macro_map_master_v1.webp"
+const REGION_LAYER_TEXTURES := {
+	"consumption": "res://assets/art/map/regions/macro_map_region_consumption_v1.png",
+	"industry": "res://assets/art/map/regions/macro_map_region_industry_v1.png",
+	"finance": "res://assets/art/map/regions/macro_map_region_finance_v1.png",
+	"government": "res://assets/art/map/regions/macro_map_region_government_v1.png"
+}
 const PREFERRED_ASPECT_RATIO: float = 4.0 / 3.0
 const MINIMUM_SIZE: Vector2 = Vector2(540.0, 413.0)
 const MAP_DRAW_SCALE: float = 1.12

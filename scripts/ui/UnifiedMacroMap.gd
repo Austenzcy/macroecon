@@ -6,6 +6,7 @@ const MacroMapArtSpec = preload("res://scripts/ui/map/MacroMapArtSpec.gd")
 var _ui_scale: float = 1.0
 var _map_texture: Texture2D
 var _map_rect: Rect2 = Rect2()
+var _region_textures: Dictionary = {}
 var _regions: Dictionary = {}
 var _region_panels: Dictionary = {}
 var _region_titles: Dictionary = {}
@@ -16,6 +17,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
 	_map_texture = ArtAssetRegistry.texture_for_unified_macro_map()
+	_load_region_layer_textures()
 	custom_minimum_size = MacroMapArtSpec.MINIMUM_SIZE * _ui_scale
 	_rebuild_region_nodes()
 	_layout_region_nodes()
@@ -72,8 +74,27 @@ func _draw() -> void:
 		draw_texture_rect(_map_texture, _map_rect, false)
 	else:
 		draw_rect(_map_rect, Color(0.06, 0.09, 0.10, 0.96), true)
+	_draw_region_layers()
 	for region_id: String in MacroMapArtSpec.all_region_ids():
 		_draw_region_overlay(region_id)
+
+
+func _load_region_layer_textures() -> void:
+	_region_textures.clear()
+	for region_id: String in MacroMapArtSpec.all_region_ids():
+		var texture: Texture2D = ArtAssetRegistry.texture_for_unified_macro_map_region(region_id)
+		if texture != null:
+			_region_textures[region_id] = texture
+
+
+func _draw_region_layers() -> void:
+	var debug_region: String = MacroMapArtSpec.REGION_LAYER_DEBUG_REGION
+	for region_id: String in MacroMapArtSpec.all_region_ids():
+		if not debug_region.is_empty() and debug_region != region_id:
+			continue
+		var texture: Texture2D = _region_textures.get(region_id) as Texture2D
+		if texture != null:
+			draw_texture_rect(texture, _map_rect, false)
 
 
 func _calculate_map_rect() -> Rect2:

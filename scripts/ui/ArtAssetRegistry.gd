@@ -107,6 +107,13 @@ const UNIFIED_MACRO_MAP := {
 	"master_v1": "res://assets/art/map/macro_map_master_v1.webp"
 }
 
+const UNIFIED_MACRO_MAP_REGION_LAYERS := {
+	"consumption": "res://assets/art/map/regions/macro_map_region_consumption_v1.png",
+	"industry": "res://assets/art/map/regions/macro_map_region_industry_v1.png",
+	"finance": "res://assets/art/map/regions/macro_map_region_finance_v1.png",
+	"government": "res://assets/art/map/regions/macro_map_region_government_v1.png"
+}
+
 const MAP_REGION_FALLBACK := {
 	"consumption": "民",
 	"industry": "工",
@@ -248,6 +255,10 @@ static func texture_for_map_region_scene(region_key: String) -> Texture2D:
 
 static func texture_for_unified_macro_map() -> Texture2D:
 	return _load_texture(str(UNIFIED_MACRO_MAP.get("master_v1", "")))
+
+
+static func texture_for_unified_macro_map_region(region_key: String) -> Texture2D:
+	return _load_texture(str(UNIFIED_MACRO_MAP_REGION_LAYERS.get(region_key, "")))
 
 
 static func placeholder_for_map_region(region_key: String) -> String:
