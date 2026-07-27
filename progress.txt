@@ -821,3 +821,12 @@ PolicyCard cost visibility fix:
 - Did not change policy costs, selection logic, card art, scenario data, or model code.
 - Web export and deployment not run for this small local fix.
 - GitHub push not performed.
+
+PolicyCard cost visibility deployment:
+- Ran the standard Web build and CloudBase deployment flow after the single-policy cost visibility fix.
+- The existing automatic font subset step refreshed `assets/fonts/NotoSansSC-Regular.ttf`.
+- Web export completed successfully and `index.wasm.gz` was generated.
+- CloudBase deployment completed. BuildId: `20260728-002134`.
+- Release URL: `/releases/20260728-002134/index.html`.
+- Core artifact sizes after export: `index.pck` 6,796,420 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push requested by the user for this deployed build.
