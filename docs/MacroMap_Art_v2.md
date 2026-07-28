@@ -238,3 +238,26 @@ Scope:
 
 - No map art, masks, region layers, DialogueOverlay, PolicyCard, theory content, economic logic, policy effects, scoring, or narrative text were changed.
 - The previous hidden region overlay behavior remains unchanged.
+
+## Irregular Map Restoration In Persistent Layout
+
+The first persistent map/theory layout pass kept the new vertical layout, but the runtime map could still fall back to the old four-rectangle `MapRegion` grid.
+
+Root cause:
+
+- `PolicyDesk._build_macro_map_view()` still treated the legacy `MapRegion` grid as the official fallback when `UnifiedMacroMap.has_master_texture()` returned false during view construction.
+- That fallback was useful during early art integration, but after the unified irregular map became the accepted production map it allowed the formal page to display the old four-panel visual again.
+- The unified map assets and four same-canvas region layers were still present; this was an integration fallback problem, not an art-resource loss.
+
+Fix:
+
+- `MapSection` now always instantiates `scenes/components/UnifiedMacroMap.tscn`.
+- `UnifiedMacroMap` receives the same region data and remains responsible for drawing the master map, the four transparent region layers, labels, variables, and fixed arrow slots.
+- If a texture is missing, fallback remains inside `UnifiedMacroMap` instead of replacing the entire component with the old four-rectangle grid.
+- The old `MapRegion` component is retained in the project for compatibility, but it is no longer the production path for the central PolicyDesk map.
+
+Scope:
+
+- The permanent top-bottom central layout was preserved.
+- No Image Two resources were generated.
+- No map art, region masks, region layers, labels, theory content, PolicyCard, DialogueOverlay, economic logic, policy effects, scoring, or narrative text were changed.

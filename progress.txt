@@ -936,3 +936,19 @@ Stabilized macro map labels and persistent theory layout:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 10,667,340 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Restored irregular unified macro map in central layout:
+- Fixed the regression where the new persistent top-bottom center layout could still display the old four-rectangle `MapRegion` grid.
+- Root cause: `PolicyDesk._build_macro_map_view()` still used the legacy grid as the production fallback when `UnifiedMacroMap.has_master_texture()` returned false during view construction.
+- The unified map master and four same-canvas region layer assets were still present; no map resources were lost.
+- `MapSection` now always instantiates `scenes/components/UnifiedMacroMap.tscn` and passes the current region data into it.
+- The irregular unified national map, BaseMap, four region layers, labels, variables, and arrow slots remain the active production map structure.
+- The old `MapRegion` code remains in the project for compatibility but is no longer used as the central PolicyDesk map fallback.
+- Preserved the top-bottom central layout, removed map title state, removed theory toggle state, and kept the theory panel permanently visible.
+- Did not call Image Two, regenerate map resources, modify masks, modify PolicyCard, modify DialogueOverlay, modify theory content, modify model logic, or modify font scripts.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-094134`.
+- Release URL: `/releases/20260728-094134/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 10,667,372 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.

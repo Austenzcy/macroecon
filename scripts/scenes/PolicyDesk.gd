@@ -498,11 +498,9 @@ func _build_macro_map_view(map_state: Dictionary) -> Control:
 	unified_map.custom_minimum_size = Vector2(_dim(540), _dim(413))
 	if unified_map.has_method("set_ui_scale"):
 		unified_map.call("set_ui_scale", _ui_scale)
-	if unified_map.has_method("has_master_texture") and bool(unified_map.call("has_master_texture")):
+	if unified_map.has_method("set_regions"):
 		unified_map.call("set_regions", _unified_map_region_data(map_state))
-		return unified_map
-	unified_map.queue_free()
-	return _build_legacy_map_grid(map_state)
+	return unified_map
 
 
 func _build_legacy_map_grid(map_state: Dictionary) -> GridContainer:
