@@ -184,6 +184,7 @@ func _build_ui() -> void:
 	_cost_label = Label.new()
 	_cost_label.name = "CostLabel"
 	_cost_label.text = "%d" % policy_cost
+	_cost_label.visible = _show_cost_value
 	_cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_cost_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_cost_label.modulate = Color(1.0, 0.78, 0.36, 1.0)
