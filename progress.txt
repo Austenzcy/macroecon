@@ -991,3 +991,8 @@ Alpha-mask macro map hover indicators:
 - Tooltip supports C, Y/I, i, and G/Debt without changing variable bindings or macro model logic.
 - Scroll and Ctrl-wheel zoom clear hover/tooltip state to avoid stale positions.
 - No Image Two call, no regenerated map assets, no mask edits, no PolicyCard or DialogueOverlay changes, no model/scoring/level logic changes, and no GitHub push.
+
+Alpha-mask hover export fix:
+- Fixed Web export configuration so runtime macro_map_mask_*.png files are no longer excluded from the PCK.
+- Root cause of no hover/tooltip on deployed page: masks were valid locally but absent from Web export, so alpha hit testing always returned no region.
+- Guide, recombined, and difference debug images remain excluded from export.

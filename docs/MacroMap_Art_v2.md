@@ -337,3 +337,9 @@ Debug:
 Basic checks:
 - Sea/outside-map samples black mask pixels and does not trigger a region.
 - 50%, 75%, 100%, 125%, and 150% use the same map-local conversion path; no per-zoom offsets were added.
+
+## Runtime Mask Export Note
+
+The alpha-mask hover system requires the four macro_map_mask_*.png files at runtime. These masks are small runtime resources and must not be excluded from Web export. Debug-only guide, recombined, and difference images can remain excluded.
+
+A deployed no-hover/no-tooltip failure was traced to export_presets.cfg excluding macro_map_mask_*.png, which made Web alpha hit testing return no region even though local files were valid.
