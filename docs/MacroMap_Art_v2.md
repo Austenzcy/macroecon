@@ -261,3 +261,26 @@ Scope:
 - The permanent top-bottom central layout was preserved.
 - No Image Two resources were generated.
 - No map art, region masks, region layers, labels, theory content, PolicyCard, DialogueOverlay, economic logic, policy effects, scoring, or narrative text were changed.
+
+## Unified Map Runtime Texture Stabilization
+
+After removing the production fallback to the old four-rectangle `MapRegion` grid, the central map could appear blank if the unified map texture was not resolved through the runtime registry path during Web execution.
+
+Root cause:
+
+- `PolicyDesk` now correctly keeps `UnifiedMacroMap` as the production map component.
+- However, `UnifiedMacroMap` still depended on `ArtAssetRegistry.texture_for_unified_macro_map()` and per-region registry lookups at runtime.
+- When that runtime lookup failed or returned `null`, the old grid was no longer masking the failure, so the map component could draw only its empty fallback background.
+
+Fix:
+
+- `UnifiedMacroMap.gd` now directly preloads `macro_map_master_v1.webp` and the four same-canvas region layer PNGs.
+- The registry lookups remain as secondary fallback, but the production unified map owns strong resource references.
+- If the master map fails but the four region layers are available, the region layers can still recombine into the visible irregular national map.
+- The central top-bottom layout remains unchanged, and the old `MapRegion` grid remains out of the production map path.
+
+Scope:
+
+- No Image Two call.
+- No regenerated map resources.
+- No changes to policy cards, DialogueOverlay, theory content, variables, model logic, scoring, or font scripts.

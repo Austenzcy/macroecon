@@ -3,6 +3,13 @@
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const MacroMapArtSpec = preload("res://scripts/ui/map/MacroMapArtSpec.gd")
 const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
+const MASTER_MAP_TEXTURE: Texture2D = preload("res://assets/art/map/macro_map_master_v1.webp")
+const REGION_LAYER_TEXTURES := {
+	"consumption": preload("res://assets/art/map/regions/macro_map_region_consumption_v1.png"),
+	"industry": preload("res://assets/art/map/regions/macro_map_region_industry_v1.png"),
+	"finance": preload("res://assets/art/map/regions/macro_map_region_finance_v1.png"),
+	"government": preload("res://assets/art/map/regions/macro_map_region_government_v1.png")
+}
 
 var _ui_scale: float = 1.0
 var _map_texture: Texture2D
@@ -17,7 +24,7 @@ var _region_line_boxes: Dictionary = {}
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
-	_map_texture = ArtAssetRegistry.texture_for_unified_macro_map()
+	_map_texture = _resolve_master_texture()
 	_load_region_layer_textures()
 	custom_minimum_size = MacroMapArtSpec.MINIMUM_SIZE * _ui_scale
 	_rebuild_region_nodes()
@@ -26,9 +33,7 @@ func _ready() -> void:
 
 
 func has_master_texture() -> bool:
-	if _map_texture == null:
-		_map_texture = ArtAssetRegistry.texture_for_unified_macro_map()
-	return _map_texture != null
+	return _resolve_master_texture() != null
 
 
 func set_ui_scale(value: float) -> void:
@@ -72,9 +77,17 @@ func _draw() -> void:
 func _load_region_layer_textures() -> void:
 	_region_textures.clear()
 	for region_id: String in MacroMapArtSpec.all_region_ids():
-		var texture: Texture2D = ArtAssetRegistry.texture_for_unified_macro_map_region(region_id)
+		var texture: Texture2D = REGION_LAYER_TEXTURES.get(region_id) as Texture2D
+		if texture == null:
+			texture = ArtAssetRegistry.texture_for_unified_macro_map_region(region_id)
 		if texture != null:
 			_region_textures[region_id] = texture
+
+
+func _resolve_master_texture() -> Texture2D:
+	if MASTER_MAP_TEXTURE != null:
+		return MASTER_MAP_TEXTURE
+	return ArtAssetRegistry.texture_for_unified_macro_map()
 
 
 func _draw_region_layers() -> void:

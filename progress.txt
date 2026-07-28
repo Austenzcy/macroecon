@@ -952,3 +952,17 @@ Restored irregular unified macro map in central layout:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 10,667,372 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Stabilized unified macro map texture rendering:
+- Reproduced the likely failure path after removing the old four-rectangle fallback: `UnifiedMacroMap` could remain visible as a component while its registry-loaded master texture resolved to null, leaving the top map area visually blank.
+- Added direct preloaded references in `UnifiedMacroMap.gd` for `macro_map_master_v1.webp` and the four same-canvas region layer PNGs.
+- Kept ArtAssetRegistry lookups as secondary fallback, but the production unified map no longer depends only on runtime string-path loading.
+- The top MapSection continues to instantiate `scenes/components/UnifiedMacroMap.tscn`; the old `MapRegion` grid is not restored as the production view.
+- Preserved the permanent top-bottom central layout and the always-visible theory panel.
+- Did not call Image Two, regenerate map resources, modify map masks, modify PolicyCard, modify DialogueOverlay, modify theory content, modify model logic, or modify font scripts.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-095418`.
+- Release URL: `/releases/20260728-095418/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 10,667,740 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.
