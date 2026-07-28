@@ -284,3 +284,20 @@ Scope:
 - No Image Two call.
 - No regenerated map resources.
 - No changes to policy cards, DialogueOverlay, theory content, variables, model logic, scoring, or font scripts.
+
+## Unified Map Script Parse Fix
+
+The deployed `20260728-095418` page still showed an empty map panel because `UnifiedMacroMap.gd` failed to parse at runtime.
+
+Root cause:
+
+- Several arrow and fallback-label string literals in `UnifiedMacroMap.gd` were mojibake-damaged.
+- The broken default arrow string near `_make_variable_row()` left a string literal unclosed, producing `Parse Error: Expected closing ')' after call arguments`.
+- Because the script failed to load, `UnifiedMacroMap` could not draw the master map, four region layers, labels, variables, or arrows.
+
+Fix:
+
+- Restored the default arrow string to `→`.
+- Restored arrow color checks for `↑` and `↓`.
+- Restored fallback region names to normal Chinese labels.
+- Kept the central top-bottom layout and strong preloaded map texture references unchanged.

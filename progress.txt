@@ -966,3 +966,16 @@ Stabilized unified macro map texture rendering:
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 10,667,740 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Fixed UnifiedMacroMap script parse failure:
+- Reproduced the deployed blank map panel and captured the browser console error: `UnifiedMacroMap.gd` failed to parse at line 252.
+- Root cause: damaged arrow and fallback-label string literals left the default arrow string unclosed, so the map script did not load at all.
+- Restored the default arrow to `→`, arrow color checks to `↑` / `↓`, and fallback region names to normal Chinese.
+- Kept the permanent top-bottom central layout, strong map texture preloads, BaseMap, four region layers, region labels, variables, and arrow slots.
+- Did not call Image Two, regenerate map resources, modify masks, modify PolicyCard, modify DialogueOverlay, modify theory content, modify model logic, or modify font scripts.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-105514`.
+- Release URL: `/releases/20260728-105514/index.html`.
+- Lightweight browser check confirmed the `UnifiedMacroMap.gd` parse error is gone and the unified irregular map is visible after entering level 1.
+- Core artifact sizes after export: `index.pck` 10,656,668 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.

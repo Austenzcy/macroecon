@@ -249,7 +249,7 @@ func _make_variable_row(region_id: String, line: Dictionary) -> HBoxContainer:
 	variable_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(variable_label)
 
-	var arrow: String = str(line.get("arrow", "鈫?))
+	var arrow: String = str(line.get("arrow", "→"))
 	var arrow_label: Label = Label.new()
 	arrow_label.text = arrow
 	arrow_label.custom_minimum_size = Vector2(_arrow_slot_width(region_id), _label_dim(20))
@@ -373,9 +373,9 @@ func _arrow_slot_width(region_id: String) -> float:
 
 
 func _line_color(arrow: String) -> Color:
-	if arrow == "鈫?:
+	if arrow == "↑":
 		return Color(0.68, 0.95, 0.72, 1.0)
-	if arrow == "鈫?:
+	if arrow == "↓":
 		return Color(0.95, 0.62, 0.58, 1.0)
 	return Color(0.78, 0.88, 0.94, 1.0)
 
@@ -383,14 +383,14 @@ func _line_color(arrow: String) -> Color:
 func _fallback_region_name(region_id: String) -> String:
 	match region_id:
 		"consumption":
-			return "灞呮皯娑堣垂鍖?
+			return "居民消费区"
 		"industry":
-			return "宸ヤ笟浜у尯"
+			return "工业产区"
 		"finance":
-			return "閲戣瀺甯傚満鍖?
+			return "金融市场区"
 		"government":
-			return "鏀垮簻閮ㄩ棬鍖?
-	return "鍖哄煙"
+			return "政府部门区"
+	return "区域"
 
 
 func _dim(value: float) -> int:
