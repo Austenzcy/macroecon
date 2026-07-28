@@ -75,3 +75,27 @@ MacroMap v2 extends the same workflow to non-rectangular map art:
 7. Keep the old four-rectangle `MapRegion` grid as fallback if the map master texture is missing.
 
 This map workflow should replace the old "four separate panels with icons" approach for future national-map iterations. The map art and dynamic economic teaching layer must remain separate.
+
+## Map-Local Labels Under Global Zoom
+
+For layered map UI, dynamic labels must not mix coordinate systems.
+
+Required workflow:
+
+1. Render or fit the static map first and record its actual `map_draw_rect`.
+2. Place region labels with normalized map-local anchors, not viewport coordinates.
+3. Size the label panel from normalized map-local safe bounds.
+4. Derive label internals from the same map draw rect, including padding, border, radius, font size, variable column width, and arrow slot width.
+5. Keep fixed arrow slots for variables so arrow changes do not shift text.
+6. Do not add separate offsets for 50%, 75%, 100%, 125%, or 150% zoom.
+
+When replacing art or changing panel layout, first verify the map draw rect, then retune normalized anchors or label bounds. Do not solve label drift by hard-coding screen-pixel positions.
+
+## Permanent Map And Theory Stack
+
+For the PolicyDesk center panel, the accepted structure is now a stable vertical stack:
+
+- `MapSection`: unified national map and dynamic region labels.
+- `TheorySection`: existing IS-LM theory graph and explanation content.
+
+The map title header and `Õº±Ì/¿Ì¬€` toggle button should not occupy visible layout space. Theory content should be initialized with the page and remain visible, so page scrolling and UI zoom can be tested against the final always-on layout.

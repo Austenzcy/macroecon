@@ -41,7 +41,6 @@ var _problem_panel: PanelContainer
 var _policy_column: VBoxContainer
 var _map_panel: PanelContainer
 var _theory_panel: PanelContainer
-var _theory_button: Button
 var _replay_overlay: Control
 var _confirm_button: Button
 var _model_replay_button: Button
@@ -54,7 +53,6 @@ var _scenario: Dictionary = {}
 var _selected_policies: Array[Dictionary] = []
 var _last_result: Dictionary = {}
 var _is_policy_confirmed: bool = false
-var _is_theory_open: bool = false
 var _is_replay_open: bool = false
 var _ui_scale: float = 1.0
 var _guide_targets: Dictionary = {}
@@ -114,7 +112,6 @@ func _build_ui() -> void:
 	_policy_column = null
 	_map_panel = null
 	_theory_panel = null
-	_theory_button = null
 	_replay_overlay = null
 	_confirm_button = null
 	_model_replay_button = null
@@ -442,7 +439,7 @@ func _build_map_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "MacroMapPanel"
 	_map_panel = panel
-	panel.custom_minimum_size = Vector2(_dim(580), _dim(540))
+	panel.custom_minimum_size = Vector2(_dim(580), _dim(900))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _make_map_panel_style())
 
@@ -454,37 +451,44 @@ func _build_map_panel() -> PanelContainer:
 	panel.add_child(margin)
 
 	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", _dim(8))
+	box.add_theme_constant_override("separation", _dim(10))
 	margin.add_child(box)
 
-	var title_row: HBoxContainer = HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", _dim(12))
-	box.add_child(title_row)
-
-	var title: Label = Label.new()
-	title.text = "抽象国家地图"
-	title.add_theme_font_size_override("font_size", _font(26))
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_row.add_child(title)
-
-	_theory_button = Button.new()
-	_theory_button.name = "TheoryPanelButton"
-	_theory_button.text = "关闭理论" if _is_theory_open else "图表/理论"
-	_theory_button.custom_minimum_size = Vector2(_dim(112), _dim(38))
-	_theory_button.add_theme_font_size_override("font_size", _font(16))
-	ClassicalTheme.apply_button(_theory_button, _ui_scale, "quiet")
-	_theory_button.pressed.connect(_on_toggle_theory_panel)
-	title_row.add_child(_theory_button)
-
 	var map_state: Dictionary = _visible_macro_state()
-	box.add_child(_build_macro_map_view(map_state))
+	box.add_child(_build_map_section(map_state))
 
 	_theory_panel = _build_theory_panel()
 	_theory_panel.name = "TheoryPanel"
-	_theory_panel.visible = _is_theory_open
+	_theory_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_theory_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_theory_panel.size_flags_stretch_ratio = 0.95
+	_theory_panel.visible = true
 	box.add_child(_theory_panel)
 
 	return panel
+
+
+func _build_map_section(map_state: Dictionary) -> PanelContainer:
+	var section: PanelContainer = PanelContainer.new()
+	section.name = "MapSection"
+	section.custom_minimum_size = Vector2(_dim(0), _dim(430))
+	section.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	section.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	section.size_flags_stretch_ratio = 1.05
+	section.add_theme_stylebox_override("panel", _make_theory_panel_style())
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(10))
+	margin.add_theme_constant_override("margin_top", _dim(8))
+	margin.add_theme_constant_override("margin_right", _dim(10))
+	margin.add_theme_constant_override("margin_bottom", _dim(8))
+	section.add_child(margin)
+
+	var map_view: Control = _build_macro_map_view(map_state)
+	map_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	map_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(map_view)
+	return section
 
 
 func _build_macro_map_view(map_state: Dictionary) -> Control:
@@ -545,6 +549,7 @@ func _unified_map_region_data(map_state: Dictionary) -> Array[Dictionary]:
 
 func _build_theory_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(_dim(0), _dim(410))
 	panel.add_theme_stylebox_override("panel", _make_theory_panel_style())
 
 	var margin: MarginContainer = MarginContainer.new()
@@ -1042,17 +1047,6 @@ func _on_replay_closed() -> void:
 	AudioManager.play_sfx(&"card_play")
 
 
-func _on_toggle_theory_panel() -> void:
-	if _is_gameplay_input_blocked():
-		return
-	_is_theory_open = not _is_theory_open
-	if _theory_panel != null:
-		_theory_panel.visible = _is_theory_open
-	if _theory_button != null:
-		_theory_button.text = "关闭理论" if _is_theory_open else "图表/理论"
-	AudioManager.play_sfx(&"card_play")
-
-
 func _on_zoom_out() -> void:
 	if _is_gameplay_input_blocked():
 		return
@@ -1192,8 +1186,8 @@ func _restore_scroll_after_scale(center_ratio: float) -> void:
 func _register_guide_targets() -> void:
 	_guide_targets = {
 		"problem_panel": _problem_panel,
-		"theory_panel": _theory_button,
-		"theory_button": _theory_button,
+		"theory_panel": _theory_panel,
+		"theory_button": _theory_panel,
 		"macro_map": _map_panel,
 		"map_panel": _map_panel,
 		"policy_cards": _policy_column,

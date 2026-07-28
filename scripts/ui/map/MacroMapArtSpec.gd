@@ -16,6 +16,7 @@ const MINIMUM_SIZE: Vector2 = Vector2(540.0, 413.0)
 const MAP_DRAW_SCALE: float = 1.12
 const MAP_EDGE_SAFE_INSET: Vector2 = Vector2(0.0, 4.0)
 const MAP_CONTENT_RECT: Rect2 = Rect2(Vector2(0.035, 0.035), Vector2(0.930, 0.930))
+const LABEL_REFERENCE_MAP_WIDTH: float = 540.0
 
 const NORMAL_TINT: Color = Color(0.08, 0.11, 0.12, 0.00)
 const WARNING_TINT: Color = Color(0.95, 0.58, 0.32, 0.16)

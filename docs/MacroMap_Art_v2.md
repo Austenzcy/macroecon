@@ -207,3 +207,34 @@ Build and deployment:
 - Whether the region layer seams are acceptable when future hover/highlight states are enabled.
 - Whether state tint should be reintroduced later with better mask/color tuning.
 - Whether the map panel needs a later larger-layout pass after art approval.
+
+## Label Scale Stabilization and Persistent Theory Layout
+
+This pass fixes label scale instability after the 50% - 150% UI zoom expansion and changes the center PolicyDesk panel into a permanent map/theory stack.
+
+Root cause:
+
+- Region label panel size and position were map-local, based on `_map_rect` and normalized anchors.
+- Label internals such as padding, border width, corner radius, shadow size, font size, variable column width, and arrow slot width still used the global `_ui_scale` directly.
+- When the actual map draw rect changed through container allocation, edge-safe fitting, or zoom rebuilds, label containers and label internals could scale from two slightly different coordinate systems.
+
+Final label scale rule:
+
+- Region label position remains map-local and normalized through `_map_normalized_to_local()`.
+- Region label panel size remains derived from normalized label bounds multiplied by `_map_rect.size`.
+- Label internals now use a map-derived label scale: `_map_rect.size.x / MacroMapArtSpec.LABEL_REFERENCE_MAP_WIDTH`.
+- This keeps label width, height, padding, fonts, borders, variable columns, and fixed arrow slots in the same visual coordinate system as the rendered map.
+- No per-zoom offsets were added.
+
+Persistent center layout:
+
+- The visible `抽象国家地图` header was removed from the center panel.
+- The visible `图表/理论` toggle button was removed.
+- The map and theory panels are now always visible in a vertical stack.
+- `MapSection` and `TheoryPanel` share the same parent width and use close stretch ratios (`1.05 : 0.95`) with minimum heights to keep both readable.
+- The theory content is created during PolicyDesk initialization and no longer depends on a toggle state.
+
+Scope:
+
+- No map art, masks, region layers, DialogueOverlay, PolicyCard, theory content, economic logic, policy effects, scoring, or narrative text were changed.
+- The previous hidden region overlay behavior remains unchanged.

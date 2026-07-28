@@ -1,461 +1,461 @@
-Macro Policy Game / 宏观政策模拟器 - 开发进度
+﻿Macro Policy Game / 瀹忚鏀跨瓥妯℃嫙鍣?- 寮€鍙戣繘搴?
 
-当前阶段：部署路线验证小样
-规则：每次只完成一个 step；每完成三步创建 review step；正式开发需等待 CloudBase 线上验证确认。
+褰撳墠闃舵锛氶儴缃茶矾绾块獙璇佸皬鏍?
+瑙勫垯锛氭瘡娆″彧瀹屾垚涓€涓?step锛涙瘡瀹屾垚涓夋鍒涘缓 review step锛涙寮忓紑鍙戦渶绛夊緟 CloudBase 绾夸笂楠岃瘉纭銆?
 
-[done] 01 创建最小 Godot Web 验证项目
-[done] 02 创建 MainMenu 和 TestScene
-[done] 03 创建 AudioManager 并验证点击后播放音频
-[done] 04 Review 1：检查验证小样是否能运行、场景结构、重复代码、报错和占位资源
-[done] 05 配置 Web 导出并生成 CloudBase 部署检查文档
-[done] 06 等待人工确认 CloudBase 测试结果
-[done] 07 创建正式项目结构
-[done] 08 创建正式 MainMenu
-[done] 09 创建 ScenarioIntro
-[done] 10 Review 2：检查主流程入口、场景结构和占位资源
-[done] 11 创建 PolicyDesk 静态界面
-[done] 12 创建 ModelTagBar
-[done] 13 创建 PolicyCard 组件
-[done] 14 Review 3：检查政策桌面基础 UI 和组件复用
-[done] 15 创建 IndicatorPanel
-[done] 16 创建 AdvisorPanel
-[done] 17 创建抽象国家地图
-[todo] 18 Review 4：检查主界面布局、组件边界和占位资源
-[todo] 19 实现卡牌点击和出牌动画
-[todo] 20 实现 JSON 数据读取
-[todo] 21 实现 MacroEngine 初版
-[todo] 22 Review 5：检查数据驱动、规则边界和运行错误
-[todo] 23 实现 Result 页面
-[todo] 24 实现 ModelReplay IS-LM 初版
-[todo] 25 加入基础 BGM/SFX、导出 Web 并准备 CloudBase 部署
+[done] 01 鍒涘缓鏈€灏?Godot Web 楠岃瘉椤圭洰
+[done] 02 鍒涘缓 MainMenu 鍜?TestScene
+[done] 03 鍒涘缓 AudioManager 骞堕獙璇佺偣鍑诲悗鎾斁闊抽
+[done] 04 Review 1锛氭鏌ラ獙璇佸皬鏍锋槸鍚﹁兘杩愯銆佸満鏅粨鏋勩€侀噸澶嶄唬鐮併€佹姤閿欏拰鍗犱綅璧勬簮
+[done] 05 閰嶇疆 Web 瀵煎嚭骞剁敓鎴?CloudBase 閮ㄧ讲妫€鏌ユ枃妗?
+[done] 06 绛夊緟浜哄伐纭 CloudBase 娴嬭瘯缁撴灉
+[done] 07 鍒涘缓姝ｅ紡椤圭洰缁撴瀯
+[done] 08 鍒涘缓姝ｅ紡 MainMenu
+[done] 09 鍒涘缓 ScenarioIntro
+[done] 10 Review 2锛氭鏌ヤ富娴佺▼鍏ュ彛銆佸満鏅粨鏋勫拰鍗犱綅璧勬簮
+[done] 11 鍒涘缓 PolicyDesk 闈欐€佺晫闈?
+[done] 12 鍒涘缓 ModelTagBar
+[done] 13 鍒涘缓 PolicyCard 缁勪欢
+[done] 14 Review 3锛氭鏌ユ斂绛栨闈㈠熀纭€ UI 鍜岀粍浠跺鐢?
+[done] 15 鍒涘缓 IndicatorPanel
+[done] 16 鍒涘缓 AdvisorPanel
+[done] 17 鍒涘缓鎶借薄鍥藉鍦板浘
+[todo] 18 Review 4锛氭鏌ヤ富鐣岄潰甯冨眬銆佺粍浠惰竟鐣屽拰鍗犱綅璧勬簮
+[todo] 19 瀹炵幇鍗＄墝鐐瑰嚮鍜屽嚭鐗屽姩鐢?
+[todo] 20 瀹炵幇 JSON 鏁版嵁璇诲彇
+[todo] 21 瀹炵幇 MacroEngine 鍒濈増
+[todo] 22 Review 5锛氭鏌ユ暟鎹┍鍔ㄣ€佽鍒欒竟鐣屽拰杩愯閿欒
+[todo] 23 瀹炵幇 Result 椤甸潰
+[todo] 24 瀹炵幇 ModelReplay IS-LM 鍒濈増
+[todo] 25 鍔犲叆鍩虹 BGM/SFX銆佸鍑?Web 骞跺噯澶?CloudBase 閮ㄧ讲
 
-Step 01 记录：
-- 已建立 Godot 验证项目的任务边界。
-- 本阶段只验证 Godot 2D/GDScript/Web Export/CloudBase 静态托管路线。
-- CloudBase 线上测试通过前，不进入正式竖切片开发。
+Step 01 璁板綍锛?
+- 宸插缓绔?Godot 楠岃瘉椤圭洰鐨勪换鍔¤竟鐣屻€?
+- 鏈樁娈靛彧楠岃瘉 Godot 2D/GDScript/Web Export/CloudBase 闈欐€佹墭绠¤矾绾裤€?
+- CloudBase 绾夸笂娴嬭瘯閫氳繃鍓嶏紝涓嶈繘鍏ユ寮忕珫鍒囩墖寮€鍙戙€?
 
-Step 02 记录：
-- 已创建 MainMenu.tscn，显示游戏标题和“点击开始”按钮。
-- 点击按钮后会解锁音频、播放 BGM，并切换到 TestScene.tscn。
-- 已创建 TestScene.tscn，包含占位政策卡、抽象国家地图区域和 Y、u、π、Debt 测试指标。
+Step 02 璁板綍锛?
+- 宸插垱寤?MainMenu.tscn锛屾樉绀烘父鎴忔爣棰樺拰鈥滅偣鍑诲紑濮嬧€濇寜閽€?
+- 鐐瑰嚮鎸夐挳鍚庝細瑙ｉ攣闊抽銆佹挱鏀?BGM锛屽苟鍒囨崲鍒?TestScene.tscn銆?
+- 宸插垱寤?TestScene.tscn锛屽寘鍚崰浣嶆斂绛栧崱銆佹娊璞″浗瀹跺湴鍥惧尯鍩熷拰 Y銆乽銆佅€銆丏ebt 娴嬭瘯鎸囨爣銆?
 
-Step 03 记录：
-- 已创建 AudioManager.gd 并注册为 AutoLoad。
-- BGM 和 SFX 目前为代码生成的占位音频，不依赖外部素材。
-- 音频只会在玩家点击“点击开始”后解锁，符合浏览器自动播放限制。
+Step 03 璁板綍锛?
+- 宸插垱寤?AudioManager.gd 骞舵敞鍐屼负 AutoLoad銆?
+- BGM 鍜?SFX 鐩墠涓轰唬鐮佺敓鎴愮殑鍗犱綅闊抽锛屼笉渚濊禆澶栭儴绱犳潗銆?
+- 闊抽鍙細鍦ㄧ帺瀹剁偣鍑烩€滅偣鍑诲紑濮嬧€濆悗瑙ｉ攣锛岀鍚堟祻瑙堝櫒鑷姩鎾斁闄愬埗銆?
 
-Review 1 记录：
-- 场景结构：验证小样保持根目录 MainMenu/TestScene，脚本放在 scripts/，音频管理器为 AutoLoad。
-- 重复代码：当前只有两个场景脚本，暂无需要抽象的重复逻辑。
-- 报错风险：本机未在 PATH 中找到 Godot 命令，因此尚未执行 Godot 编辑器运行检查或实际 Web 导出。
-- 占位资源：政策卡、国家地图、BGM、SFX 全部为占位实现。
-- 后续调整：CloudBase 线上验证通过后，再进入正式项目结构整理。
+Review 1 璁板綍锛?
+- 鍦烘櫙缁撴瀯锛氶獙璇佸皬鏍蜂繚鎸佹牴鐩綍 MainMenu/TestScene锛岃剼鏈斁鍦?scripts/锛岄煶棰戠鐞嗗櫒涓?AutoLoad銆?
+- 閲嶅浠ｇ爜锛氬綋鍓嶅彧鏈変袱涓満鏅剼鏈紝鏆傛棤闇€瑕佹娊璞＄殑閲嶅閫昏緫銆?
+- 鎶ラ敊椋庨櫓锛氭湰鏈烘湭鍦?PATH 涓壘鍒?Godot 鍛戒护锛屽洜姝ゅ皻鏈墽琛?Godot 缂栬緫鍣ㄨ繍琛屾鏌ユ垨瀹為檯 Web 瀵煎嚭銆?
+- 鍗犱綅璧勬簮锛氭斂绛栧崱銆佸浗瀹跺湴鍥俱€丅GM銆丼FX 鍏ㄩ儴涓哄崰浣嶅疄鐜般€?
+- 鍚庣画璋冩暣锛欳loudBase 绾夸笂楠岃瘉閫氳繃鍚庯紝鍐嶈繘鍏ユ寮忛」鐩粨鏋勬暣鐞嗐€?
 
-Step 05 记录：
-- 已创建 export_presets.cfg，Web 导出路径为 web_build/index.html。
-- 已设置 Compatibility 渲染。
-- 未启用 Thread Support。
-- 未启用 GDExtension/Extensions Support。
-- 已生成 docs/CloudBase_Web_Deploy_Checklist.md。
+Step 05 璁板綍锛?
+- 宸插垱寤?export_presets.cfg锛學eb 瀵煎嚭璺緞涓?web_build/index.html銆?
+- 宸茶缃?Compatibility 娓叉煋銆?
+- 鏈惎鐢?Thread Support銆?
+- 鏈惎鐢?GDExtension/Extensions Support銆?
+- 宸茬敓鎴?docs/CloudBase_Web_Deploy_Checklist.md銆?
 
-Step 06 状态：
-- CloudBase 线上验证已通过：Web 导出文件可部署，线上地址可访问，index.html/index.js/index.wasm/index.pck 加载正常。
-- 中文字体、点击后音频、卡牌动画和指标变化均已进入线上验收流程。
+Step 06 鐘舵€侊細
+- CloudBase 绾夸笂楠岃瘉宸查€氳繃锛歐eb 瀵煎嚭鏂囦欢鍙儴缃诧紝绾夸笂鍦板潃鍙闂紝index.html/index.js/index.wasm/index.pck 鍔犺浇姝ｅ父銆?
+- 涓枃瀛椾綋銆佺偣鍑诲悗闊抽銆佸崱鐗屽姩鐢诲拰鎸囨爣鍙樺寲鍧囧凡杩涘叆绾夸笂楠屾敹娴佺▼銆?
 
-Godot 4.7 兼容修复记录：
-- 已将运行环境要求从 Godot 4.3+ 调整为 Godot 4.7。
-- 已修复 TestScene.gd 中 `var pulse := min(...)` 导致的 Variant 推断问题，改为 `var pulse: float = minf(...)`。
-- 已将浮点比较相关逻辑改为 `minf()`、`maxf()`、`clampf()`，整数比较使用 `maxi()`。
-- 已将 TestScene 的测试指标改为显式 float 成员变量，减少 Godot 4.7 警告即错误的风险。
+Godot 4.7 鍏煎淇璁板綍锛?
+- 宸插皢杩愯鐜瑕佹眰浠?Godot 4.3+ 璋冩暣涓?Godot 4.7銆?
+- 宸蹭慨澶?TestScene.gd 涓?`var pulse := min(...)` 瀵艰嚧鐨?Variant 鎺ㄦ柇闂锛屾敼涓?`var pulse: float = minf(...)`銆?
+- 宸插皢娴偣姣旇緝鐩稿叧閫昏緫鏀逛负 `minf()`銆乣maxf()`銆乣clampf()`锛屾暣鏁版瘮杈冧娇鐢?`maxi()`銆?
+- 宸插皢 TestScene 鐨勬祴璇曟寚鏍囨敼涓烘樉寮?float 鎴愬憳鍙橀噺锛屽噺灏?Godot 4.7 璀﹀憡鍗抽敊璇殑椋庨櫓銆?
 
-Godot 4.7 Web 中文字体修复记录：
-- 已确认项目内字体文件为 `res://assets/fonts/NotoSansSC-Regular.ttf`。
-- 已创建 `res://themes/default_theme.tres`，默认字体指向 NotoSansSC-Regular。
-- 已在 `project.godot` 配置 `gui/theme/custom="res://themes/default_theme.tres"`。
-- 已为 MainMenu.tscn 和 TestScene.tscn 的关键中文 Label/Button 显式设置字体。
-- 已用 Godot 4.7 重新导出 Web，`web_build/index.pck` 从约 12 KB 增加到约 13.3 MB，确认字体资源已进入打包文件。
-- 仍保持 Thread Support 和 Extensions Support 关闭。
+Godot 4.7 Web 涓枃瀛椾綋淇璁板綍锛?
+- 宸茬‘璁ら」鐩唴瀛椾綋鏂囦欢涓?`res://assets/fonts/NotoSansSC-Regular.ttf`銆?
+- 宸插垱寤?`res://themes/default_theme.tres`锛岄粯璁ゅ瓧浣撴寚鍚?NotoSansSC-Regular銆?
+- 宸插湪 `project.godot` 閰嶇疆 `gui/theme/custom="res://themes/default_theme.tres"`銆?
+- 宸蹭负 MainMenu.tscn 鍜?TestScene.tscn 鐨勫叧閿腑鏂?Label/Button 鏄惧紡璁剧疆瀛椾綋銆?
+- 宸茬敤 Godot 4.7 閲嶆柊瀵煎嚭 Web锛宍web_build/index.pck` 浠庣害 12 KB 澧炲姞鍒扮害 13.3 MB锛岀‘璁ゅ瓧浣撹祫婧愬凡杩涘叆鎵撳寘鏂囦欢銆?
+- 浠嶄繚鎸?Thread Support 鍜?Extensions Support 鍏抽棴銆?
 
-自动化导出部署脚本记录：
-- 已创建 `scripts/export_web.ps1`：清理旧 `web_build/`，使用 Godot 4.7 Web preset 导出到 `web_build/index.html`，检查 index.html/index.js/index.wasm/index.pck，并清理 `.import` 和 `.gitkeep`。
-- 已创建 `deploy.local.example.ps1`：只包含 CloudBase 环境 ID 和 Godot 路径示例，不再包含项目路径。
-- 已创建 `scripts/deploy_cloudbase.ps1`：读取 `deploy.local.ps1`，检查 `tcb`、CloudBase 环境 ID 和 Web 构建文件，然后执行 CloudBase 静态托管部署。
-- 已创建 `scripts/build_and_deploy.ps1`：先导出 Web，成功后部署 CloudBase，任一步失败都会停止。
-- 已更新 `.gitignore`：忽略 `deploy.local.ps1`、`web_build/`、`.godot/`。
-- 已创建 `docs/CloudBase_Auto_Deploy.md`：记录 tcb login、本地配置、构建部署、线上验收和安全注意事项。
-- 已完成 PowerShell 脚本语法解析检查，尚未实际执行部署脚本。
-- 暂停继续开发，等待人工测试自动化脚本。
+鑷姩鍖栧鍑洪儴缃茶剼鏈褰曪細
+- 宸插垱寤?`scripts/export_web.ps1`锛氭竻鐞嗘棫 `web_build/`锛屼娇鐢?Godot 4.7 Web preset 瀵煎嚭鍒?`web_build/index.html`锛屾鏌?index.html/index.js/index.wasm/index.pck锛屽苟娓呯悊 `.import` 鍜?`.gitkeep`銆?
+- 宸插垱寤?`deploy.local.example.ps1`锛氬彧鍖呭惈 CloudBase 鐜 ID 鍜?Godot 璺緞绀轰緥锛屼笉鍐嶅寘鍚」鐩矾寰勩€?
+- 宸插垱寤?`scripts/deploy_cloudbase.ps1`锛氳鍙?`deploy.local.ps1`锛屾鏌?`tcb`銆丆loudBase 鐜 ID 鍜?Web 鏋勫缓鏂囦欢锛岀劧鍚庢墽琛?CloudBase 闈欐€佹墭绠￠儴缃层€?
+- 宸插垱寤?`scripts/build_and_deploy.ps1`锛氬厛瀵煎嚭 Web锛屾垚鍔熷悗閮ㄧ讲 CloudBase锛屼换涓€姝ュけ璐ラ兘浼氬仠姝€?
+- 宸叉洿鏂?`.gitignore`锛氬拷鐣?`deploy.local.ps1`銆乣web_build/`銆乣.godot/`銆?
+- 宸插垱寤?`docs/CloudBase_Auto_Deploy.md`锛氳褰?tcb login銆佹湰鍦伴厤缃€佹瀯寤洪儴缃层€佺嚎涓婇獙鏀跺拰瀹夊叏娉ㄦ剰浜嬮」銆?
+- 宸插畬鎴?PowerShell 鑴氭湰璇硶瑙ｆ瀽妫€鏌ワ紝灏氭湭瀹為檯鎵ц閮ㄧ讲鑴氭湰銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐娴嬭瘯鑷姩鍖栬剼鏈€?
 
-自动化脚本修复记录：
-- 已将 `deploy.local.ps1` 改为只保留 `$CloudBaseEnvId` 和 `$GodotExe`。
-- 已将 `$GodotExe` 更新为真实路径：`C:\Users\Lenovo\Godot\Godot_v4.7-stable_win64.exe\Godot_v4.7-stable_win64.exe`。
-- 已移除脚本中的硬编码中文项目路径，改为通过 `$MyInvocation.MyCommand.Path` 自动推导项目根目录。
-- 已让导出脚本先检查 `Test-Path $GodotExe`，若同目录存在 console 版 Godot，则优先使用 `Godot_v4.7-stable_win64_console.exe` 执行命令行导出。
-- 已将 Godot 导出调用改为在项目根目录下使用相对路径 `web_build/index.html`，避免向 Godot CLI 传入中文绝对导出路径。
-- 已修复 `.import`/`.gitkeep` 清理逻辑，避免误删导出的 `index.html`、`index.js`、`index.wasm`、`index.pck`。
-- 已执行 `scripts/export_web.ps1` 验证通过，生成的 `index.pck` 大小为 13,320,104 bytes。
-- 尚未执行 CloudBase 部署命令，等待人工测试 `scripts/build_and_deploy.ps1`。
+鑷姩鍖栬剼鏈慨澶嶈褰曪細
+- 宸插皢 `deploy.local.ps1` 鏀逛负鍙繚鐣?`$CloudBaseEnvId` 鍜?`$GodotExe`銆?
+- 宸插皢 `$GodotExe` 鏇存柊涓虹湡瀹炶矾寰勶細`C:\Users\Lenovo\Godot\Godot_v4.7-stable_win64.exe\Godot_v4.7-stable_win64.exe`銆?
+- 宸茬Щ闄よ剼鏈腑鐨勭‖缂栫爜涓枃椤圭洰璺緞锛屾敼涓洪€氳繃 `$MyInvocation.MyCommand.Path` 鑷姩鎺ㄥ椤圭洰鏍圭洰褰曘€?
+- 宸茶瀵煎嚭鑴氭湰鍏堟鏌?`Test-Path $GodotExe`锛岃嫢鍚岀洰褰曞瓨鍦?console 鐗?Godot锛屽垯浼樺厛浣跨敤 `Godot_v4.7-stable_win64_console.exe` 鎵ц鍛戒护琛屽鍑恒€?
+- 宸插皢 Godot 瀵煎嚭璋冪敤鏀逛负鍦ㄩ」鐩牴鐩綍涓嬩娇鐢ㄧ浉瀵硅矾寰?`web_build/index.html`锛岄伩鍏嶅悜 Godot CLI 浼犲叆涓枃缁濆瀵煎嚭璺緞銆?
+- 宸蹭慨澶?`.import`/`.gitkeep` 娓呯悊閫昏緫锛岄伩鍏嶈鍒犲鍑虹殑 `index.html`銆乣index.js`銆乣index.wasm`銆乣index.pck`銆?
+- 宸叉墽琛?`scripts/export_web.ps1` 楠岃瘉閫氳繃锛岀敓鎴愮殑 `index.pck` 澶у皬涓?13,320,104 bytes銆?
+- 灏氭湭鎵ц CloudBase 閮ㄧ讲鍛戒护锛岀瓑寰呬汉宸ユ祴璇?`scripts/build_and_deploy.ps1`銆?
 
-CloudBase 自动部署验证记录：
-- Godot Web + CloudBase 自动部署链路已跑通。
-- 线上普通浏览器标签页出现过缓存停留在 Godot 加载界面，无痕窗口正常，判断为浏览器/CDN 缓存导致旧 JS/PCK/WASM 混用。
+CloudBase 鑷姩閮ㄧ讲楠岃瘉璁板綍锛?
+- Godot Web + CloudBase 鑷姩閮ㄧ讲閾捐矾宸茶窇閫氥€?
+- 绾夸笂鏅€氭祻瑙堝櫒鏍囩椤靛嚭鐜拌繃缂撳瓨鍋滅暀鍦?Godot 鍔犺浇鐣岄潰锛屾棤鐥曠獥鍙ｆ甯革紝鍒ゆ柇涓烘祻瑙堝櫒/CDN 缂撳瓨瀵艰嚧鏃?JS/PCK/WASM 娣风敤銆?
 
-版本化部署防缓存机制记录：
-- 已修改 `scripts/build_and_deploy.ps1`：每次构建生成 `BuildId`，格式为 `yyyyMMdd-HHmmss`。
-- 已修改 `scripts/deploy_cloudbase.ps1`：默认版本化部署，上传 `web_build/` 到 `releases/$BuildId/`。
-- 已生成本地 `root_index/index.html` 启动页：显示“正在进入最新版游戏……”，请求 `latest.json?v=Date.now()`，读取 `url` 后自动跳转。
-- 已生成本地 `latest.json`：包含 `buildId`、`url`、`updatedAt`。
-- 部署流程已改为：上传 release 构建目录，上传 `latest.json` 到根目录，上传 `root_index/index.html` 到根目录 `index.html`。
-- 已保留调试开关：`-LegacyRootDeploy $true` 可临时恢复旧的根目录覆盖部署；默认值为 `$false`。
-- 已更新 `.gitignore`：忽略 `root_index/` 和 `latest.json`。
-- 已更新 `docs/CloudBase_Auto_Deploy.md`：说明 Godot Web 缓存混用风险、版本化部署机制、主网址测试方式和 `?v=时间戳` 临时绕过缓存方式。
-- 已完成 PowerShell 脚本语法检查；尚未执行 CloudBase 版本化部署命令。
-- 暂停继续开发，等待人工测试版本化部署脚本。
+鐗堟湰鍖栭儴缃查槻缂撳瓨鏈哄埗璁板綍锛?
+- 宸蹭慨鏀?`scripts/build_and_deploy.ps1`锛氭瘡娆℃瀯寤虹敓鎴?`BuildId`锛屾牸寮忎负 `yyyyMMdd-HHmmss`銆?
+- 宸蹭慨鏀?`scripts/deploy_cloudbase.ps1`锛氶粯璁ょ増鏈寲閮ㄧ讲锛屼笂浼?`web_build/` 鍒?`releases/$BuildId/`銆?
+- 宸茬敓鎴愭湰鍦?`root_index/index.html` 鍚姩椤碉細鏄剧ず鈥滄鍦ㄨ繘鍏ユ渶鏂扮増娓告垙鈥︹€︹€濓紝璇锋眰 `latest.json?v=Date.now()`锛岃鍙?`url` 鍚庤嚜鍔ㄨ烦杞€?
+- 宸茬敓鎴愭湰鍦?`latest.json`锛氬寘鍚?`buildId`銆乣url`銆乣updatedAt`銆?
+- 閮ㄧ讲娴佺▼宸叉敼涓猴細涓婁紶 release 鏋勫缓鐩綍锛屼笂浼?`latest.json` 鍒版牴鐩綍锛屼笂浼?`root_index/index.html` 鍒版牴鐩綍 `index.html`銆?
+- 宸蹭繚鐣欒皟璇曞紑鍏筹細`-LegacyRootDeploy $true` 鍙复鏃舵仮澶嶆棫鐨勬牴鐩綍瑕嗙洊閮ㄧ讲锛涢粯璁ゅ€间负 `$false`銆?
+- 宸叉洿鏂?`.gitignore`锛氬拷鐣?`root_index/` 鍜?`latest.json`銆?
+- 宸叉洿鏂?`docs/CloudBase_Auto_Deploy.md`锛氳鏄?Godot Web 缂撳瓨娣风敤椋庨櫓銆佺増鏈寲閮ㄧ讲鏈哄埗銆佷富缃戝潃娴嬭瘯鏂瑰紡鍜?`?v=鏃堕棿鎴砢 涓存椂缁曡繃缂撳瓨鏂瑰紡銆?
+- 宸插畬鎴?PowerShell 鑴氭湰璇硶妫€鏌ワ紱灏氭湭鎵ц CloudBase 鐗堟湰鍖栭儴缃插懡浠ゃ€?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐娴嬭瘯鐗堟湰鍖栭儴缃茶剼鏈€?
 
-CloudBase 线上加载故障诊断记录：
-- 已重新运行 `scripts/export_web.ps1`，本地 Godot Web 导出成功。
-- 已记录本地 `web_build/` 中 index.html/index.js/index.wasm/index.pck 的大小和 SHA256。
-- 已用 `curl.exe --ssl-no-revoke -I` 检查 CloudBase 根目录 Godot 文件，index.html/index.js/index.wasm/index.pck 均为 200。
-- 已下载线上 index.html/index.js/index.wasm/index.pck，并确认 SHA256 与本地导出完全一致。
-- 已运行 `tcb hosting list -e macropolicymanager-d3cqtfccac7ec`，确认核心 Godot 文件存在，同时发现根目录尚未部署版本化启动页，`latest.json` 为 404。
-- 已确认 `/health.html` 可在线访问，CloudBase 静态托管本身正常。
-- 已检查 `export_presets.cfg`：Web preset、单线程、无 Extensions Support、无 C#、无 GDExtension。
-- 已检查 index.html/index.js 引用关系：文件名与线上实际文件一致。
-- 未添加 MainMenu/TestScene 构建标识，因为当前问题更像 runtime 初始化前或版本化入口未上线，场景内标识暂时无法提供额外信息。
-- 已生成 `docs/CloudBase_Loading_Issue_Report.md`。
-- 暂停继续开发，等待人工根据报告测试版本化部署和浏览器 Console 错误。
+CloudBase 绾夸笂鍔犺浇鏁呴殰璇婃柇璁板綍锛?
+- 宸查噸鏂拌繍琛?`scripts/export_web.ps1`锛屾湰鍦?Godot Web 瀵煎嚭鎴愬姛銆?
+- 宸茶褰曟湰鍦?`web_build/` 涓?index.html/index.js/index.wasm/index.pck 鐨勫ぇ灏忓拰 SHA256銆?
+- 宸茬敤 `curl.exe --ssl-no-revoke -I` 妫€鏌?CloudBase 鏍圭洰褰?Godot 鏂囦欢锛宨ndex.html/index.js/index.wasm/index.pck 鍧囦负 200銆?
+- 宸蹭笅杞界嚎涓?index.html/index.js/index.wasm/index.pck锛屽苟纭 SHA256 涓庢湰鍦板鍑哄畬鍏ㄤ竴鑷淬€?
+- 宸茶繍琛?`tcb hosting list -e macropolicymanager-d3cqtfccac7ec`锛岀‘璁ゆ牳蹇?Godot 鏂囦欢瀛樺湪锛屽悓鏃跺彂鐜版牴鐩綍灏氭湭閮ㄧ讲鐗堟湰鍖栧惎鍔ㄩ〉锛宍latest.json` 涓?404銆?
+- 宸茬‘璁?`/health.html` 鍙湪绾胯闂紝CloudBase 闈欐€佹墭绠℃湰韬甯搞€?
+- 宸叉鏌?`export_presets.cfg`锛歐eb preset銆佸崟绾跨▼銆佹棤 Extensions Support銆佹棤 C#銆佹棤 GDExtension銆?
+- 宸叉鏌?index.html/index.js 寮曠敤鍏崇郴锛氭枃浠跺悕涓庣嚎涓婂疄闄呮枃浠朵竴鑷淬€?
+- 鏈坊鍔?MainMenu/TestScene 鏋勫缓鏍囪瘑锛屽洜涓哄綋鍓嶉棶棰樻洿鍍?runtime 鍒濆鍖栧墠鎴栫増鏈寲鍏ュ彛鏈笂绾匡紝鍦烘櫙鍐呮爣璇嗘殏鏃舵棤娉曟彁渚涢澶栦俊鎭€?
+- 宸茬敓鎴?`docs/CloudBase_Loading_Issue_Report.md`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍规嵁鎶ュ憡娴嬭瘯鐗堟湰鍖栭儴缃插拰娴忚鍣?Console 閿欒銆?
 
-版本化部署执行记录：
-- 已执行 `scripts/build_and_deploy.ps1` 完成 CloudBase 版本化部署。
-- 最终 BuildId：`20260711-101853`。
-- `latest.json` 已上线，内容指向 `/releases/20260711-101853/index.html`。
-- 根目录 `index.html` 已更新为轻量启动页。
-- Release 目录下 `index.html`、`index.js`、`index.wasm`、`index.pck`、audio worklet 文件和 `health.html` 均返回 HTTP 200。
-- `index.wasm` 的 Content-Type 为 `application/wasm`，`index.pck` 大小为 `13,320,104 bytes`。
-- 已将部署脚本改为生成无 BOM 的 `latest.json` 和 root launcher，降低 JSON 解析风险。
-- 已修复导出脚本：导出前清理 `latest.json` 和 `root_index/`，避免部署元数据被打进 Godot `.pck`。
-- 暂停继续开发，等待人工核验线上网站。
+鐗堟湰鍖栭儴缃叉墽琛岃褰曪細
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾垚 CloudBase 鐗堟湰鍖栭儴缃层€?
+- 鏈€缁?BuildId锛歚20260711-101853`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260711-101853/index.html`銆?
+- 鏍圭洰褰?`index.html` 宸叉洿鏂颁负杞婚噺鍚姩椤点€?
+- Release 鐩綍涓?`index.html`銆乣index.js`銆乣index.wasm`銆乣index.pck`銆乤udio worklet 鏂囦欢鍜?`health.html` 鍧囪繑鍥?HTTP 200銆?
+- `index.wasm` 鐨?Content-Type 涓?`application/wasm`锛宍index.pck` 澶у皬涓?`13,320,104 bytes`銆?
+- 宸插皢閮ㄧ讲鑴氭湰鏀逛负鐢熸垚鏃?BOM 鐨?`latest.json` 鍜?root launcher锛岄檷浣?JSON 瑙ｆ瀽椋庨櫓銆?
+- 宸蹭慨澶嶅鍑鸿剼鏈細瀵煎嚭鍓嶆竻鐞?`latest.json` 鍜?`root_index/`锛岄伩鍏嶉儴缃插厓鏁版嵁琚墦杩?Godot `.pck`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-稳定基线整理记录：
-- Godot Web 导出验证完成。
-- 中文字体修复完成。
-- CloudBase 自动部署完成。
-- 线上加载问题修复完成。
-- 技术路线验证完成。
-- 已补充 `docs/CloudBase_Loading_Issue_Report.md` 的最终修复结果。
+绋冲畾鍩虹嚎鏁寸悊璁板綍锛?
+- Godot Web 瀵煎嚭楠岃瘉瀹屾垚銆?
+- 涓枃瀛椾綋淇瀹屾垚銆?
+- CloudBase 鑷姩閮ㄧ讲瀹屾垚銆?
+- 绾夸笂鍔犺浇闂淇瀹屾垚銆?
+- 鎶€鏈矾绾块獙璇佸畬鎴愩€?
+- 宸茶ˉ鍏?`docs/CloudBase_Loading_Issue_Report.md` 鐨勬渶缁堜慨澶嶇粨鏋溿€?
 
-正式项目结构记录：
-- 已建立 `scenes/`、`scenes/components/`、`scripts/autoload/`、`scripts/scenes/`、`scripts/ui/`、`scripts/engine/`、`data/` 和资源目录。
-- 已保留旧验证文件，当前入口已切换到 `res://scenes/MainMenu.tscn`。
-- 已创建 `GameState.gd`、`AudioManager.gd`、`DataLoader.gd` 三个 AutoLoad。
-- 已创建最小 JSON 数据：scenarios、policies、advisors、variables、model_tags。
+姝ｅ紡椤圭洰缁撴瀯璁板綍锛?
+- 宸插缓绔?`scenes/`銆乣scenes/components/`銆乣scripts/autoload/`銆乣scripts/scenes/`銆乣scripts/ui/`銆乣scripts/engine/`銆乣data/` 鍜岃祫婧愮洰褰曘€?
+- 宸蹭繚鐣欐棫楠岃瘉鏂囦欢锛屽綋鍓嶅叆鍙ｅ凡鍒囨崲鍒?`res://scenes/MainMenu.tscn`銆?
+- 宸插垱寤?`GameState.gd`銆乣AudioManager.gd`銆乣DataLoader.gd` 涓変釜 AutoLoad銆?
+- 宸插垱寤烘渶灏?JSON 鏁版嵁锛歴cenarios銆乸olicies銆乤dvisors銆乿ariables銆乵odel_tags銆?
 
-政策桌面静态原型记录：
-- MainMenu 已显示“宏观政策模拟器”和“开始游戏”，点击后进入 ScenarioIntro 并播放 BGM。
-- ScenarioIntro 已显示“消费信心下滑”、情境文本、模型标签和“进入政策会议”按钮。
-- PolicyDesk 已包含顶部 ModelTagBar、左侧三张政策卡、中间抽象国家地图、右侧 IndicatorPanel、底部 AdvisorPanel 和“确认政策”按钮。
-- PolicyCard 支持 hover 放大/高亮和点击选中。
-- ModelTagBar、IndicatorPanel、AdvisorPanel、MapRegion 已按组件形式创建。
-- 当前阶段只读取并显示数据，不实现复杂宏观结算。
-- 已用 Godot 4.7 headless 启动检查通过。
+鏀跨瓥妗岄潰闈欐€佸師鍨嬭褰曪細
+- MainMenu 宸叉樉绀衡€滃畯瑙傛斂绛栨ā鎷熷櫒鈥濆拰鈥滃紑濮嬫父鎴忊€濓紝鐐瑰嚮鍚庤繘鍏?ScenarioIntro 骞舵挱鏀?BGM銆?
+- ScenarioIntro 宸叉樉绀衡€滄秷璐逛俊蹇冧笅婊戔€濄€佹儏澧冩枃鏈€佹ā鍨嬫爣绛惧拰鈥滆繘鍏ユ斂绛栦細璁€濇寜閽€?
+- PolicyDesk 宸插寘鍚《閮?ModelTagBar銆佸乏渚т笁寮犳斂绛栧崱銆佷腑闂存娊璞″浗瀹跺湴鍥俱€佸彸渚?IndicatorPanel銆佸簳閮?AdvisorPanel 鍜屸€滅‘璁ゆ斂绛栤€濇寜閽€?
+- PolicyCard 鏀寔 hover 鏀惧ぇ/楂樹寒鍜岀偣鍑婚€変腑銆?
+- ModelTagBar銆両ndicatorPanel銆丄dvisorPanel銆丮apRegion 宸叉寜缁勪欢褰㈠紡鍒涘缓銆?
+- 褰撳墠闃舵鍙鍙栧苟鏄剧ず鏁版嵁锛屼笉瀹炵幇澶嶆潅瀹忚缁撶畻銆?
+- 宸茬敤 Godot 4.7 headless 鍚姩妫€鏌ラ€氳繃銆?
 
-政策桌面静态原型部署记录：
-- 已清理诊断遗留文件 `temp_latest_check.json`，避免临时 JSON 被打进 Godot `.pck`。
-- 已修复 `scripts/deploy_cloudbase.ps1`：CloudBase CLI 在 Windows PowerShell 中输出普通 stderr 或上传成功后返回异常退出码时，脚本会根据“部署完成/上传成功/失败 0 个文件”做二次判断；真正失败仍会中止。
-- 已更新 `docs/CloudBase_Auto_Deploy.md`，将线上验收项改为当前 MainMenu → ScenarioIntro → PolicyDesk 流程。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260713-164751`。
-- `latest.json` 已上线，内容指向 `/releases/20260713-164751/index.html`。
-- 线上检查通过：根目录 `index.html` 为 200，release 的 `index.html`、`index.pck`、`index.wasm` 均为 200。
-- `index.wasm` 的 Content-Type 为 `application/wasm`，`index.pck` 大小为 `13,364,596 bytes`。
-- 暂停继续开发，等待人工核验线上网站。
+鏀跨瓥妗岄潰闈欐€佸師鍨嬮儴缃茶褰曪細
+- 宸叉竻鐞嗚瘖鏂仐鐣欐枃浠?`temp_latest_check.json`锛岄伩鍏嶄复鏃?JSON 琚墦杩?Godot `.pck`銆?
+- 宸蹭慨澶?`scripts/deploy_cloudbase.ps1`锛欳loudBase CLI 鍦?Windows PowerShell 涓緭鍑烘櫘閫?stderr 鎴栦笂浼犳垚鍔熷悗杩斿洖寮傚父閫€鍑虹爜鏃讹紝鑴氭湰浼氭牴鎹€滈儴缃插畬鎴?涓婁紶鎴愬姛/澶辫触 0 涓枃浠垛€濆仛浜屾鍒ゆ柇锛涚湡姝ｅけ璐ヤ粛浼氫腑姝€?
+- 宸叉洿鏂?`docs/CloudBase_Auto_Deploy.md`锛屽皢绾夸笂楠屾敹椤规敼涓哄綋鍓?MainMenu 鈫?ScenarioIntro 鈫?PolicyDesk 娴佺▼銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260713-164751`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260713-164751/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛氭牴鐩綍 `index.html` 涓?200锛宺elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200銆?
+- `index.wasm` 鐨?Content-Type 涓?`application/wasm`锛宍index.pck` 澶у皬涓?`13,364,596 bytes`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-PolicyDesk UI 可用性优化记录：
-- 已在 `data/scenarios.json` 增加 `problem_title`、`problem_description`、`model_hint` 字段。
-- 已在 PolicyDesk 顶部标签下方增加“当前问题”栏，显示“消费信心下降：居民消费不足，经济面临需求偏弱压力。”和“核心变量：C ↓，总需求下降”。
-- 已将 PolicyDesk 主内容放入 `ScrollContainer`，允许高度不足时在 Godot 主界面内部垂直滚动。
-- 已为 PolicyDesk 底部增加 72px 安全留白，避免会议记录、顾问提示和“确认政策”按钮被 Windows 任务栏永久遮挡。
-- 已更新 `docs/CloudBase_Auto_Deploy.md`，补充 Web 版本高度不足时应允许滚动并保留底部安全留白。
-- 已用 Godot 4.7 headless 启动检查通过。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260713-173239`。
-- `latest.json` 已上线，内容指向 `/releases/20260713-173239/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+PolicyDesk UI 鍙敤鎬т紭鍖栬褰曪細
+- 宸插湪 `data/scenarios.json` 澧炲姞 `problem_title`銆乣problem_description`銆乣model_hint` 瀛楁銆?
+- 宸插湪 PolicyDesk 椤堕儴鏍囩涓嬫柟澧炲姞鈥滃綋鍓嶉棶棰樷€濇爮锛屾樉绀衡€滄秷璐逛俊蹇冧笅闄嶏細灞呮皯娑堣垂涓嶈冻锛岀粡娴庨潰涓撮渶姹傚亸寮卞帇鍔涖€傗€濆拰鈥滄牳蹇冨彉閲忥細C 鈫擄紝鎬婚渶姹備笅闄嶁€濄€?
+- 宸插皢 PolicyDesk 涓诲唴瀹规斁鍏?`ScrollContainer`锛屽厑璁搁珮搴︿笉瓒虫椂鍦?Godot 涓荤晫闈㈠唴閮ㄥ瀭鐩存粴鍔ㄣ€?
+- 宸蹭负 PolicyDesk 搴曢儴澧炲姞 72px 瀹夊叏鐣欑櫧锛岄伩鍏嶄細璁褰曘€侀【闂彁绀哄拰鈥滅‘璁ゆ斂绛栤€濇寜閽 Windows 浠诲姟鏍忔案涔呴伄鎸°€?
+- 宸叉洿鏂?`docs/CloudBase_Auto_Deploy.md`锛岃ˉ鍏?Web 鐗堟湰楂樺害涓嶈冻鏃跺簲鍏佽婊氬姩骞朵繚鐣欏簳閮ㄥ畨鍏ㄧ暀鐧姐€?
+- 宸茬敤 Godot 4.7 headless 鍚姩妫€鏌ラ€氳繃銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260713-173239`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260713-173239/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-IS-LM 图形回放滚动修复记录：
-- 已修复 IS-LM 图形回放面板普通鼠标滚轮无法滚动的问题。
-- `ISLMReplayPanel.gd` 已将图形、数值摘要和机制解释放入内部 `ScrollContainer`。
-- `ISLMChart.gd` 已设置为不主动消费鼠标事件，避免图表控件吞掉普通滚轮。
-- `PolicyDesk.gd` 中模型回放弹窗改为在窗口内留安全边距并填满可用区域，避免小窗口下固定居中弹窗底部被裁切。
-- Ctrl + 鼠标滚轮仍沿用原 PolicyDesk UI 缩放逻辑；普通滚轮用于回放面板内容滚动。
-- 未改动 IS-LM Solver 计算逻辑，未改动 MacroEngine 结算逻辑。
-- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260714-010213`。
-- `latest.json` 已上线，内容指向 `/releases/20260714-010213/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+IS-LM 鍥惧舰鍥炴斁婊氬姩淇璁板綍锛?
+- 宸蹭慨澶?IS-LM 鍥惧舰鍥炴斁闈㈡澘鏅€氶紶鏍囨粴杞棤娉曟粴鍔ㄧ殑闂銆?
+- `ISLMReplayPanel.gd` 宸插皢鍥惧舰銆佹暟鍊兼憳瑕佸拰鏈哄埗瑙ｉ噴鏀惧叆鍐呴儴 `ScrollContainer`銆?
+- `ISLMChart.gd` 宸茶缃负涓嶄富鍔ㄦ秷璐归紶鏍囦簨浠讹紝閬垮厤鍥捐〃鎺т欢鍚炴帀鏅€氭粴杞€?
+- `PolicyDesk.gd` 涓ā鍨嬪洖鏀惧脊绐楁敼涓哄湪绐楀彛鍐呯暀瀹夊叏杈硅窛骞跺～婊″彲鐢ㄥ尯鍩燂紝閬垮厤灏忕獥鍙ｄ笅鍥哄畾灞呬腑寮圭獥搴曢儴琚鍒囥€?
+- Ctrl + 榧犳爣婊氳疆浠嶆部鐢ㄥ師 PolicyDesk UI 缂╂斁閫昏緫锛涙櫘閫氭粴杞敤浜庡洖鏀鹃潰鏉垮唴瀹规粴鍔ㄣ€?
+- 鏈敼鍔?IS-LM Solver 璁＄畻閫昏緫锛屾湭鏀瑰姩 MacroEngine 缁撶畻閫昏緫銆?
+- 宸茬敤 Godot 4.7 headless 椤圭洰鍚姩妫€鏌ラ€氳繃锛屽苟鐩存帴鍔犺浇 PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260714-010213`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260714-010213/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-IS-LM 图形回放 v1 记录：
-- 已在 `ISLMSolver.solve(...)` 返回结果中新增 `graph_data`，包含坐标范围、政策前后 IS/LM 曲线采样点和 E0/E1 均衡点。
-- 已新增 `scripts/ui/ISLMChart.gd`，使用 Godot `_draw()` 绘制 i-Y 坐标轴、IS/LM、IS'/LM'、E0/E1。
-- 已新增 `scenes/components/ISLMReplayPanel.tscn` 和 `scripts/ui/ISLMReplayPanel.gd`，作为 PolicyDesk 内的 IS-LM 图形回放弹窗。
-- 组合训练关确认政策后，右侧面板会显示“查看模型回放”入口，可打开静态 IS-LM 图形回放。
-- 图形回放只读取 `MacroEngine / ISLMSolver` 返回的同一个 `result.graph_data`，不在 UI 层重新计算 IS-LM。
-- 图形中显示政策前后 IS / LM 曲线与 E0 / E1，并显示 Y 与 i 的前后变化。
-- 当前只支持 IS-LM model 关卡；基础教学关 demo 不提供正式图形回放。
-- 已新增 `docs/ISLM_Replay_v1.md`，记录用途、graph_data 结构、曲线采样方式、UI 绘图方式和当前限制。
-- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260714-005019`。
-- `latest.json` 已上线，内容指向 `/releases/20260714-005019/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+IS-LM 鍥惧舰鍥炴斁 v1 璁板綍锛?
+- 宸插湪 `ISLMSolver.solve(...)` 杩斿洖缁撴灉涓柊澧?`graph_data`锛屽寘鍚潗鏍囪寖鍥淬€佹斂绛栧墠鍚?IS/LM 鏇茬嚎閲囨牱鐐瑰拰 E0/E1 鍧囪　鐐广€?
+- 宸叉柊澧?`scripts/ui/ISLMChart.gd`锛屼娇鐢?Godot `_draw()` 缁樺埗 i-Y 鍧愭爣杞淬€両S/LM銆両S'/LM'銆丒0/E1銆?
+- 宸叉柊澧?`scenes/components/ISLMReplayPanel.tscn` 鍜?`scripts/ui/ISLMReplayPanel.gd`锛屼綔涓?PolicyDesk 鍐呯殑 IS-LM 鍥惧舰鍥炴斁寮圭獥銆?
+- 缁勫悎璁粌鍏崇‘璁ゆ斂绛栧悗锛屽彸渚ч潰鏉夸細鏄剧ず鈥滄煡鐪嬫ā鍨嬪洖鏀锯€濆叆鍙ｏ紝鍙墦寮€闈欐€?IS-LM 鍥惧舰鍥炴斁銆?
+- 鍥惧舰鍥炴斁鍙鍙?`MacroEngine / ISLMSolver` 杩斿洖鐨勫悓涓€涓?`result.graph_data`锛屼笉鍦?UI 灞傞噸鏂拌绠?IS-LM銆?
+- 鍥惧舰涓樉绀烘斂绛栧墠鍚?IS / LM 鏇茬嚎涓?E0 / E1锛屽苟鏄剧ず Y 涓?i 鐨勫墠鍚庡彉鍖栥€?
+- 褰撳墠鍙敮鎸?IS-LM model 鍏冲崱锛涘熀纭€鏁欏鍏?demo 涓嶆彁渚涙寮忓浘褰㈠洖鏀俱€?
+- 宸叉柊澧?`docs/ISLM_Replay_v1.md`锛岃褰曠敤閫斻€乬raph_data 缁撴瀯銆佹洸绾块噰鏍锋柟寮忋€乁I 缁樺浘鏂瑰紡鍜屽綋鍓嶉檺鍒躲€?
+- 宸茬敤 Godot 4.7 headless 椤圭洰鍚姩妫€鏌ラ€氳繃锛屽苟鐩存帴鍔犺浇 PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260714-005019`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260714-005019/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-IS-LM Solver v1 记录：
-- 已实现 `ISLMSolver.solve(...)` v1，用于封闭经济、短期、价格刚性背景下的 IS-LM 模型结算。
-- `consumer_confidence_drop_budget` 已增加 `model_params.IS_LM`，参数满足初始均衡约为 `Y=100`、`i=4%`。
-- `data/policies.json` 已改为通过 `policy_impacts.IS_LM.delta_A`、`delta_d`、`debt_delta` 描述政策对模型参数的影响，不写死最终变量结果。
-- budget + model 组合训练关不再使用 placeholder；确认政策后通过 `MacroEngine.calculate_result(...)` 分发到 `ISLMSolver.solve(...)`。
-- 多张政策先合并 `delta_A` 与 `delta_d`，再重新求解 `Y=(A+b*d)/(1+b*c)` 和 `i=cY-d`，不是简单相加卡牌结果。
-- demo 基础教学关保持不变，仍使用基础教学演示结算。
-- 右侧宏观状态面板已显示 `IS-LM 模型结算 v1`、IS/LM 曲线移动和 `Y/u/π/i/Debt` 的 before → after。
-- 会议记录已显示 IS-LM v1 机制路径，并说明合并参数变化后重新求均衡。
-- 已新增 `docs/ISLM_Solver_v1.md`，记录 v1 方程、参数含义、政策映射、组合政策逻辑、限制和后续扩展。
-- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260714-002904`。
-- `latest.json` 已上线，内容指向 `/releases/20260714-002904/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+IS-LM Solver v1 璁板綍锛?
+- 宸插疄鐜?`ISLMSolver.solve(...)` v1锛岀敤浜庡皝闂粡娴庛€佺煭鏈熴€佷环鏍煎垰鎬ц儗鏅笅鐨?IS-LM 妯″瀷缁撶畻銆?
+- `consumer_confidence_drop_budget` 宸插鍔?`model_params.IS_LM`锛屽弬鏁版弧瓒冲垵濮嬪潎琛＄害涓?`Y=100`銆乣i=4%`銆?
+- `data/policies.json` 宸叉敼涓洪€氳繃 `policy_impacts.IS_LM.delta_A`銆乣delta_d`銆乣debt_delta` 鎻忚堪鏀跨瓥瀵规ā鍨嬪弬鏁扮殑褰卞搷锛屼笉鍐欐鏈€缁堝彉閲忕粨鏋溿€?
+- budget + model 缁勫悎璁粌鍏充笉鍐嶄娇鐢?placeholder锛涚‘璁ゆ斂绛栧悗閫氳繃 `MacroEngine.calculate_result(...)` 鍒嗗彂鍒?`ISLMSolver.solve(...)`銆?
+- 澶氬紶鏀跨瓥鍏堝悎骞?`delta_A` 涓?`delta_d`锛屽啀閲嶆柊姹傝В `Y=(A+b*d)/(1+b*c)` 鍜?`i=cY-d`锛屼笉鏄畝鍗曠浉鍔犲崱鐗岀粨鏋溿€?
+- demo 鍩虹鏁欏鍏充繚鎸佷笉鍙橈紝浠嶄娇鐢ㄥ熀纭€鏁欏婕旂ず缁撶畻銆?
+- 鍙充晶瀹忚鐘舵€侀潰鏉垮凡鏄剧ず `IS-LM 妯″瀷缁撶畻 v1`銆両S/LM 鏇茬嚎绉诲姩鍜?`Y/u/蟺/i/Debt` 鐨?before 鈫?after銆?
+- 浼氳璁板綍宸叉樉绀?IS-LM v1 鏈哄埗璺緞锛屽苟璇存槑鍚堝苟鍙傛暟鍙樺寲鍚庨噸鏂版眰鍧囪　銆?
+- 宸叉柊澧?`docs/ISLM_Solver_v1.md`锛岃褰?v1 鏂圭▼銆佸弬鏁板惈涔夈€佹斂绛栨槧灏勩€佺粍鍚堟斂绛栭€昏緫銆侀檺鍒跺拰鍚庣画鎵╁睍銆?
+- 宸茬敤 Godot 4.7 headless 椤圭洰鍚姩妫€鏌ラ€氳繃锛屽苟鐩存帴鍔犺浇 PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260714-002904`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260714-002904/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-测试关卡入口与分流验证记录：
-- MainMenu 已新增两个测试关卡入口：`基础教学关：单一政策决策` 和 `组合训练关：政策点数决策`。
-- 基础教学关使用 `consumer_confidence_drop_basic`，配置为 `selection_mode=single`、`settlement_mode=demo`、`model_type=IS_LM`。
-- 组合训练关使用 `consumer_confidence_drop_budget`，配置为 `selection_mode=budget`、`settlement_mode=model`、`model_type=IS_LM`、`policy_point_limit=5`。
-- ScenarioIntro 已从 GameState/DataLoader 动态读取当前 scenario，显示当前关卡标题、三步故事、模型标签和决策模式提示。
-- PolicyDesk 已根据当前 scenario 动态显示 single 或 budget 模式；budget 模式可在线测试政策点数、cost 显示、多选和点数不足提示。
-- 选择政策但未确认前，右侧宏观状态监测面板仍不提前显示政策结果。
-- 确认政策后统一调用 `MacroEngine.calculate_result(...)`；基础教学关进入 demo 演示结算，组合训练关进入 `ISLMSolver.solve(...)` 模型占位路径。
-- 右侧结算方式已能显示 `基础教学演示结算` 或 `IS-LM 模型结算占位`。
-- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 ScenarioIntro / PolicyDesk 场景检查通过。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260713-214809`。
-- `latest.json` 已上线，内容指向 `/releases/20260713-214809/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+娴嬭瘯鍏冲崱鍏ュ彛涓庡垎娴侀獙璇佽褰曪細
+- MainMenu 宸叉柊澧炰袱涓祴璇曞叧鍗″叆鍙ｏ細`鍩虹鏁欏鍏筹細鍗曚竴鏀跨瓥鍐崇瓥` 鍜?`缁勫悎璁粌鍏筹細鏀跨瓥鐐规暟鍐崇瓥`銆?
+- 鍩虹鏁欏鍏充娇鐢?`consumer_confidence_drop_basic`锛岄厤缃负 `selection_mode=single`銆乣settlement_mode=demo`銆乣model_type=IS_LM`銆?
+- 缁勫悎璁粌鍏充娇鐢?`consumer_confidence_drop_budget`锛岄厤缃负 `selection_mode=budget`銆乣settlement_mode=model`銆乣model_type=IS_LM`銆乣policy_point_limit=5`銆?
+- ScenarioIntro 宸蹭粠 GameState/DataLoader 鍔ㄦ€佽鍙栧綋鍓?scenario锛屾樉绀哄綋鍓嶅叧鍗℃爣棰樸€佷笁姝ユ晠浜嬨€佹ā鍨嬫爣绛惧拰鍐崇瓥妯″紡鎻愮ず銆?
+- PolicyDesk 宸叉牴鎹綋鍓?scenario 鍔ㄦ€佹樉绀?single 鎴?budget 妯″紡锛沚udget 妯″紡鍙湪绾挎祴璇曟斂绛栫偣鏁般€乧ost 鏄剧ず銆佸閫夊拰鐐规暟涓嶈冻鎻愮ず銆?
+- 閫夋嫨鏀跨瓥浣嗘湭纭鍓嶏紝鍙充晶瀹忚鐘舵€佺洃娴嬮潰鏉夸粛涓嶆彁鍓嶆樉绀烘斂绛栫粨鏋溿€?
+- 纭鏀跨瓥鍚庣粺涓€璋冪敤 `MacroEngine.calculate_result(...)`锛涘熀纭€鏁欏鍏宠繘鍏?demo 婕旂ず缁撶畻锛岀粍鍚堣缁冨叧杩涘叆 `ISLMSolver.solve(...)` 妯″瀷鍗犱綅璺緞銆?
+- 鍙充晶缁撶畻鏂瑰紡宸茶兘鏄剧ず `鍩虹鏁欏婕旂ず缁撶畻` 鎴?`IS-LM 妯″瀷缁撶畻鍗犱綅`銆?
+- 宸茬敤 Godot 4.7 headless 椤圭洰鍚姩妫€鏌ラ€氳繃锛屽苟鐩存帴鍔犺浇 ScenarioIntro / PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260713-214809`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260713-214809/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-轻量交互优化记录：
-- 已为 PolicyDesk 增加 UI 缩放控件，支持 80% / 90% / 100% / 110% / 120%，并保留滚动与底部安全留白。
-- 已将 ScenarioIntro 改为三步情景互动：新闻播报、居民反馈、顾问总结。
-- 已在 `data/scenarios.json` 写入 `story_steps`，保持情景内容数据驱动。
-- 已在 PolicyDesk 地图标题栏增加“图表/理论”按钮，理论面板默认关闭，可打开/关闭。
-- 理论面板当前只显示 IS-LM 静态框架：消费信心下降、C ↓、总需求下降、IS 左移、Y 与 i 下降压力，不展示任何政策卡结果。
-- 已将右侧空白区域改为“宏观状态监测”信息面板，默认显示当前已发生状态：当前问题、C、Y、u、π、i、Debt 和提示。
-- 已确保选中政策卡但未点击“确认政策”时，右侧信息面板不显示政策结果，宏观数值不变化。
-- 已实现点击“确认政策”后，右侧信息面板才更新为“政策执行后状态”，显示静态测试变化和会议记录。
-- 已在 `data/policies.json` 增加 `policy_result_demo` 字段，仅在确认政策后读取。
-- 已更新 `docs/CloudBase_Auto_Deploy.md`：右侧信息面板不是政策预测器，理论面板默认关闭，UI 缩放与滚动用于适配不同窗口高度。
-- 已用 Godot 4.7 headless 启动检查通过，并直接加载 ScenarioIntro / PolicyDesk 场景检查通过。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260713-175235`。
-- `latest.json` 已上线，内容指向 `/releases/20260713-175235/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+杞婚噺浜や簰浼樺寲璁板綍锛?
+- 宸蹭负 PolicyDesk 澧炲姞 UI 缂╂斁鎺т欢锛屾敮鎸?80% / 90% / 100% / 110% / 120%锛屽苟淇濈暀婊氬姩涓庡簳閮ㄥ畨鍏ㄧ暀鐧姐€?
+- 宸插皢 ScenarioIntro 鏀逛负涓夋鎯呮櫙浜掑姩锛氭柊闂绘挱鎶ャ€佸眳姘戝弽棣堛€侀【闂€荤粨銆?
+- 宸插湪 `data/scenarios.json` 鍐欏叆 `story_steps`锛屼繚鎸佹儏鏅唴瀹规暟鎹┍鍔ㄣ€?
+- 宸插湪 PolicyDesk 鍦板浘鏍囬鏍忓鍔犫€滃浘琛?鐞嗚鈥濇寜閽紝鐞嗚闈㈡澘榛樿鍏抽棴锛屽彲鎵撳紑/鍏抽棴銆?
+- 鐞嗚闈㈡澘褰撳墠鍙樉绀?IS-LM 闈欐€佹鏋讹細娑堣垂淇″績涓嬮檷銆丆 鈫撱€佹€婚渶姹備笅闄嶃€両S 宸︾Щ銆乊 涓?i 涓嬮檷鍘嬪姏锛屼笉灞曠ず浠讳綍鏀跨瓥鍗＄粨鏋溿€?
+- 宸插皢鍙充晶绌虹櫧鍖哄煙鏀逛负鈥滃畯瑙傜姸鎬佺洃娴嬧€濅俊鎭潰鏉匡紝榛樿鏄剧ず褰撳墠宸插彂鐢熺姸鎬侊細褰撳墠闂銆丆銆乊銆乽銆佅€銆乮銆丏ebt 鍜屾彁绀恒€?
+- 宸茬‘淇濋€変腑鏀跨瓥鍗′絾鏈偣鍑烩€滅‘璁ゆ斂绛栤€濇椂锛屽彸渚т俊鎭潰鏉夸笉鏄剧ず鏀跨瓥缁撴灉锛屽畯瑙傛暟鍊间笉鍙樺寲銆?
+- 宸插疄鐜扮偣鍑烩€滅‘璁ゆ斂绛栤€濆悗锛屽彸渚т俊鎭潰鏉挎墠鏇存柊涓衡€滄斂绛栨墽琛屽悗鐘舵€佲€濓紝鏄剧ず闈欐€佹祴璇曞彉鍖栧拰浼氳璁板綍銆?
+- 宸插湪 `data/policies.json` 澧炲姞 `policy_result_demo` 瀛楁锛屼粎鍦ㄧ‘璁ゆ斂绛栧悗璇诲彇銆?
+- 宸叉洿鏂?`docs/CloudBase_Auto_Deploy.md`锛氬彸渚т俊鎭潰鏉夸笉鏄斂绛栭娴嬪櫒锛岀悊璁洪潰鏉块粯璁ゅ叧闂紝UI 缂╂斁涓庢粴鍔ㄧ敤浜庨€傞厤涓嶅悓绐楀彛楂樺害銆?
+- 宸茬敤 Godot 4.7 headless 鍚姩妫€鏌ラ€氳繃锛屽苟鐩存帴鍔犺浇 ScenarioIntro / PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260713-175235`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260713-175235/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-PolicyDesk 缩放与安全边距修复记录：
-- 已支持 Ctrl + 鼠标滚轮缩放：Ctrl + 上滚放大，Ctrl + 下滚缩小，范围保持 80% 到 120%，步长 10%。
-- 已保留 `- / + / 重置` 缩放按钮，并让按钮和 Ctrl + 鼠标滚轮共用同一套 `_set_ui_scale()` 逻辑。
-- 已移除 PolicyDesk 对整块 UI 的 `Control.scale` 缩放方式，改为按当前 UI scale 重建尺寸、间距和字体字号，避免 80% 缩放下中文被整体拉伸变形。
-- 已让 `PolicyCard`、`MapRegion`、`ModelTagBar` 支持按 UI scale 调整字号和最小尺寸。
-- 已将 PolicyDesk 的滚动结构调整为 `ScrollContainer + MarginContainer + 内容区`，并给外侧增加黑色安全边距：左右/顶部 48px，底部 144px。
-- 已修复缩小后 ScrollContainer 内容尺寸未稳定更新的问题，80% 和 100% 下均保留真实滚动空间与底部安全边距。
-- 已为国家地图区域和四个 MapRegion 设置稳定的初始 `custom_minimum_size`，避免第一次进入 PolicyDesk 时地图板块被拉成长方形；进入后会 `call_deferred` 刷新初始布局。
-- 已在 `scripts/export_web.ps1` 中加入 Web 导出后自动 patch：只阻止 Ctrl + wheel 的浏览器默认缩放，不影响普通滚轮滚动。
-- 已更新 `docs/CloudBase_Auto_Deploy.md`：缩放是 Godot 内部 UI scale，普通滚轮用于滚动，Ctrl + 滚轮用于 UI 缩放，PolicyDesk 使用 ScrollContainer 和安全边距适配窗口高度。
-- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
-- 已运行 `scripts/build_and_deploy.ps1`，Godot Web 导出成功，`web_build/index.html` 已确认包含 `macro-policy-ctrl-wheel-guard`。
-- 首次 CloudBase 上传因网络超时 `connect ETIMEDOUT 198.18.0.96:443` 失败；随后使用同一 BuildId 重试 `scripts/deploy_cloudbase.ps1 -BuildId 20260713-183448` 成功。
-- 最终 BuildId：`20260713-183448`。
-- `latest.json` 已上线，内容指向 `/releases/20260713-183448/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+PolicyDesk 缂╂斁涓庡畨鍏ㄨ竟璺濅慨澶嶈褰曪細
+- 宸叉敮鎸?Ctrl + 榧犳爣婊氳疆缂╂斁锛欳trl + 涓婃粴鏀惧ぇ锛孋trl + 涓嬫粴缂╁皬锛岃寖鍥翠繚鎸?80% 鍒?120%锛屾闀?10%銆?
+- 宸蹭繚鐣?`- / + / 閲嶇疆` 缂╂斁鎸夐挳锛屽苟璁╂寜閽拰 Ctrl + 榧犳爣婊氳疆鍏辩敤鍚屼竴濂?`_set_ui_scale()` 閫昏緫銆?
+- 宸茬Щ闄?PolicyDesk 瀵规暣鍧?UI 鐨?`Control.scale` 缂╂斁鏂瑰紡锛屾敼涓烘寜褰撳墠 UI scale 閲嶅缓灏哄銆侀棿璺濆拰瀛椾綋瀛楀彿锛岄伩鍏?80% 缂╂斁涓嬩腑鏂囪鏁翠綋鎷変几鍙樺舰銆?
+- 宸茶 `PolicyCard`銆乣MapRegion`銆乣ModelTagBar` 鏀寔鎸?UI scale 璋冩暣瀛楀彿鍜屾渶灏忓昂瀵搞€?
+- 宸插皢 PolicyDesk 鐨勬粴鍔ㄧ粨鏋勮皟鏁翠负 `ScrollContainer + MarginContainer + 鍐呭鍖篳锛屽苟缁欏渚у鍔犻粦鑹插畨鍏ㄨ竟璺濓細宸﹀彸/椤堕儴 48px锛屽簳閮?144px銆?
+- 宸蹭慨澶嶇缉灏忓悗 ScrollContainer 鍐呭灏哄鏈ǔ瀹氭洿鏂扮殑闂锛?0% 鍜?100% 涓嬪潎淇濈暀鐪熷疄婊氬姩绌洪棿涓庡簳閮ㄥ畨鍏ㄨ竟璺濄€?
+- 宸蹭负鍥藉鍦板浘鍖哄煙鍜屽洓涓?MapRegion 璁剧疆绋冲畾鐨勫垵濮?`custom_minimum_size`锛岄伩鍏嶇涓€娆¤繘鍏?PolicyDesk 鏃跺湴鍥炬澘鍧楄鎷夋垚闀挎柟褰紱杩涘叆鍚庝細 `call_deferred` 鍒锋柊鍒濆甯冨眬銆?
+- 宸插湪 `scripts/export_web.ps1` 涓姞鍏?Web 瀵煎嚭鍚庤嚜鍔?patch锛氬彧闃绘 Ctrl + wheel 鐨勬祻瑙堝櫒榛樿缂╂斁锛屼笉褰卞搷鏅€氭粴杞粴鍔ㄣ€?
+- 宸叉洿鏂?`docs/CloudBase_Auto_Deploy.md`锛氱缉鏀炬槸 Godot 鍐呴儴 UI scale锛屾櫘閫氭粴杞敤浜庢粴鍔紝Ctrl + 婊氳疆鐢ㄤ簬 UI 缂╂斁锛孭olicyDesk 浣跨敤 ScrollContainer 鍜屽畨鍏ㄨ竟璺濋€傞厤绐楀彛楂樺害銆?
+- 宸茬敤 Godot 4.7 headless 椤圭洰鍚姩妫€鏌ラ€氳繃锛屽苟鐩存帴鍔犺浇 PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸茶繍琛?`scripts/build_and_deploy.ps1`锛孏odot Web 瀵煎嚭鎴愬姛锛宍web_build/index.html` 宸茬‘璁ゅ寘鍚?`macro-policy-ctrl-wheel-guard`銆?
+- 棣栨 CloudBase 涓婁紶鍥犵綉缁滆秴鏃?`connect ETIMEDOUT 198.18.0.96:443` 澶辫触锛涢殢鍚庝娇鐢ㄥ悓涓€ BuildId 閲嶈瘯 `scripts/deploy_cloudbase.ps1 -BuildId 20260713-183448` 鎴愬姛銆?
+- 鏈€缁?BuildId锛歚20260713-183448`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260713-183448/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-选择模式与结算架构记录：
-- 已在 `data/scenarios.json` 增加 `selection_mode`、`settlement_mode`、`model_type`、`policy_point_limit`、`available_policies` 字段。
-- 当前默认测试关卡为 `consumer_confidence_drop_basic`，使用 `selection_mode=single` 和 `settlement_mode=demo`。
-- 已保留 `consumer_confidence_drop_budget` 示例关卡，使用 `selection_mode=budget`、`settlement_mode=model`、`model_type=IS_LM`、`policy_point_limit=5`。
-- 已扩展 `data/policies.json`：政策卡保留 `default_cost` 和 `policy_impacts`，不再在卡牌数据中写死最终变量结果。
-- 已支持 single 选择模式：最多选择一张卡，点击另一张切换，再次点击当前卡取消选择，不显示政策点数。
-- 已预留 budget 政策点数模式：支持多选、cost 覆盖、已用点数、点数不足提示和取消选择。
-- 已新增 `MacroEngine.calculate_result(scenario, selected_policies, current_state)` 统一结算入口。
-- 已新增 demo/model 结算分流：demo 用于基础教学演示，model 根据 `model_type` 分发到 solver。
-- 已新增 `ISLMSolver.gd`、`ADASSolver.gd`、`MundellFlemingSolver.gd`、`SolowSolver.gd` 占位文件。
-- 已整理 `CardResolver.gd`，用于标准化已选政策和政策名称列表。
-- PolicyDesk 点击“确认政策”后统一调用 MacroEngine 返回 result，再由右侧面板和会议记录显示。
-- 未确认政策前，右侧宏观状态监测面板仍只显示当前状态，不提前泄露政策结果。
-- 确认政策后，右侧面板显示 MacroEngine 返回的执行政策、结算方式、变量变化和解释。
-- 当前 model solver 只返回清晰占位结果，不进行 IS-LM / AD-AS / Mundell-Fleming / Solow 数学求解。
-- 已用 Godot 4.7 headless 项目启动检查通过，并直接加载 PolicyDesk 场景检查通过。
-- 已执行 `scripts/build_and_deploy.ps1` 完整导出并部署成功。
-- 最终 BuildId：`20260713-211044`。
-- `latest.json` 已上线，内容指向 `/releases/20260713-211044/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-- 暂停继续开发，等待人工核验线上网站。
+閫夋嫨妯″紡涓庣粨绠楁灦鏋勮褰曪細
+- 宸插湪 `data/scenarios.json` 澧炲姞 `selection_mode`銆乣settlement_mode`銆乣model_type`銆乣policy_point_limit`銆乣available_policies` 瀛楁銆?
+- 褰撳墠榛樿娴嬭瘯鍏冲崱涓?`consumer_confidence_drop_basic`锛屼娇鐢?`selection_mode=single` 鍜?`settlement_mode=demo`銆?
+- 宸蹭繚鐣?`consumer_confidence_drop_budget` 绀轰緥鍏冲崱锛屼娇鐢?`selection_mode=budget`銆乣settlement_mode=model`銆乣model_type=IS_LM`銆乣policy_point_limit=5`銆?
+- 宸叉墿灞?`data/policies.json`锛氭斂绛栧崱淇濈暀 `default_cost` 鍜?`policy_impacts`锛屼笉鍐嶅湪鍗＄墝鏁版嵁涓啓姝绘渶缁堝彉閲忕粨鏋溿€?
+- 宸叉敮鎸?single 閫夋嫨妯″紡锛氭渶澶氶€夋嫨涓€寮犲崱锛岀偣鍑诲彟涓€寮犲垏鎹紝鍐嶆鐐瑰嚮褰撳墠鍗″彇娑堥€夋嫨锛屼笉鏄剧ず鏀跨瓥鐐规暟銆?
+- 宸查鐣?budget 鏀跨瓥鐐规暟妯″紡锛氭敮鎸佸閫夈€乧ost 瑕嗙洊銆佸凡鐢ㄧ偣鏁般€佺偣鏁颁笉瓒虫彁绀哄拰鍙栨秷閫夋嫨銆?
+- 宸叉柊澧?`MacroEngine.calculate_result(scenario, selected_policies, current_state)` 缁熶竴缁撶畻鍏ュ彛銆?
+- 宸叉柊澧?demo/model 缁撶畻鍒嗘祦锛歞emo 鐢ㄤ簬鍩虹鏁欏婕旂ず锛宮odel 鏍规嵁 `model_type` 鍒嗗彂鍒?solver銆?
+- 宸叉柊澧?`ISLMSolver.gd`銆乣ADASSolver.gd`銆乣MundellFlemingSolver.gd`銆乣SolowSolver.gd` 鍗犱綅鏂囦欢銆?
+- 宸叉暣鐞?`CardResolver.gd`锛岀敤浜庢爣鍑嗗寲宸查€夋斂绛栧拰鏀跨瓥鍚嶇О鍒楄〃銆?
+- PolicyDesk 鐐瑰嚮鈥滅‘璁ゆ斂绛栤€濆悗缁熶竴璋冪敤 MacroEngine 杩斿洖 result锛屽啀鐢卞彸渚ч潰鏉垮拰浼氳璁板綍鏄剧ず銆?
+- 鏈‘璁ゆ斂绛栧墠锛屽彸渚у畯瑙傜姸鎬佺洃娴嬮潰鏉夸粛鍙樉绀哄綋鍓嶇姸鎬侊紝涓嶆彁鍓嶆硠闇叉斂绛栫粨鏋溿€?
+- 纭鏀跨瓥鍚庯紝鍙充晶闈㈡澘鏄剧ず MacroEngine 杩斿洖鐨勬墽琛屾斂绛栥€佺粨绠楁柟寮忋€佸彉閲忓彉鍖栧拰瑙ｉ噴銆?
+- 褰撳墠 model solver 鍙繑鍥炴竻鏅板崰浣嶇粨鏋滐紝涓嶈繘琛?IS-LM / AD-AS / Mundell-Fleming / Solow 鏁板姹傝В銆?
+- 宸茬敤 Godot 4.7 headless 椤圭洰鍚姩妫€鏌ラ€氳繃锛屽苟鐩存帴鍔犺浇 PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸叉墽琛?`scripts/build_and_deploy.ps1` 瀹屾暣瀵煎嚭骞堕儴缃叉垚鍔熴€?
+- 鏈€缁?BuildId锛歚20260713-211044`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260713-211044/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+- 鏆傚仠缁х画寮€鍙戯紝绛夊緟浜哄伐鏍搁獙绾夸笂缃戠珯銆?
 
-结果页与两回合状态继承 v1 记录：
-- 已新增 Result 页面 / 本轮总结页面，读取 `GameState.last_result` 显示本轮结果。
-- 已新增 `current_round` / `max_rounds`，当前演示版固定为 2 回合。
-- 政策确认后可以从 PolicyDesk 点击“本轮总结”进入 Result 页面。
-- Result 页面显示已执行政策、宏观变量变化和机制总结。
-- Result 页面不重新计算变量，不显示长期副作用模块。
-- 已支持点击“进入下一回合”回到 PolicyDesk。
-- 下一回合会将上一回合 `result.after` 写入 `GameState.current_state`，并清空政策选择状态。
-- 第 2 回合结束后显示“测试结束，返回主菜单”。
-- 本轮不实现评分系统。
-- 本轮不实现突发事件系统。
-- 长期副作用以后放在所有回合结束后的最终总结页，不放在每回合总结页。
-- 已新增 `docs/Round_Flow_v1.md`，记录两回合流程、GameState 状态、Result 页面数据来源和后续评分/事件边界。
-- 已重新导出并部署 CloudBase。
-- 最终 BuildId：`20260714-012717`。
-- `latest.json` 已上线，内容指向 `/releases/20260714-012717/index.html`。
-- 线上检查通过：根目录 `index.html`、release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+缁撴灉椤典笌涓ゅ洖鍚堢姸鎬佺户鎵?v1 璁板綍锛?
+- 宸叉柊澧?Result 椤甸潰 / 鏈疆鎬荤粨椤甸潰锛岃鍙?`GameState.last_result` 鏄剧ず鏈疆缁撴灉銆?
+- 宸叉柊澧?`current_round` / `max_rounds`锛屽綋鍓嶆紨绀虹増鍥哄畾涓?2 鍥炲悎銆?
+- 鏀跨瓥纭鍚庡彲浠ヤ粠 PolicyDesk 鐐瑰嚮鈥滄湰杞€荤粨鈥濊繘鍏?Result 椤甸潰銆?
+- Result 椤甸潰鏄剧ず宸叉墽琛屾斂绛栥€佸畯瑙傚彉閲忓彉鍖栧拰鏈哄埗鎬荤粨銆?
+- Result 椤甸潰涓嶉噸鏂拌绠楀彉閲忥紝涓嶆樉绀洪暱鏈熷壇浣滅敤妯″潡銆?
+- 宸叉敮鎸佺偣鍑烩€滆繘鍏ヤ笅涓€鍥炲悎鈥濆洖鍒?PolicyDesk銆?
+- 涓嬩竴鍥炲悎浼氬皢涓婁竴鍥炲悎 `result.after` 鍐欏叆 `GameState.current_state`锛屽苟娓呯┖鏀跨瓥閫夋嫨鐘舵€併€?
+- 绗?2 鍥炲悎缁撴潫鍚庢樉绀衡€滄祴璇曠粨鏉燂紝杩斿洖涓昏彍鍗曗€濄€?
+- 鏈疆涓嶅疄鐜拌瘎鍒嗙郴缁熴€?
+- 鏈疆涓嶅疄鐜扮獊鍙戜簨浠剁郴缁熴€?
+- 闀挎湡鍓綔鐢ㄤ互鍚庢斁鍦ㄦ墍鏈夊洖鍚堢粨鏉熷悗鐨勬渶缁堟€荤粨椤碉紝涓嶆斁鍦ㄦ瘡鍥炲悎鎬荤粨椤点€?
+- 宸叉柊澧?`docs/Round_Flow_v1.md`锛岃褰曚袱鍥炲悎娴佺▼銆丟ameState 鐘舵€併€丷esult 椤甸潰鏁版嵁鏉ユ簮鍜屽悗缁瘎鍒?浜嬩欢杈圭晫銆?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase銆?
+- 鏈€缁?BuildId锛歚20260714-012717`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260714-012717/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛氭牴鐩綍 `index.html`銆乺elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
 
-FinalSummary 最终总结页 v1 与右侧面板精简记录：
-- Result 本轮总结页已新增右上角“关闭”按钮。
-- 点击 Result 关闭按钮会返回当前 PolicyDesk，并恢复政策已确认后的状态，不推进回合，不清空 `last_result`、`current_state` 或 `round_history`。
-- 已新增 `scenes/FinalSummary.tscn` 和 `scripts/scenes/FinalSummary.gd`。
-- FinalSummary 采用模块化矩形布局，并使用 ScrollContainer 保证窗口高度不足时可滚动查看。
-- FinalSummary 包含回合历史、宏观变量轨迹、学习总结、评分占位、长期视角提示五个模块。
-- 第二回合 Result 页面已将“测试结束，返回主菜单”改为“查看最终总结”。
-- FinalSummary 返回主菜单时会执行 `GameState.reset_for_new_game()`，重置游戏流程。
-- PolicyDesk 右侧信息面板已精简为状态速览面板。
-- 右侧面板政策执行后只显示已执行政策、结算方式、宏观状态当前值和操作按钮。
-- 右侧面板不再显示曲线移动、before → after 完整变化和解释模块。
-- 已新增 `docs/FinalSummary_v1.md`，记录最终总结页用途、五个模块职责、round_history 数据来源和信息分工。
-- 已重新导出并部署 CloudBase。
-- 最终 BuildId：`20260714-015113`。
-- `latest.json` 已上线，内容指向 `/releases/20260714-015113/index.html`。
-- 线上检查通过：根目录 `index.html`、release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
+FinalSummary 鏈€缁堟€荤粨椤?v1 涓庡彸渚ч潰鏉跨簿绠€璁板綍锛?
+- Result 鏈疆鎬荤粨椤靛凡鏂板鍙充笂瑙掆€滃叧闂€濇寜閽€?
+- 鐐瑰嚮 Result 鍏抽棴鎸夐挳浼氳繑鍥炲綋鍓?PolicyDesk锛屽苟鎭㈠鏀跨瓥宸茬‘璁ゅ悗鐨勭姸鎬侊紝涓嶆帹杩涘洖鍚堬紝涓嶆竻绌?`last_result`銆乣current_state` 鎴?`round_history`銆?
+- 宸叉柊澧?`scenes/FinalSummary.tscn` 鍜?`scripts/scenes/FinalSummary.gd`銆?
+- FinalSummary 閲囩敤妯″潡鍖栫煩褰㈠竷灞€锛屽苟浣跨敤 ScrollContainer 淇濊瘉绐楀彛楂樺害涓嶈冻鏃跺彲婊氬姩鏌ョ湅銆?
+- FinalSummary 鍖呭惈鍥炲悎鍘嗗彶銆佸畯瑙傚彉閲忚建杩广€佸涔犳€荤粨銆佽瘎鍒嗗崰浣嶃€侀暱鏈熻瑙掓彁绀轰簲涓ā鍧椼€?
+- 绗簩鍥炲悎 Result 椤甸潰宸插皢鈥滄祴璇曠粨鏉燂紝杩斿洖涓昏彍鍗曗€濇敼涓衡€滄煡鐪嬫渶缁堟€荤粨鈥濄€?
+- FinalSummary 杩斿洖涓昏彍鍗曟椂浼氭墽琛?`GameState.reset_for_new_game()`锛岄噸缃父鎴忔祦绋嬨€?
+- PolicyDesk 鍙充晶淇℃伅闈㈡澘宸茬簿绠€涓虹姸鎬侀€熻闈㈡澘銆?
+- 鍙充晶闈㈡澘鏀跨瓥鎵ц鍚庡彧鏄剧ず宸叉墽琛屾斂绛栥€佺粨绠楁柟寮忋€佸畯瑙傜姸鎬佸綋鍓嶅€煎拰鎿嶄綔鎸夐挳銆?
+- 鍙充晶闈㈡澘涓嶅啀鏄剧ず鏇茬嚎绉诲姩銆乥efore 鈫?after 瀹屾暣鍙樺寲鍜岃В閲婃ā鍧椼€?
+- 宸叉柊澧?`docs/FinalSummary_v1.md`锛岃褰曟渶缁堟€荤粨椤电敤閫斻€佷簲涓ā鍧楄亴璐ｃ€乺ound_history 鏁版嵁鏉ユ簮鍜屼俊鎭垎宸ャ€?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase銆?
+- 鏈€缁?BuildId锛歚20260714-015113`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260714-015113/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛氭牴鐩綍 `index.html`銆乺elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
 
-ScoreEngine v1 与文本排版修复记录：
-- 已修复 FinalSummary / Result 等页面的文本排版问题。
-- 长段落改用 RichTextLabel，自然填充可用宽度后自动换行。
-- bullet 列表改为固定宽度 bullet + 正文 RichTextLabel 的 HBox 结构，避免 bullet 单独成行、句号单独换行和段落异常换行。
-- 已新增 `scripts/engine/ScoreEngine.gd`。
-- ScoreEngine v1 使用连续计分规则，不使用离散档位。
-- 评分结构包括产出稳定、就业改善、通胀控制、债务压力、政策效率五项。
-- 本版不加入模型理解分。
-- FinalSummary 评分模块已从占位改为展示 ScoreEngine 返回的真实评分。
-- 评分参数通过 `data/scenarios.json` 的 `score_config` 配置，并与当前短期 IS-LM 组合训练关绑定。
-- 长期影响只保留在长期视角提示中，不计入评分。
-- 已新增 `docs/ScoreEngine_v1.md`，记录用途、100 分结构、五项连续计分规则、score_config、非离散档位理由和当前限制。
-- 已更新 `docs/FinalSummary_v1.md`，同步评分模块职责。
-- 已重新导出并部署 CloudBase。
-- 最终 BuildId：`20260714-021458`。
-- `latest.json` 已上线，内容指向 `/releases/20260714-021458/index.html`。
-- 线上检查通过：release 的 `index.html`、`index.pck`、`index.wasm` 均为 200，`index.wasm` 的 Content-Type 为 `application/wasm`。
-IS-LM 关卡库 v1 记录：
-- 已新增 `scenes/LevelSelect.tscn` 和 `scripts/scenes/LevelSelect.gd`。
-- MainMenu 已新增“进入关卡选择”入口，并保留“快速开始：消费信心下滑”以维持原有测试流程。
-- LevelSelect 已列出四个 IS-LM 情境：消费信心下滑、投资信心下降、货币需求上升、政府支出扩张。
-- 每个情境都提供两个入口：基础教学 `single + demo`，组合训练 `budget + model`。
-- `data/scenarios.json` 已扩展为 8 个 scenario，并为训练关配置 `model_params.IS_LM` 和 `score_config`。
-- `data/policies.json` 已新增收缩性财政政策、收缩性货币政策、维持政策不变三张政策卡。
-- ScenarioIntro / PolicyDesk / Result / FinalSummary 继续从 GameState 当前 scenario 动态读取关卡内容。
-- ISLMSolver 继续从 `scenario.model_params.IS_LM` 读取模型参数，没有硬编码具体关卡。
-- ScoreEngine 继续从 `scenario.score_config` 读取评分配置，缺失或关闭配置时不会崩溃。
-- 当前未新增 AD-AS / Mundell-Fleming / Solow、突发事件系统、教学引导系统或变量图表系统。
-- 已重新导出并部署 CloudBase，BuildId：`20260714-030618`。
-- 线上检查通过：根目录 `index.html`、release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+ScoreEngine v1 涓庢枃鏈帓鐗堜慨澶嶈褰曪細
+- 宸蹭慨澶?FinalSummary / Result 绛夐〉闈㈢殑鏂囨湰鎺掔増闂銆?
+- 闀挎钀芥敼鐢?RichTextLabel锛岃嚜鐒跺～鍏呭彲鐢ㄥ搴﹀悗鑷姩鎹㈣銆?
+- bullet 鍒楄〃鏀逛负鍥哄畾瀹藉害 bullet + 姝ｆ枃 RichTextLabel 鐨?HBox 缁撴瀯锛岄伩鍏?bullet 鍗曠嫭鎴愯銆佸彞鍙峰崟鐙崲琛屽拰娈佃惤寮傚父鎹㈣銆?
+- 宸叉柊澧?`scripts/engine/ScoreEngine.gd`銆?
+- ScoreEngine v1 浣跨敤杩炵画璁″垎瑙勫垯锛屼笉浣跨敤绂绘暎妗ｄ綅銆?
+- 璇勫垎缁撴瀯鍖呮嫭浜у嚭绋冲畾銆佸氨涓氭敼鍠勩€侀€氳儉鎺у埗銆佸€哄姟鍘嬪姏銆佹斂绛栨晥鐜囦簲椤广€?
+- 鏈増涓嶅姞鍏ユā鍨嬬悊瑙ｅ垎銆?
+- FinalSummary 璇勫垎妯″潡宸蹭粠鍗犱綅鏀逛负灞曠ず ScoreEngine 杩斿洖鐨勭湡瀹炶瘎鍒嗐€?
+- 璇勫垎鍙傛暟閫氳繃 `data/scenarios.json` 鐨?`score_config` 閰嶇疆锛屽苟涓庡綋鍓嶇煭鏈?IS-LM 缁勫悎璁粌鍏崇粦瀹氥€?
+- 闀挎湡褰卞搷鍙繚鐣欏湪闀挎湡瑙嗚鎻愮ず涓紝涓嶈鍏ヨ瘎鍒嗐€?
+- 宸叉柊澧?`docs/ScoreEngine_v1.md`锛岃褰曠敤閫斻€?00 鍒嗙粨鏋勩€佷簲椤硅繛缁鍒嗚鍒欍€乻core_config銆侀潪绂绘暎妗ｄ綅鐞嗙敱鍜屽綋鍓嶉檺鍒躲€?
+- 宸叉洿鏂?`docs/FinalSummary_v1.md`锛屽悓姝ヨ瘎鍒嗘ā鍧楄亴璐ｃ€?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase銆?
+- 鏈€缁?BuildId锛歚20260714-021458`銆?
+- `latest.json` 宸蹭笂绾匡紝鍐呭鎸囧悜 `/releases/20260714-021458/index.html`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛歳elease 鐨?`index.html`銆乣index.pck`銆乣index.wasm` 鍧囦负 200锛宍index.wasm` 鐨?Content-Type 涓?`application/wasm`銆?
+IS-LM 鍏冲崱搴?v1 璁板綍锛?
+- 宸叉柊澧?`scenes/LevelSelect.tscn` 鍜?`scripts/scenes/LevelSelect.gd`銆?
+- MainMenu 宸叉柊澧炩€滆繘鍏ュ叧鍗￠€夋嫨鈥濆叆鍙ｏ紝骞朵繚鐣欌€滃揩閫熷紑濮嬶細娑堣垂淇″績涓嬫粦鈥濅互缁存寔鍘熸湁娴嬭瘯娴佺▼銆?
+- LevelSelect 宸插垪鍑哄洓涓?IS-LM 鎯呭锛氭秷璐逛俊蹇冧笅婊戙€佹姇璧勪俊蹇冧笅闄嶃€佽揣甯侀渶姹備笂鍗囥€佹斂搴滄敮鍑烘墿寮犮€?
+- 姣忎釜鎯呭閮芥彁渚涗袱涓叆鍙ｏ細鍩虹鏁欏 `single + demo`锛岀粍鍚堣缁?`budget + model`銆?
+- `data/scenarios.json` 宸叉墿灞曚负 8 涓?scenario锛屽苟涓鸿缁冨叧閰嶇疆 `model_params.IS_LM` 鍜?`score_config`銆?
+- `data/policies.json` 宸叉柊澧炴敹缂╂€ц储鏀挎斂绛栥€佹敹缂╂€ц揣甯佹斂绛栥€佺淮鎸佹斂绛栦笉鍙樹笁寮犳斂绛栧崱銆?
+- ScenarioIntro / PolicyDesk / Result / FinalSummary 缁х画浠?GameState 褰撳墠 scenario 鍔ㄦ€佽鍙栧叧鍗″唴瀹广€?
+- ISLMSolver 缁х画浠?`scenario.model_params.IS_LM` 璇诲彇妯″瀷鍙傛暟锛屾病鏈夌‖缂栫爜鍏蜂綋鍏冲崱銆?
+- ScoreEngine 缁х画浠?`scenario.score_config` 璇诲彇璇勫垎閰嶇疆锛岀己澶辨垨鍏抽棴閰嶇疆鏃朵笉浼氬穿婧冦€?
+- 褰撳墠鏈柊澧?AD-AS / Mundell-Fleming / Solow銆佺獊鍙戜簨浠剁郴缁熴€佹暀瀛﹀紩瀵肩郴缁熸垨鍙橀噺鍥捐〃绯荤粺銆?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase锛孊uildId锛歚20260714-030618`銆?
+- 绾夸笂妫€鏌ラ€氳繃锛氭牴鐩綍 `index.html`銆乺elease `index.html`銆乣index.pck`銆乣index.wasm` 鍧囪繑鍥?200锛宍index.wasm` Content-Type 涓?`application/wasm`銆?
 
-多关卡 / 多回合数据一致性审计记录：
-- 已完成多关卡 / 多回合数据一致性审计，重点检查关卡硬编码、状态继承、右侧面板和学习总结。
-- 已修复第二回合 before 状态来源错误：ISLMSolver 会把 `_islm_A/_islm_b/_islm_c/_islm_d` 随 `result.after` 写入下一回合 current_state。
-- 已修复右侧面板数值与箭头的数据源一致性：政策执行后数值来自当前回合 `result.after`，箭头由同一回合 `result.before` 与 `result.after` 比较得出。
-- 已修复 FinalSummary 学习总结硬编码消费信心下降的问题。
-- 学习总结改为读取当前 scenario 的 `learning_points`，所有 8 个 scenario 均已配置 learning_points。
-- 组合政策提示改为仅在 round_history 中实际存在多政策组合时显示。
-- 本轮未新增基础教学关评分，basic/demo 仍沿用 ScoreEngine 的未启用评分 fallback。
-- 已新增 `docs/MultiScenario_State_Consistency_Audit.md`。
-- 已重新导出并部署 CloudBase，BuildId：`20260714-034515`。
-- `latest.json` 已指向 `/releases/20260714-034515/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+澶氬叧鍗?/ 澶氬洖鍚堟暟鎹竴鑷存€у璁¤褰曪細
+- 宸插畬鎴愬鍏冲崱 / 澶氬洖鍚堟暟鎹竴鑷存€у璁★紝閲嶇偣妫€鏌ュ叧鍗＄‖缂栫爜銆佺姸鎬佺户鎵裤€佸彸渚ч潰鏉垮拰瀛︿範鎬荤粨銆?
+- 宸蹭慨澶嶇浜屽洖鍚?before 鐘舵€佹潵婧愰敊璇細ISLMSolver 浼氭妸 `_islm_A/_islm_b/_islm_c/_islm_d` 闅?`result.after` 鍐欏叆涓嬩竴鍥炲悎 current_state銆?
+- 宸蹭慨澶嶅彸渚ч潰鏉挎暟鍊间笌绠ご鐨勬暟鎹簮涓€鑷存€э細鏀跨瓥鎵ц鍚庢暟鍊兼潵鑷綋鍓嶅洖鍚?`result.after`锛岀澶寸敱鍚屼竴鍥炲悎 `result.before` 涓?`result.after` 姣旇緝寰楀嚭銆?
+- 宸蹭慨澶?FinalSummary 瀛︿範鎬荤粨纭紪鐮佹秷璐逛俊蹇冧笅闄嶇殑闂銆?
+- 瀛︿範鎬荤粨鏀逛负璇诲彇褰撳墠 scenario 鐨?`learning_points`锛屾墍鏈?8 涓?scenario 鍧囧凡閰嶇疆 learning_points銆?
+- 缁勫悎鏀跨瓥鎻愮ず鏀逛负浠呭湪 round_history 涓疄闄呭瓨鍦ㄥ鏀跨瓥缁勫悎鏃舵樉绀恒€?
+- 鏈疆鏈柊澧炲熀纭€鏁欏鍏宠瘎鍒嗭紝basic/demo 浠嶆部鐢?ScoreEngine 鐨勬湭鍚敤璇勫垎 fallback銆?
+- 宸叉柊澧?`docs/MultiScenario_State_Consistency_Audit.md`銆?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase锛孊uildId锛歚20260714-034515`銆?
+- `latest.json` 宸叉寚鍚?`/releases/20260714-034515/index.html`锛況elease `index.html`銆乣index.pck`銆乣index.wasm` 鍧囪繑鍥?200锛宍index.wasm` Content-Type 涓?`application/wasm`銆?
 
-国家地图动态化 v1 与右侧状态条 v1 记录：
-- 已完成国家地图动态化 v1。
-- 地图区域已绑定变量并显示箭头：居民消费区绑定 C，工业产区绑定 Y/I，金融市场区绑定 i，政府部门区绑定 G/Debt。
-- 工业区亮度按 `0.7 * Y状态 + 0.3 * I状态` 综合计算。
-- 政府区亮度仅表示财政活动强度，只使用 G，不使用 Debt。
-- 地图区域填充亮度会随当前宏观状态变化，地图作为“当前状态面板”显示当前 PolicyDesk 状态。
-- 已完成右侧信息面板状态条 v1。
-- 每个主要变量单行显示变量名、箭头、状态条、当前值。
-- 状态条中间竖线标记为“参考值”，三角指针表示当前值。
-- 右侧面板在政策执行后统一使用当前回合 `result.before/result.after` 生成箭头、状态条和数字；未执行前使用当前状态与参考值显示状态。
-- 本轮未修改理论面板、模型回放、ScoreEngine 公式或 CloudBase 自动部署脚本。
-- 已重新导出并部署 CloudBase，BuildId：`20260714-045320`。
-- `latest.json` 已指向 `/releases/20260714-045320/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+鍥藉鍦板浘鍔ㄦ€佸寲 v1 涓庡彸渚х姸鎬佹潯 v1 璁板綍锛?
+- 宸插畬鎴愬浗瀹跺湴鍥惧姩鎬佸寲 v1銆?
+- 鍦板浘鍖哄煙宸茬粦瀹氬彉閲忓苟鏄剧ず绠ご锛氬眳姘戞秷璐瑰尯缁戝畾 C锛屽伐涓氫骇鍖虹粦瀹?Y/I锛岄噾铻嶅競鍦哄尯缁戝畾 i锛屾斂搴滈儴闂ㄥ尯缁戝畾 G/Debt銆?
+- 宸ヤ笟鍖轰寒搴︽寜 `0.7 * Y鐘舵€?+ 0.3 * I鐘舵€乣 缁煎悎璁＄畻銆?
+- 鏀垮簻鍖轰寒搴︿粎琛ㄧず璐㈡斂娲诲姩寮哄害锛屽彧浣跨敤 G锛屼笉浣跨敤 Debt銆?
+- 鍦板浘鍖哄煙濉厖浜害浼氶殢褰撳墠瀹忚鐘舵€佸彉鍖栵紝鍦板浘浣滀负鈥滃綋鍓嶇姸鎬侀潰鏉库€濇樉绀哄綋鍓?PolicyDesk 鐘舵€併€?
+- 宸插畬鎴愬彸渚т俊鎭潰鏉跨姸鎬佹潯 v1銆?
+- 姣忎釜涓昏鍙橀噺鍗曡鏄剧ず鍙橀噺鍚嶃€佺澶淬€佺姸鎬佹潯銆佸綋鍓嶅€笺€?
+- 鐘舵€佹潯涓棿绔栫嚎鏍囪涓衡€滃弬鑰冨€尖€濓紝涓夎鎸囬拡琛ㄧず褰撳墠鍊笺€?
+- 鍙充晶闈㈡澘鍦ㄦ斂绛栨墽琛屽悗缁熶竴浣跨敤褰撳墠鍥炲悎 `result.before/result.after` 鐢熸垚绠ご銆佺姸鎬佹潯鍜屾暟瀛楋紱鏈墽琛屽墠浣跨敤褰撳墠鐘舵€佷笌鍙傝€冨€兼樉绀虹姸鎬併€?
+- 鏈疆鏈慨鏀圭悊璁洪潰鏉裤€佹ā鍨嬪洖鏀俱€丼coreEngine 鍏紡鎴?CloudBase 鑷姩閮ㄧ讲鑴氭湰銆?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase锛孊uildId锛歚20260714-045320`銆?
+- `latest.json` 宸叉寚鍚?`/releases/20260714-045320/index.html`锛況elease `index.html`銆乣index.pck`銆乣index.wasm` 鍧囪繑鍥?200锛宍index.wasm` Content-Type 涓?`application/wasm`銆?
 
-理论面板 v1 记录：
-- 已完成理论面板 v1。
-- 理论面板继续从当前 scenario 动态读取 `problem_title`、`model_hint`、`model_tags`、`shock_type` 和 `model_type`。
-- 已显示当前冲击、机制提示和当前模型标签。
-- 已用真实 IS-LM 冲击示意图替换原占位框，不再显示“后续将加入动态图表”。
-- 新增 `scripts/ui/TheoryISLMGraph.gd`，支持 `IS_LEFT`、`IS_RIGHT`、`LM_LEFT`、`LM_RIGHT` 的冲击方向展示。
-- 使用红色箭头表示外生冲击导致的曲线移动方向。
-- 理论面板只解释决策前外生冲击，不读取 selected_policies，不读取 MacroEngine result，不提前展示政策卡执行结果。
-- 本轮未修改模型回放、ScoreEngine、国家地图和右侧状态条。
-- 已通过 Godot 4.7 headless 项目加载检查，并直接加载 PolicyDesk 场景检查通过。
-- 已重新导出并部署 CloudBase，BuildId：`20260714-134523`。
-- `latest.json` 已指向 `/releases/20260714-134523/index.html`，release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
-剧情引导系统功能框架 v1 记录：
-- 已阅读《IS-LM章节剧情引导系统设计文档_v1.docx》，并按本轮需求优先实现功能框架。
-- 已完成剧情引导系统功能框架 v1。
-- 新增底部 DialogueOverlay，支持单句轮流发言和“单击以继续”。
-- DialogueOverlay 支持画面整体变暗，并根据真实 Control 节点位置绘制 UI 区域高亮。
-- 已完成新手引导 target mapping 审计，并记录在 `docs/Narrative_Guide_System_v1.md`。
-- 新增 `NarrativeManager.gd` 作为 Autoload，管理已播放引导、智慧点数、已解锁提示和季度标签。
-- 新增智慧点数系统：初始 10 点，每次解锁新提示消耗 2 点。
-- 新增提示确认机制：确认后才扣点，取消不扣点。
-- 已解锁提示可通过“回看”重复查看，不重复扣点。
-- PolicyDesk 顶部新增季度时间标签和智慧点数 / 请求提示入口。
-- 新增基础角色配置与占位头像显示。
-- 当前仅使用 mock 文案测试框架，未接入完整剧情 JSON。
-- basic/demo 未新增评分系统；training/model 评分启用时 FinalSummary 才触发评分引导。
-- 本轮未修改 ISLMSolver、ScoreEngine 公式、国家地图逻辑、右侧状态条逻辑、理论面板逻辑或 CloudBase 自动部署脚本。
-- 因 Godot 4.7 在无头检查阶段弹出 Win32 崩溃窗口，已暂停反复运行 `build_and_deploy.ps1` 并完成排查；后续使用 console 版 Godot 完成一次正式导出。
-- 已检查新增 `NarrativeManager`、`DialogueOverlay`、`HintConfirmModal`、季度标签和引导触发逻辑，未发现缺失资源路径或硬编码节点路径。
-- 已修复 `DialogueOverlay` 初始化顺序：先注入 steps / target_map 并连接 finished 信号，再加入场景树，避免空步骤 Overlay 在 `_ready` 时立即结束。
-- 已修复 `HintConfirmModal` 信号连接顺序：先连接确认 / 取消信号，再加入场景树。
-- 已将本机 `deploy.local.ps1` 的 `$GodotExe` 改为 console 版 Godot 路径，避免命令行导出误启 GUI 版；该本机配置不提交。
-- 已重新导出并部署 CloudBase，BuildId：`20260715-020012`。
-- `latest.json` 已指向 `/releases/20260715-020012/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+鐞嗚闈㈡澘 v1 璁板綍锛?
+- 宸插畬鎴愮悊璁洪潰鏉?v1銆?
+- 鐞嗚闈㈡澘缁х画浠庡綋鍓?scenario 鍔ㄦ€佽鍙?`problem_title`銆乣model_hint`銆乣model_tags`銆乣shock_type` 鍜?`model_type`銆?
+- 宸叉樉绀哄綋鍓嶅啿鍑汇€佹満鍒舵彁绀哄拰褰撳墠妯″瀷鏍囩銆?
+- 宸茬敤鐪熷疄 IS-LM 鍐插嚮绀烘剰鍥炬浛鎹㈠師鍗犱綅妗嗭紝涓嶅啀鏄剧ず鈥滃悗缁皢鍔犲叆鍔ㄦ€佸浘琛ㄢ€濄€?
+- 鏂板 `scripts/ui/TheoryISLMGraph.gd`锛屾敮鎸?`IS_LEFT`銆乣IS_RIGHT`銆乣LM_LEFT`銆乣LM_RIGHT` 鐨勫啿鍑绘柟鍚戝睍绀恒€?
+- 浣跨敤绾㈣壊绠ご琛ㄧず澶栫敓鍐插嚮瀵艰嚧鐨勬洸绾跨Щ鍔ㄦ柟鍚戙€?
+- 鐞嗚闈㈡澘鍙В閲婂喅绛栧墠澶栫敓鍐插嚮锛屼笉璇诲彇 selected_policies锛屼笉璇诲彇 MacroEngine result锛屼笉鎻愬墠灞曠ず鏀跨瓥鍗℃墽琛岀粨鏋溿€?
+- 鏈疆鏈慨鏀规ā鍨嬪洖鏀俱€丼coreEngine銆佸浗瀹跺湴鍥惧拰鍙充晶鐘舵€佹潯銆?
+- 宸查€氳繃 Godot 4.7 headless 椤圭洰鍔犺浇妫€鏌ワ紝骞剁洿鎺ュ姞杞?PolicyDesk 鍦烘櫙妫€鏌ラ€氳繃銆?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase锛孊uildId锛歚20260714-134523`銆?
+- `latest.json` 宸叉寚鍚?`/releases/20260714-134523/index.html`锛宺elease `index.html`銆乣index.pck`銆乣index.wasm` 鍧囪繑鍥?200锛宍index.wasm` Content-Type 涓?`application/wasm`銆?
+鍓ф儏寮曞绯荤粺鍔熻兘妗嗘灦 v1 璁板綍锛?
+- 宸查槄璇汇€奍S-LM绔犺妭鍓ф儏寮曞绯荤粺璁捐鏂囨。_v1.docx銆嬶紝骞舵寜鏈疆闇€姹備紭鍏堝疄鐜板姛鑳芥鏋躲€?
+- 宸插畬鎴愬墽鎯呭紩瀵肩郴缁熷姛鑳芥鏋?v1銆?
+- 鏂板搴曢儴 DialogueOverlay锛屾敮鎸佸崟鍙ヨ疆娴佸彂瑷€鍜屸€滃崟鍑讳互缁х画鈥濄€?
+- DialogueOverlay 鏀寔鐢婚潰鏁翠綋鍙樻殫锛屽苟鏍规嵁鐪熷疄 Control 鑺傜偣浣嶇疆缁樺埗 UI 鍖哄煙楂樹寒銆?
+- 宸插畬鎴愭柊鎵嬪紩瀵?target mapping 瀹¤锛屽苟璁板綍鍦?`docs/Narrative_Guide_System_v1.md`銆?
+- 鏂板 `NarrativeManager.gd` 浣滀负 Autoload锛岀鐞嗗凡鎾斁寮曞銆佹櫤鎱х偣鏁般€佸凡瑙ｉ攣鎻愮ず鍜屽搴︽爣绛俱€?
+- 鏂板鏅烘収鐐规暟绯荤粺锛氬垵濮?10 鐐癸紝姣忔瑙ｉ攣鏂版彁绀烘秷鑰?2 鐐广€?
+- 鏂板鎻愮ず纭鏈哄埗锛氱‘璁ゅ悗鎵嶆墸鐐癸紝鍙栨秷涓嶆墸鐐广€?
+- 宸茶В閿佹彁绀哄彲閫氳繃鈥滃洖鐪嬧€濋噸澶嶆煡鐪嬶紝涓嶉噸澶嶆墸鐐广€?
+- PolicyDesk 椤堕儴鏂板瀛ｅ害鏃堕棿鏍囩鍜屾櫤鎱х偣鏁?/ 璇锋眰鎻愮ず鍏ュ彛銆?
+- 鏂板鍩虹瑙掕壊閰嶇疆涓庡崰浣嶅ご鍍忔樉绀恒€?
+- 褰撳墠浠呬娇鐢?mock 鏂囨娴嬭瘯妗嗘灦锛屾湭鎺ュ叆瀹屾暣鍓ф儏 JSON銆?
+- basic/demo 鏈柊澧炶瘎鍒嗙郴缁燂紱training/model 璇勫垎鍚敤鏃?FinalSummary 鎵嶈Е鍙戣瘎鍒嗗紩瀵笺€?
+- 鏈疆鏈慨鏀?ISLMSolver銆丼coreEngine 鍏紡銆佸浗瀹跺湴鍥鹃€昏緫銆佸彸渚х姸鎬佹潯閫昏緫銆佺悊璁洪潰鏉块€昏緫鎴?CloudBase 鑷姩閮ㄧ讲鑴氭湰銆?
+- 鍥?Godot 4.7 鍦ㄦ棤澶存鏌ラ樁娈靛脊鍑?Win32 宕╂簝绐楀彛锛屽凡鏆傚仠鍙嶅杩愯 `build_and_deploy.ps1` 骞跺畬鎴愭帓鏌ワ紱鍚庣画浣跨敤 console 鐗?Godot 瀹屾垚涓€娆℃寮忓鍑恒€?
+- 宸叉鏌ユ柊澧?`NarrativeManager`銆乣DialogueOverlay`銆乣HintConfirmModal`銆佸搴︽爣绛惧拰寮曞瑙﹀彂閫昏緫锛屾湭鍙戠幇缂哄け璧勬簮璺緞鎴栫‖缂栫爜鑺傜偣璺緞銆?
+- 宸蹭慨澶?`DialogueOverlay` 鍒濆鍖栭『搴忥細鍏堟敞鍏?steps / target_map 骞惰繛鎺?finished 淇″彿锛屽啀鍔犲叆鍦烘櫙鏍戯紝閬垮厤绌烘楠?Overlay 鍦?`_ready` 鏃剁珛鍗崇粨鏉熴€?
+- 宸蹭慨澶?`HintConfirmModal` 淇″彿杩炴帴椤哄簭锛氬厛杩炴帴纭 / 鍙栨秷淇″彿锛屽啀鍔犲叆鍦烘櫙鏍戙€?
+- 宸插皢鏈満 `deploy.local.ps1` 鐨?`$GodotExe` 鏀逛负 console 鐗?Godot 璺緞锛岄伩鍏嶅懡浠よ瀵煎嚭璇惎 GUI 鐗堬紱璇ユ湰鏈洪厤缃笉鎻愪氦銆?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase锛孊uildId锛歚20260715-020012`銆?
+- `latest.json` 宸叉寚鍚?`/releases/20260715-020012/index.html`锛況elease `index.html`銆乣index.pck`銆乣index.wasm` 鍧囪繑鍥?200锛宍index.wasm` Content-Type 涓?`application/wasm`銆?
 
-剧情 Overlay 稳定性修复记录：
-- 已暂停后续剧情 JSON 和新内容接入，仅修复 DialogueOverlay / 高亮遮罩 / 智慧提示弹窗的显示层级、锚点和坐标问题。
-- 已确认问题根因：DialogueOverlay 和 HintConfirmModal 作为 PolicyDesk 普通子节点挂载，会受到 ScrollContainer、UI 缩放重建和父容器裁切影响。
-- DialogueOverlay 改为由 NarrativeManager 创建 `DialogueOverlayLayer` CanvasLayer 并挂到 SceneTree root。
-- HintConfirmModal 改为由 NarrativeManager 创建 `HintConfirmModalLayer` CanvasLayer 并挂到 SceneTree root。
-- 底部对话框改为 full rect + MarginContainer + VBoxContainer + spacer 的底部固定布局，不再依赖易跑偏的局部锚点偏移。
-- 提示确认弹窗改为 full rect + CenterContainer 居中布局。
-- 高亮框继续使用目标 Control 的 `get_global_rect()`，并在 Overlay 本地坐标中绘制。
-- Overlay 可见时每帧刷新高亮；PolicyDesk 缩放重建 UI 后会同步刷新 target map，避免 Ctrl+滚轮缩放后 Overlay 消失。
-- 本轮未接入完整剧情 JSON，未修改 ISLMSolver、ScoreEngine、国家地图、右侧状态条或理论面板逻辑。
-- 已重新导出并部署 CloudBase，BuildId：`20260715-022100`。
-- `latest.json` 已指向 `/releases/20260715-022100/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+鍓ф儏 Overlay 绋冲畾鎬т慨澶嶈褰曪細
+- 宸叉殏鍋滃悗缁墽鎯?JSON 鍜屾柊鍐呭鎺ュ叆锛屼粎淇 DialogueOverlay / 楂樹寒閬僵 / 鏅烘収鎻愮ず寮圭獥鐨勬樉绀哄眰绾с€侀敋鐐瑰拰鍧愭爣闂銆?
+- 宸茬‘璁ら棶棰樻牴鍥狅細DialogueOverlay 鍜?HintConfirmModal 浣滀负 PolicyDesk 鏅€氬瓙鑺傜偣鎸傝浇锛屼細鍙楀埌 ScrollContainer銆乁I 缂╂斁閲嶅缓鍜岀埗瀹瑰櫒瑁佸垏褰卞搷銆?
+- DialogueOverlay 鏀逛负鐢?NarrativeManager 鍒涘缓 `DialogueOverlayLayer` CanvasLayer 骞舵寕鍒?SceneTree root銆?
+- HintConfirmModal 鏀逛负鐢?NarrativeManager 鍒涘缓 `HintConfirmModalLayer` CanvasLayer 骞舵寕鍒?SceneTree root銆?
+- 搴曢儴瀵硅瘽妗嗘敼涓?full rect + MarginContainer + VBoxContainer + spacer 鐨勫簳閮ㄥ浐瀹氬竷灞€锛屼笉鍐嶄緷璧栨槗璺戝亸鐨勫眬閮ㄩ敋鐐瑰亸绉汇€?
+- 鎻愮ず纭寮圭獥鏀逛负 full rect + CenterContainer 灞呬腑甯冨眬銆?
+- 楂樹寒妗嗙户缁娇鐢ㄧ洰鏍?Control 鐨?`get_global_rect()`锛屽苟鍦?Overlay 鏈湴鍧愭爣涓粯鍒躲€?
+- Overlay 鍙鏃舵瘡甯у埛鏂伴珮浜紱PolicyDesk 缂╂斁閲嶅缓 UI 鍚庝細鍚屾鍒锋柊 target map锛岄伩鍏?Ctrl+婊氳疆缂╂斁鍚?Overlay 娑堝け銆?
+- 鏈疆鏈帴鍏ュ畬鏁村墽鎯?JSON锛屾湭淇敼 ISLMSolver銆丼coreEngine銆佸浗瀹跺湴鍥俱€佸彸渚х姸鎬佹潯鎴栫悊璁洪潰鏉块€昏緫銆?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase锛孊uildId锛歚20260715-022100`銆?
+- `latest.json` 宸叉寚鍚?`/releases/20260715-022100/index.html`锛況elease `index.html`銆乣index.pck`銆乣index.wasm` 鍧囪繑鍥?200锛宍index.wasm` Content-Type 涓?`application/wasm`銆?
 
-剧情 Overlay 点击推进与输入阻断修复记录：
-- 已暂停完整剧情 JSON 和新内容接入，仅修复 DialogueOverlay 点击推进与引导期间底层输入穿透问题。
-- 已确认问题根因：DialogueOverlay 只依赖 `_gui_input`，子 Control 可能拦截鼠标事件；同时 PolicyDesk 状态变更入口未检查剧情输入锁。
-- DialogueOverlay 新增 `_input(event)`，统一处理鼠标左键、触摸、Enter 和 Space，点击任意 Overlay 区域都会逐句推进。
-- DialogueOverlay 推进后调用 `get_viewport().set_input_as_handled()`，避免点击传到底层 UI。
-- DialogueOverlay 子 Control 统一设置 `mouse_filter = IGNORE`，避免头像、文字、Panel 等吃掉点击。
-- NarrativeManager 新增 `is_dialogue_active()`、`is_modal_active()`、`is_blocking_game_input()`。
-- PolicyDesk 已在政策卡选择、确认政策、模型回放、本轮总结、理论面板、提示按钮和缩放按钮等入口加入剧情输入锁防御。
-- HintConfirmModal 打开时 DialogueOverlay 不响应点击，避免确认弹窗背景点击误推进剧情。
-- 本轮未接入完整剧情 JSON，未修改 ISLMSolver、ScoreEngine、国家地图、右侧状态条或剧情文案。
-- 已重新导出并部署 CloudBase，BuildId：`20260715-023600`。
-- `latest.json` 已指向 `/releases/20260715-023600/index.html`；release `index.html`、`index.pck`、`index.wasm` 均返回 200，`index.wasm` Content-Type 为 `application/wasm`。
+鍓ф儏 Overlay 鐐瑰嚮鎺ㄨ繘涓庤緭鍏ラ樆鏂慨澶嶈褰曪細
+- 宸叉殏鍋滃畬鏁村墽鎯?JSON 鍜屾柊鍐呭鎺ュ叆锛屼粎淇 DialogueOverlay 鐐瑰嚮鎺ㄨ繘涓庡紩瀵兼湡闂村簳灞傝緭鍏ョ┛閫忛棶棰樸€?
+- 宸茬‘璁ら棶棰樻牴鍥狅細DialogueOverlay 鍙緷璧?`_gui_input`锛屽瓙 Control 鍙兘鎷︽埅榧犳爣浜嬩欢锛涘悓鏃?PolicyDesk 鐘舵€佸彉鏇村叆鍙ｆ湭妫€鏌ュ墽鎯呰緭鍏ラ攣銆?
+- DialogueOverlay 鏂板 `_input(event)`锛岀粺涓€澶勭悊榧犳爣宸﹂敭銆佽Е鎽搞€丒nter 鍜?Space锛岀偣鍑讳换鎰?Overlay 鍖哄煙閮戒細閫愬彞鎺ㄨ繘銆?
+- DialogueOverlay 鎺ㄨ繘鍚庤皟鐢?`get_viewport().set_input_as_handled()`锛岄伩鍏嶇偣鍑讳紶鍒板簳灞?UI銆?
+- DialogueOverlay 瀛?Control 缁熶竴璁剧疆 `mouse_filter = IGNORE`锛岄伩鍏嶅ご鍍忋€佹枃瀛椼€丳anel 绛夊悆鎺夌偣鍑汇€?
+- NarrativeManager 鏂板 `is_dialogue_active()`銆乣is_modal_active()`銆乣is_blocking_game_input()`銆?
+- PolicyDesk 宸插湪鏀跨瓥鍗￠€夋嫨銆佺‘璁ゆ斂绛栥€佹ā鍨嬪洖鏀俱€佹湰杞€荤粨銆佺悊璁洪潰鏉裤€佹彁绀烘寜閽拰缂╂斁鎸夐挳绛夊叆鍙ｅ姞鍏ュ墽鎯呰緭鍏ラ攣闃插尽銆?
+- HintConfirmModal 鎵撳紑鏃?DialogueOverlay 涓嶅搷搴旂偣鍑伙紝閬垮厤纭寮圭獥鑳屾櫙鐐瑰嚮璇帹杩涘墽鎯呫€?
+- 鏈疆鏈帴鍏ュ畬鏁村墽鎯?JSON锛屾湭淇敼 ISLMSolver銆丼coreEngine銆佸浗瀹跺湴鍥俱€佸彸渚х姸鎬佹潯鎴栧墽鎯呮枃妗堛€?
+- 宸查噸鏂板鍑哄苟閮ㄧ讲 CloudBase锛孊uildId锛歚20260715-023600`銆?
+- `latest.json` 宸叉寚鍚?`/releases/20260715-023600/index.html`锛況elease `index.html`銆乣index.pck`銆乣index.wasm` 鍧囪繑鍥?200锛宍index.wasm` Content-Type 涓?`application/wasm`銆?
 Web loading performance audit and fix:
 - Paused feature work and full narrative JSON integration to investigate slow CloudBase Godot Web loading.
 - Confirmed the bottleneck was the browser download stage, before Godot project scripts and MainMenu startup.
@@ -521,10 +521,10 @@ Level flow, tutorial trigger, and timeline refinement:
 
 Font subset automation and LevelSelect accessibility:
 - Added `scripts/generate_font_subset.py`, which scans visible game text from `.gd`, `.tscn`, `.tres`, `.json`, and `.cfg` resources while excluding export, cache, documentation, temporary, and backup directories.
-- The generator rebuilds the Web font subset from the ignored local full-font backup and validates key UI/economics glyphs such as 顺、序、解、锁、π、↑、↓.
+- The generator rebuilds the Web font subset from the ignored local full-font backup and validates key UI/economics glyphs such as 椤恒€佸簭銆佽В銆侀攣銆佅€銆佲啈銆佲啌.
 - `scripts/export_web.ps1` now runs the font generator before every Godot Web export and fails fast if generation or validation fails.
 - Regenerated `assets/fonts/NotoSansSC-Regular.ttf` to include LevelSelect's chapter instruction and lock/status text, fixing the missing-glyph display.
-- LevelSelect now uses ScrollContainer scrolling and the same 80%–120% Ctrl + mouse wheel UI scaling range as the main policy flow.
+- LevelSelect now uses ScrollContainer scrolling and the same 80%鈥?20% Ctrl + mouse wheel UI scaling range as the main policy flow.
 - Verified the generated subset, Web export, compressed wasm path, and the main-page scroll/zoom integration before CloudBase deployment.
 - Re-exported and deployed CloudBase successfully. BuildId: `20260720-152552`; latest.json now points to `/releases/20260720-152552/index.html`.
 - Current generated sizes: font subset 492,644 bytes; index.pck 716,704 bytes; index.wasm.gz 10,111,653 bytes; index.js 279,815 bytes.
@@ -784,7 +784,7 @@ PolicyCard lower text and long speaker names:
 - Kept policy descriptions, policy ids, policy costs, selection behavior, and MacroEngine inputs unchanged.
 - Moved the number-only policy cost zone lower and enlarged the gold number styling so it sits closer to the badge center.
 - Widened and slightly left-shifted the DialogueOverlay speaker-name safe area.
-- Added a small long-name speaker font fallback so `首席经济顾问` fits without shrinking short names.
+- Added a small long-name speaker font fallback so `棣栧腑缁忔祹椤鹃棶` fits without shrinking short names.
 - Did not regenerate images, did not call Image Two, did not modify card/frame/portrait PNG files, and did not handle the DialogueOverlay left-edge body-text blur issue.
 - Did not modify ISLMSolver, MacroEngine, ScoreEngine, scenario data, or narrative text.
 - Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
@@ -919,4 +919,20 @@ Smooth page scrolling and extended UI zoom range:
 - Release URL: `/releases/20260728-034544/index.html`.
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Core artifact sizes after export: `index.pck` 10,655,500 bytes; `index.wasm.gz` 10,111,653 bytes.
+- GitHub push not performed.
+
+Stabilized macro map labels and persistent theory layout:
+- Fixed map label scale instability by moving label internals from direct `_ui_scale` sizing to a map-derived label scale based on the actual `_map_rect` width.
+- Region label panel size and position remain map-local and normalized; padding, border, radius, shadow, fonts, variable columns, and arrow slots now share that same map-local visual scale.
+- Did not add per-zoom label offsets for 50%, 75%, 100%, 125%, or 150%.
+- Removed the visible center-panel `抽象国家地图` header and reclaimed its layout space.
+- Removed the visible `图表/理论` toggle button and disabled the old collapse/expand flow.
+- Reworked the center panel into a permanent vertical stack: `MapSection` above `TheoryPanel`, with close stretch ratios and matching parent width.
+- Theory content now initializes and remains visible with the PolicyDesk page.
+- Did not modify map art, region masks, policy cards, DialogueOverlay, theory content, economic model logic, policy effects, scoring, narrative text, or font subset scripts.
+- Web export completed successfully through the standard build flow, including the existing automatic font subset step and `index.wasm.gz` generation.
+- CloudBase deployment completed. BuildId: `20260728-092941`.
+- Release URL: `/releases/20260728-092941/index.html`.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Core artifact sizes after export: `index.pck` 10,667,340 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
