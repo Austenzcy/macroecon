@@ -99,3 +99,19 @@ For the PolicyDesk center panel, the accepted structure is now a stable vertical
 - `TheorySection`: existing IS-LM theory graph and explanation content.
 
 The map title header and `Õº±Ì/¿Ì¬€` toggle button should not occupy visible layout space. Theory content should be initialized with the page and remain visible, so page scrolling and UI zoom can be tested against the final always-on layout.
+
+## Alpha-Mask Region Hover Workflow
+
+For irregular map hover, production hit testing must follow the accepted art mask, not a rough polygon approximation.
+
+Required workflow:
+- Validate the master map, region layers, and masks before adding hover.
+- Keep masks, region layers, and master map in the same source size and coordinate origin.
+- Cache mask images once during component initialization.
+- Convert pointer position from component-local coordinates through the actual map draw rect into source texture pixels.
+- Sample the mask at that pixel with a documented threshold.
+- Keep debug hit overlays disabled by default.
+- Place hover tooltip in a top-level layer and set it to ignore mouse input.
+- Hide or recompute tooltip state on page scroll and global UI zoom.
+
+For MacroMap v2, the old polygons remain only as debug/reference data. Formal hover uses alpha/white mask sampling. Permanent map labels are removed from normal gameplay and the same dynamic variable data is shown in the hover tooltip.

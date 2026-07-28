@@ -41,6 +41,7 @@ var _problem_panel: PanelContainer
 var _policy_column: VBoxContainer
 var _map_panel: PanelContainer
 var _theory_panel: PanelContainer
+var _unified_macro_map: Control
 var _replay_overlay: Control
 var _confirm_button: Button
 var _model_replay_button: Button
@@ -112,6 +113,7 @@ func _build_ui() -> void:
 	_policy_column = null
 	_map_panel = null
 	_theory_panel = null
+	_unified_macro_map = null
 	_replay_overlay = null
 	_confirm_button = null
 	_model_replay_button = null
@@ -493,6 +495,7 @@ func _build_map_section(map_state: Dictionary) -> PanelContainer:
 
 func _build_macro_map_view(map_state: Dictionary) -> Control:
 	var unified_map: Control = UnifiedMacroMapScene.instantiate() as Control
+	_unified_macro_map = unified_map
 	unified_map.name = "UnifiedMacroMap"
 	unified_map.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	unified_map.custom_minimum_size = Vector2(_dim(540), _dim(413))
@@ -1068,6 +1071,7 @@ func _set_ui_scale(value: float) -> void:
 	if is_equal_approx(next_scale, _ui_scale):
 		return
 	var center_ratio: float = _capture_scroll_center_ratio()
+	_clear_macro_map_hover()
 	_ui_scale = next_scale
 	GameState.set_ui_scale(_ui_scale)
 	_build_ui()
@@ -1099,6 +1103,7 @@ func _refresh_initial_layout() -> void:
 func _scroll_page_from_wheel(button_index: int, event_factor: float = 1.0) -> void:
 	if _main_scroll == null:
 		return
+	_clear_macro_map_hover()
 	var max_scroll: float = _scrollable_range()
 	if max_scroll <= 0.0:
 		_set_scroll_immediate(0.0)
@@ -1113,6 +1118,11 @@ func _scroll_page_from_wheel(button_index: int, event_factor: float = 1.0) -> vo
 		_target_scroll_y = current_scroll
 	_target_scroll_y = clampf(_target_scroll_y + direction * _scroll_step() * factor, 0.0, max_scroll)
 	_smooth_scroll_to(_target_scroll_y)
+
+
+func _clear_macro_map_hover() -> void:
+	if _unified_macro_map != null and is_instance_valid(_unified_macro_map) and _unified_macro_map.has_method("clear_hover_state"):
+		_unified_macro_map.call("clear_hover_state")
 
 
 func _scroll_step() -> float:
@@ -1403,10 +1413,12 @@ func _map_region_lines(config: Dictionary, state: Dictionary) -> Array[Dictionar
 	var variables: Array = config.get("variables", []) as Array
 	for variable: Variant in variables:
 		var key: String = str(variable)
+		var score: float = _state_score(key, state)
 		lines.append({
 			"label": key,
 			"arrow": _reference_arrow(key, state),
-			"value": _state_value(state, key)
+			"value": _state_value(state, key),
+			"status": _state_status_text(score)
 		})
 	return lines
 
@@ -1494,6 +1506,14 @@ func _state_score(key: String, state: Dictionary) -> float:
 			return -1.0
 		return 0.0
 	return _qualitative_score(value_text)
+
+
+func _state_status_text(score: float) -> String:
+	if score > 0.15:
+		return "偏高"
+	if score < -0.15:
+		return "偏低"
+	return "适中"
 
 
 func _qualitative_score(value_text: String) -> float:

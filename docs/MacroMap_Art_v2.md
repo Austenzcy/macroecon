@@ -301,3 +301,39 @@ Fix:
 - Restored arrow color checks for `↑` and `↓`.
 - Restored fallback region names to normal Chinese labels.
 - Kept the central top-bottom layout and strong preloaded map texture references unchanged.
+
+## Alpha-Mask Hover Indicators
+
+This pass implements hover on the validated four-region map without changing map art, masks, or economic logic.
+
+Why polygon hit testing was not used:
+- The existing hand-written polygons remain useful for rough debug boundaries, but they are too coarse for production hover.
+- The verified masks and same-canvas region layers are 1440x1080, overlap_px is 0, and recomposition matches the master map inside covered pixels.
+- Production hover therefore samples the region mask images directly instead of using polygons, rectangles, or quadrants.
+
+Runtime structure:
+- UnifiedMacroMap preloads the master map and region layers, then loads the four mask textures once during initialization.
+- Mask images are cached as Image objects. Mouse movement performs single-pixel sampling only; it does not reload textures or scan full masks.
+- Local mouse coordinates are converted through the actual fitted map_draw_rect and then mapped to the original 1440x1080 texture pixel coordinate.
+- The threshold is 0.45. The masks are black/white opaque images, so hit testing reads the white channel and ignores black pixels even when alpha is 1.0.
+- No neighborhood sampling is enabled in this pass.
+
+Hover behavior:
+- Permanent region labels are disabled in normal mode.
+- Hover pivots are calculated from mask centroids, so same-canvas transparent region images scale from their visible region rather than the full canvas center.
+- Hover scale is 1.03, brightness is 1.16, and animation duration is 0.16s.
+- The full BaseMap remains below region layers to fill any tiny gap during hover scale.
+
+Tooltip behavior:
+- A single top-level CanvasLayer tooltip follows the mouse and ignores mouse input.
+- Tooltip data comes from PolicyDesk region data: values use existing state formatting and status text maps existing state_score output to low/normal/high Chinese labels.
+- Variables remain consumption C, industry Y/I, finance i, and government G/Debt.
+- Scroll and Ctrl-wheel zoom clear the tooltip so it cannot remain at a stale viewport coordinate.
+
+Debug:
+- DEBUG_ALPHA_HIT_TEST is false by default.
+- When enabled for development, it shows the current hit region, texture pixel, and sampled mask values.
+
+Basic checks:
+- Sea/outside-map samples black mask pixels and does not trigger a region.
+- 50%, 75%, 100%, 125%, and 150% use the same map-local conversion path; no per-zoom offsets were added.

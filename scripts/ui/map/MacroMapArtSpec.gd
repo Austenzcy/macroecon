@@ -3,6 +3,8 @@ extends RefCounted
 const DEBUG_BOUNDARIES: bool = false
 const SHOW_REGION_OVERLAYS: bool = false
 const REGION_LAYER_DEBUG_REGION: String = ""
+const DEBUG_ALPHA_HIT_TEST: bool = false
+const SHOW_PERMANENT_REGION_LABELS: bool = false
 
 const MASTER_MAP_TEXTURE: String = "res://assets/art/map/macro_map_master_v1.webp"
 const REGION_LAYER_TEXTURES := {
@@ -11,12 +13,23 @@ const REGION_LAYER_TEXTURES := {
 	"finance": "res://assets/art/map/regions/macro_map_region_finance_v1.png",
 	"government": "res://assets/art/map/regions/macro_map_region_government_v1.png"
 }
+const REGION_MASK_TEXTURES := {
+	"consumption": "res://assets/art/map/regions/macro_map_mask_consumption_v1.png",
+	"industry": "res://assets/art/map/regions/macro_map_mask_industry_v1.png",
+	"finance": "res://assets/art/map/regions/macro_map_mask_finance_v1.png",
+	"government": "res://assets/art/map/regions/macro_map_mask_government_v1.png"
+}
 const PREFERRED_ASPECT_RATIO: float = 4.0 / 3.0
 const MINIMUM_SIZE: Vector2 = Vector2(540.0, 413.0)
 const MAP_DRAW_SCALE: float = 1.12
 const MAP_EDGE_SAFE_INSET: Vector2 = Vector2(0.0, 4.0)
 const MAP_CONTENT_RECT: Rect2 = Rect2(Vector2(0.035, 0.035), Vector2(0.930, 0.930))
 const LABEL_REFERENCE_MAP_WIDTH: float = 540.0
+const MASK_ALPHA_THRESHOLD: float = 0.45
+const HOVER_SCALE: float = 1.03
+const HOVER_ANIMATION_DURATION: float = 0.16
+const HOVER_BRIGHTNESS: float = 1.16
+const HOVER_TOOLTIP_OFFSET: Vector2 = Vector2(24.0, 4.0)
 
 const NORMAL_TINT: Color = Color(0.08, 0.11, 0.12, 0.00)
 const WARNING_TINT: Color = Color(0.95, 0.58, 0.32, 0.16)

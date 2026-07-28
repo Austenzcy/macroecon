@@ -979,3 +979,15 @@ Fixed UnifiedMacroMap script parse failure:
 - Lightweight browser check confirmed the `UnifiedMacroMap.gd` parse error is gone and the unified irregular map is visible after entering level 1.
 - Core artifact sizes after export: `index.pck` 10,656,668 bytes; `index.wasm.gz` 10,111,653 bytes.
 - GitHub push not performed.
+
+Alpha-mask macro map hover indicators:
+- Implemented production hover hit testing with the four validated 1440x1080 region masks.
+- Cached mask Images during UnifiedMacroMap initialization; mouse motion now samples a single texture pixel through the actual map draw rect.
+- Stopped using the rough hand-written polygons for formal hover hit testing; polygons remain only for debug/reference use.
+- Disabled permanent region labels in normal map view.
+- Added per-region hover scale 1.03, brightness 1.16, and 0.16s ease-out animation with mask-centroid pivots.
+- Added a mouse-following tooltip on a top CanvasLayer; tooltip ignores mouse input and avoids viewport edges.
+- Tooltip data reuses PolicyDesk region data, existing value formatting, and existing state_score-derived status labels.
+- Tooltip supports C, Y/I, i, and G/Debt without changing variable bindings or macro model logic.
+- Scroll and Ctrl-wheel zoom clear hover/tooltip state to avoid stale positions.
+- No Image Two call, no regenerated map assets, no mask edits, no PolicyCard or DialogueOverlay changes, no model/scoring/level logic changes, and no GitHub push.
