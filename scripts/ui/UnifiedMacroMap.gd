@@ -581,16 +581,16 @@ func _make_tooltip_variable_row(line: Dictionary) -> HBoxContainer:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", _dim(8))
 
-	var variable_label := _make_tooltip_label(str(line.get("label", "")), Color(0.92, 0.95, 0.90, 1.0), 14)
+	var variable_label := _make_tooltip_label(str(line.get("display_symbol", line.get("label", ""))), Color(0.92, 0.95, 0.90, 1.0), 14)
 	variable_label.custom_minimum_size.x = _dim(42)
 	variable_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(variable_label)
 
-	var value_label := _make_tooltip_label(str(line.get("value", "--")), Color(0.96, 0.90, 0.74, 1.0), 14)
+	var value_label := _make_tooltip_label(str(line.get("value_text", line.get("value", "—"))), Color(0.96, 0.90, 0.74, 1.0), 14)
 	value_label.custom_minimum_size.x = _dim(70)
 	row.add_child(value_label)
 
-	var status: String = str(line.get("status", "暂无判断"))
+	var status: String = str(line.get("status_text", line.get("status", "暂无判断")))
 	var status_label := _make_tooltip_label(status, _status_color(status), 14)
 	status_label.custom_minimum_size.x = _dim(62)
 	row.add_child(status_label)

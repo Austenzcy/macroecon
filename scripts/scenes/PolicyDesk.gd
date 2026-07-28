@@ -1415,10 +1415,12 @@ func _map_region_lines(config: Dictionary, state: Dictionary) -> Array[Dictionar
 		var key: String = str(variable)
 		var score: float = _state_score(key, state)
 		lines.append({
+			"metric_id": _metric_id_for_symbol(key),
+			"display_symbol": key,
 			"label": key,
 			"arrow": _reference_arrow(key, state),
-			"value": _state_value(state, key),
-			"status": _state_status_text(score)
+			"value_text": _metric_value_text(key, state),
+			"status_text": _state_status_text(score)
 		})
 	return lines
 
@@ -1514,6 +1516,37 @@ func _state_status_text(score: float) -> String:
 	if score < -0.15:
 		return "偏低"
 	return "适中"
+
+
+func _metric_id_for_symbol(symbol: String) -> String:
+	match symbol:
+		"C":
+			return "consumption"
+		"Y":
+			return "output"
+		"I":
+			return "investment"
+		"i":
+			return "interest_rate"
+		"G":
+			return "government_spending"
+		"Debt":
+			return "debt"
+	return symbol
+
+
+func _metric_value_text(symbol: String, state: Dictionary) -> String:
+	var value_text: String = _state_value(state, symbol)
+	if bool(_parse_state_number(value_text).get("ok", false)):
+		return value_text
+	match symbol:
+		"i":
+			return _state_value(state, "i")
+		"Debt":
+			return _state_value(state, "Debt")
+		"Y":
+			return _state_value(state, "Y")
+	return "—"
 
 
 func _qualitative_score(value_text: String) -> float:

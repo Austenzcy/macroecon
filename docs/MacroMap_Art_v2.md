@@ -343,3 +343,9 @@ Basic checks:
 The alpha-mask hover system requires the four macro_map_mask_*.png files at runtime. These masks are small runtime resources and must not be excluded from Web export. Debug-only guide, recombined, and difference images can remain excluded.
 
 A deployed no-hover/no-tooltip failure was traced to export_presets.cfg excluding macro_map_mask_*.png, which made Web alpha hit testing return no region even though local files were valid.
+
+## Tooltip Metric Value Binding Note
+
+Macro map tooltip rows must keep metric identity, display symbol, value text, and status text separate.
+
+The C/I/G state entries in several scenarios are qualitative status strings such as low/normal/high rather than numeric values. Tooltip value cells must not reuse those status strings as numbers. After this fix, parseable state values are shown as value_text; non-numeric qualitative entries fall back to an em dash. Status text remains derived separately from the existing state score logic.

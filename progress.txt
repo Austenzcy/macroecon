@@ -996,3 +996,10 @@ Alpha-mask hover export fix:
 - Fixed Web export configuration so runtime macro_map_mask_*.png files are no longer excluded from the PCK.
 - Root cause of no hover/tooltip on deployed page: masks were valid locally but absent from Web export, so alpha hit testing always returned no region.
 - Guide, recombined, and difference debug images remain excluded from export.
+
+Macro map tooltip metric value binding fix:
+- Separated tooltip metric rows into metric_id, display_symbol, value_text, and status_text.
+- Fixed the root cause where qualitative state strings such as low/normal were reused as numeric value text for C, I, and G.
+- Numeric values now only use parseable state values; missing numeric values display an em dash instead of a status word.
+- Status text remains independently derived from the existing state score logic.
+- Did not change hover animation, alpha masks, map art, tooltip positioning, macro model logic, PolicyCard, DialogueOverlay, or fonts.
