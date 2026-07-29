@@ -1047,3 +1047,20 @@ Fullscreen HUD stabilization and map interaction restore:
 - Web export and CloudBase deployment completed. BuildId: `20260729-181755`; release URL: `/releases/20260729-181755/index.html`; `index.pck` 10,705,736 bytes; `index.wasm.gz` 10,111,653 bytes.
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Did not generate new art, call Image Two, modify masks, modify scenario data, modify economic settlement, modify scoring, or push GitHub.
+
+Fullscreen map restore and compact fixed HUD:
+- Fixed the black fullscreen map regression. Root cause: `UnifiedMacroMap.gd` called `to_local()` on a Control, so the script failed to parse in Godot and the map node loaded with no script or drawing logic.
+- Added an explicit viewport-to-map-local conversion with `get_global_transform_with_canvas().affine_inverse()`, restoring the master map, four region layers, alpha-mask hover, tooltip hit testing, and panned-map coordinate alignment.
+- Fixed map drag input forwarding from `PolicyDesk`: middle mouse and Space + left mouse press/release events are now sent to `UnifiedMacroMap`, while HUD panels remain input blockers.
+- Increased top HUD safety margin to `clamp(viewport_width * 0.010, 14, 20)` and removed negative edge pressure from the top content.
+- Narrowed the left policy HUD to `clamp(viewport_width * 0.135, 205, 270)` and removed the policy-list `ScrollContainer`.
+- Added compact card scaling so the current three policy cards fit in one fixed left HUD column without policy scrolling.
+- Simplified `TheoryHUD` to a fixed, non-scrolling panel with a title, one compact mechanism hint from the existing scenario `model_hint`, and one IS-LM graph.
+- Removed the permanent `BottomHud` advisor/confirm bar from the gameplay HUD. The modal `DialogueOverlay` system remains unchanged.
+- Moved `ConfirmPolicyButton` to the bottom of `RightMacroHudLayout` as a sticky right-side action, with disabled/enabled/confirmed state refreshed from current policy selection.
+- Basic probes confirmed: `UnifiedMacroMap` script loads, master texture is available, policy/theory scroll nodes and `BottomHud` are absent, right-side confirm button exists, alpha mask hover hits the four regions and ignores sea, and middle-button drag updates pan offset.
+- Basic geometry checked for 1920x1080, 1600x900, 1366x768, and 1680x1050: top HUD has 14-20px edge margin, left HUD is 205-270px, right HUD is 270-340px, three policy cards fit the fixed left column, and the theory HUD remains fixed at 145-190px.
+- Godot headless load check passed.
+- Web export and CloudBase deployment completed. BuildId: `20260729-185922`; release URL: `/releases/20260729-185922/index.html`; `index.pck` 10,704,152 bytes; `index.wasm.gz` 10,111,653 bytes.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Did not generate new art, call Image Two, modify masks, modify PolicyCard art, modify DialogueOverlay, modify scenario data, modify economic settlement, modify scoring, or push GitHub.

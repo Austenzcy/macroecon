@@ -126,7 +126,7 @@ func handle_viewport_input(event: InputEvent, viewport_position: Vector2, space_
 			_last_drag_position = viewport_position
 			return true
 		if allow_hover:
-			_update_hover_at_local_position(to_local(viewport_position))
+			_update_hover_at_local_position(_viewport_to_local(viewport_position))
 		else:
 			_clear_hover(false)
 	return false
@@ -142,6 +142,10 @@ func _begin_map_drag(viewport_position: Vector2) -> void:
 func _end_map_drag() -> void:
 	_is_dragging_map = false
 	mouse_default_cursor_shape = Control.CURSOR_ARROW
+
+
+func _viewport_to_local(viewport_position: Vector2) -> Vector2:
+	return get_global_transform_with_canvas().affine_inverse() * viewport_position
 
 
 func _pan_map(delta: Vector2) -> void:

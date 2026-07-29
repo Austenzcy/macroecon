@@ -13,9 +13,6 @@ const BASE_CONTENT_SIZE: Vector2 = Vector2(1220.0, 900.0)
 const OUTER_MARGIN_X: int = 48
 const OUTER_MARGIN_TOP: int = 48
 const OUTER_MARGIN_BOTTOM: int = 144
-const SCALE_STEP: float = UIInteractionConfig.UI_SCALE_STEP
-const MIN_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MIN
-const MAX_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MAX
 const HUD_MARGIN: float = 12.0
 const HUD_TOP_HEIGHT: float = 106.0
 const HUD_SIDE_TOP: float = 126.0
@@ -43,7 +40,6 @@ var _advisor_panel: PanelContainer
 var _main_scroll: ScrollContainer
 var _outer_margin: MarginContainer
 var _content_margin: MarginContainer
-var _scale_label: Label
 var _right_panel_box: VBoxContainer
 var _right_panel: PanelContainer
 var _problem_panel: PanelContainer
@@ -94,16 +90,13 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
-		if not mouse_event.pressed:
-			return
-		if mouse_event.button_index != MOUSE_BUTTON_WHEEL_UP and mouse_event.button_index != MOUSE_BUTTON_WHEEL_DOWN:
-			return
 		if _is_gameplay_input_blocked():
 			return
-		if mouse_event.ctrl_pressed:
+		var is_wheel: bool = mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP or mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN
+		if is_wheel and mouse_event.ctrl_pressed:
 			get_viewport().set_input_as_handled()
 			return
-		if _replay_overlay != null:
+		if _replay_overlay != null and is_wheel:
 			return
 		_forward_map_input(event)
 	elif event is InputEventMouseMotion:
@@ -131,7 +124,6 @@ func _build_ui() -> void:
 	_wisdom_label = null
 	_request_hint_button = null
 	_review_hint_button = null
-	_scale_label = null
 	_outer_margin = null
 	_content_margin = null
 	_hud_blockers.clear()
@@ -164,7 +156,6 @@ func _build_ui() -> void:
 	hud_root.add_child(_build_policy_hud())
 	hud_root.add_child(_build_right_column())
 	hud_root.add_child(_build_theory_panel())
-	hud_root.add_child(_build_bottom_hud())
 
 	if _is_policy_confirmed:
 		_show_policy_result_panel(_last_result)
@@ -264,86 +255,19 @@ func _build_policy_hud() -> PanelContainer:
 	_register_hud_blocker(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(14))
-	margin.add_theme_constant_override("margin_top", _dim(14))
-	margin.add_theme_constant_override("margin_right", _dim(14))
-	margin.add_theme_constant_override("margin_bottom", _dim(14))
-	panel.add_child(margin)
-
-	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.name = "PolicyHudScroll"
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.follow_focus = true
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(scroll)
-
-	var policy_column: VBoxContainer = _build_policy_column()
-	policy_column.custom_minimum_size = Vector2(maxf(1.0, float(side_width - _dim(42))), 0.0)
-	scroll.add_child(policy_column)
-	return panel
-
-
-func _build_bottom_hud() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.name = "BottomHud"
-	var margin_size: int = _hud_margin()
-	var left_x: int = margin_size * 2 + _left_hud_width()
-	var right_x: int = -(margin_size * 2 + _right_hud_width())
-	var bottom_h: int = _advisor_hud_height()
-	_apply_hud_rect(panel, left_x, -(margin_size + bottom_h), right_x, -margin_size)
-	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("bottom"))
-	_register_hud_blocker(panel)
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(12))
+	margin.add_theme_constant_override("margin_left", _dim(8))
 	margin.add_theme_constant_override("margin_top", _dim(10))
-	margin.add_theme_constant_override("margin_right", _dim(12))
+	margin.add_theme_constant_override("margin_right", _dim(8))
 	margin.add_theme_constant_override("margin_bottom", _dim(10))
 	panel.add_child(margin)
 
-	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", _dim(12))
-	margin.add_child(row)
-
-	var advisor_scene: PackedScene = preload("res://scenes/components/AdvisorPanel.tscn")
-	_advisor_panel = advisor_scene.instantiate() as PanelContainer
-	_advisor_panel.custom_minimum_size = Vector2(_dim(0), _dim(98))
-	_advisor_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_advisor_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	row.add_child(_advisor_panel)
-	_set_default_advisor()
-
-	_confirm_button = Button.new()
-	_confirm_button.name = "ConfirmPolicyButton"
-	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "确认政策"
-	_confirm_button.disabled = _is_policy_confirmed
-	_confirm_button.custom_minimum_size = Vector2(_dim(160), _dim(72))
-	_confirm_button.add_theme_font_size_override("font_size", _font(20))
-	ClassicalTheme.apply_button(_confirm_button, _ui_scale, "primary")
-	_confirm_button.pressed.connect(_on_confirm_policy)
-	row.add_child(_confirm_button)
-
+	var policy_column: VBoxContainer = _build_policy_column()
+	policy_column.custom_minimum_size = Vector2(maxf(1.0, float(side_width - _dim(16))), 0.0)
+	policy_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	policy_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(policy_column)
 	return panel
 
-
-func _build_top_row() -> HBoxContainer:
-	var top_row: HBoxContainer = HBoxContainer.new()
-	top_row.add_theme_constant_override("separation", _dim(14))
-
-	var tag_scene: PackedScene = preload("res://scenes/components/ModelTagBar.tscn")
-	var tag_bar: HBoxContainer = tag_scene.instantiate() as HBoxContainer
-	tag_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_child(tag_bar)
-	tag_bar.call("set_ui_scale", _ui_scale)
-	var default_tags: Variant = _scenario.get("model_tags", ["封闭经济", "短期", "价格刚性", "IS-LM"])
-	tag_bar.call("set_tags", default_tags)
-
-	top_row.add_child(_build_time_label())
-	top_row.add_child(_build_wisdom_panel())
-	top_row.add_child(_build_scale_controls())
-	return top_row
 
 
 func _build_time_label() -> PanelContainer:
@@ -445,55 +369,6 @@ func _build_wisdom_panel() -> PanelContainer:
 	return panel
 
 
-func _build_scale_controls() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _make_compact_panel_style())
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(8))
-	margin.add_theme_constant_override("margin_top", _dim(6))
-	margin.add_theme_constant_override("margin_right", _dim(8))
-	margin.add_theme_constant_override("margin_bottom", _dim(6))
-	panel.add_child(margin)
-
-	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", _dim(8))
-	margin.add_child(row)
-
-	var minus_button: Button = Button.new()
-	minus_button.text = "-"
-	minus_button.custom_minimum_size = Vector2(_dim(34), _dim(32))
-	minus_button.add_theme_font_size_override("font_size", _font(16))
-	ClassicalTheme.apply_button(minus_button, _ui_scale, "quiet")
-	minus_button.pressed.connect(_on_zoom_out)
-	row.add_child(minus_button)
-
-	_scale_label = Label.new()
-	_scale_label.custom_minimum_size = Vector2(_dim(58), _dim(28))
-	_scale_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_scale_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_scale_label.add_theme_font_size_override("font_size", _font(15))
-	_scale_label.text = "%d%%" % int(roundf(_ui_scale * 100.0))
-	row.add_child(_scale_label)
-
-	var plus_button: Button = Button.new()
-	plus_button.text = "+"
-	plus_button.custom_minimum_size = Vector2(_dim(34), _dim(32))
-	plus_button.add_theme_font_size_override("font_size", _font(16))
-	ClassicalTheme.apply_button(plus_button, _ui_scale, "quiet")
-	plus_button.pressed.connect(_on_zoom_in)
-	row.add_child(plus_button)
-
-	var reset_button: Button = Button.new()
-	reset_button.text = "重置"
-	reset_button.custom_minimum_size = Vector2(_dim(58), _dim(32))
-	reset_button.add_theme_font_size_override("font_size", _font(15))
-	ClassicalTheme.apply_button(reset_button, _ui_scale, "quiet")
-	reset_button.pressed.connect(_on_zoom_reset)
-	row.add_child(reset_button)
-
-	return panel
-
 
 func _build_problem_banner() -> PanelContainer:
 	var scenario: Dictionary = _get_current_scenario()
@@ -529,8 +404,8 @@ func _build_policy_column() -> VBoxContainer:
 	var column: VBoxContainer = VBoxContainer.new()
 	column.name = "PolicyCardsArea"
 	_policy_column = column
-	column.custom_minimum_size = Vector2(_dim(250), 0)
-	column.add_theme_constant_override("separation", _dim(12))
+	column.custom_minimum_size = Vector2(_dim(180), 0)
+	column.add_theme_constant_override("separation", _dim(6))
 
 	_add_panel_title(column, "政策卡区")
 	_add_wrapped_label(column, _selection_mode_text(), Color(0.72, 0.86, 1.0), 15)
@@ -545,13 +420,16 @@ func _build_policy_column() -> VBoxContainer:
 
 	var card_scene: PackedScene = preload("res://scenes/components/PolicyCard.tscn")
 	var policies: Array[Dictionary] = _available_policy_entries()
+	var compact_scale: float = _policy_card_ui_scale(policies.size())
 	for policy_data: Dictionary in policies:
 		var card: PanelContainer = card_scene.instantiate() as PanelContainer
 		card.call("set_policy", policy_data)
-		card.call("set_ui_scale", _ui_scale)
+		card.call("set_ui_scale", compact_scale)
 		card.call("set_cost", int(policy_data.get("cost", policy_data.get("default_cost", 0))), _is_budget_mode())
 		card.call("set_selected", _is_policy_selected(str(policy_data.get("id", ""))))
 		card.connect("selected", _on_policy_selected)
+		card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		_policy_cards.append(card)
 		column.add_child(card)
 
@@ -683,41 +561,32 @@ func _build_theory_panel() -> PanelContainer:
 	var margin_size: int = _hud_margin()
 	var side_left: int = margin_size * 2 + _left_hud_width()
 	var side_right: int = -(margin_size * 2 + _right_hud_width())
-	var bottom_h: int = _advisor_hud_height()
 	var theory_h: int = _theory_hud_height()
-	var gap: int = _hud_gap()
-	_apply_hud_rect(panel, side_left, -(margin_size + bottom_h + gap + theory_h), side_right, -(margin_size + bottom_h + gap))
+	_apply_hud_rect(panel, side_left, -(margin_size + theory_h), side_right, -margin_size)
 	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("theory"))
 	_register_hud_blocker(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(16))
-	margin.add_theme_constant_override("margin_top", _dim(12))
-	margin.add_theme_constant_override("margin_right", _dim(16))
-	margin.add_theme_constant_override("margin_bottom", _dim(12))
+	margin.add_theme_constant_override("margin_left", _dim(14))
+	margin.add_theme_constant_override("margin_top", _dim(10))
+	margin.add_theme_constant_override("margin_right", _dim(14))
+	margin.add_theme_constant_override("margin_bottom", _dim(10))
 	panel.add_child(margin)
 
-	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.name = "TheoryHudScroll"
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.follow_focus = true
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(scroll)
-
 	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", _dim(10))
-	scroll.add_child(box)
+	box.add_theme_constant_override("separation", _dim(5))
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(box)
 
 	var scenario: Dictionary = _get_current_scenario()
 	_add_panel_title(box, "理论面板：IS-LM 分析")
-	_add_wrapped_label(box, "当前冲击：%s" % str(scenario.get("problem_title", "当前宏观冲击")), Color(0.88, 0.94, 1.0), 17)
-	_add_wrapped_label(box, "机制提示：%s" % str(scenario.get("model_hint", "请结合当前模型标签观察 IS-LM 传导。")), Color(0.84, 0.90, 0.94), 16)
-	_add_wrapped_label(box, "当前模型：%s" % _tag_text(scenario.get("model_tags", [])), Color(0.72, 0.86, 1.0), 16)
-	box.add_child(_build_theory_graph(scenario))
-	_add_wrapped_label(box, "这里只解释当前冲击的传导机制，不提前展示任何政策卡的执行结果。", Color(0.82, 0.86, 0.90), 15)
-
+	_add_wrapped_label(box, _compact_theory_hint(scenario), Color(0.84, 0.90, 0.94), 15)
+	var graph: Control = _build_theory_graph(scenario)
+	graph.custom_minimum_size = Vector2(0.0, maxf(82.0, float(theory_h - _dim(70))))
+	graph.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	graph.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(graph)
 	return panel
 
 
@@ -739,26 +608,53 @@ func _build_right_column() -> PanelContainer:
 	_register_hud_blocker(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(16))
-	margin.add_theme_constant_override("margin_top", _dim(16))
-	margin.add_theme_constant_override("margin_right", _dim(16))
-	margin.add_theme_constant_override("margin_bottom", _dim(16))
+	margin.add_theme_constant_override("margin_left", _dim(14))
+	margin.add_theme_constant_override("margin_top", _dim(14))
+	margin.add_theme_constant_override("margin_right", _dim(14))
+	margin.add_theme_constant_override("margin_bottom", _dim(14))
 	panel.add_child(margin)
 
-	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.name = "RightInfoScroll"
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.follow_focus = true
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(scroll)
+	var box: VBoxContainer = VBoxContainer.new()
+	box.name = "RightMacroHudLayout"
+	box.add_theme_constant_override("separation", _dim(10))
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(box)
 
 	_right_panel_box = VBoxContainer.new()
-	_right_panel_box.add_theme_constant_override("separation", _dim(10))
-	scroll.add_child(_right_panel_box)
+	_right_panel_box.name = "RightMacroContent"
+	_right_panel_box.add_theme_constant_override("separation", _dim(8))
+	_right_panel_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_right_panel_box.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	box.add_child(_right_panel_box)
+
+	var spacer: Control = Control.new()
+	spacer.name = "RightMacroSpacer"
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(spacer)
+
+	_confirm_button = _build_confirm_policy_button()
+	box.add_child(_confirm_button)
+	_refresh_confirm_button()
 
 	return panel
+
+
+func _build_confirm_policy_button() -> Button:
+	var button: Button = Button.new()
+	button.name = "ConfirmPolicyButton"
+	button.custom_minimum_size = Vector2(_dim(0), _dim(56))
+	button.add_theme_font_size_override("font_size", _font(18))
+	ClassicalTheme.apply_button(button, _ui_scale, "primary")
+	button.pressed.connect(_on_confirm_policy)
+	return button
+
+
+func _refresh_confirm_button() -> void:
+	if _confirm_button == null:
+		return
+	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "确认政策"
+	_confirm_button.disabled = _is_policy_confirmed or _selected_policies.is_empty()
 
 
 func _show_current_state_panel() -> void:
@@ -777,6 +673,7 @@ func _show_current_state_panel() -> void:
 	_add_section_label(_right_panel_box, "提示：")
 	_add_wrapped_label(_right_panel_box, "请选择一张政策卡，并在确认后观察宏观状态变化。", Color(0.78, 0.86, 0.92), 15)
 
+	_refresh_confirm_button()
 
 func _show_policy_result_panel(result: Dictionary) -> void:
 	_clear_right_panel()
@@ -826,17 +723,23 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 	ClassicalTheme.apply_button(summary_button, _ui_scale, "primary")
 	summary_button.pressed.connect(_on_round_summary_pressed)
 	_right_panel_box.add_child(summary_button)
+	_refresh_confirm_button()
 	_register_guide_targets()
+
+
+func _set_advisor_message(title: String, message: String) -> void:
+	if _advisor_panel != null and is_instance_valid(_advisor_panel):
+		_advisor_panel.call("set_advisor", title, message)
 
 
 func _set_default_advisor() -> void:
 	if GameState.current_round > 1:
-		_advisor_panel.call("set_advisor", "会议记录", "第 %d 回合开始。上一轮后的宏观状态已带入本轮，请继续选择政策。" % GameState.current_round)
+		_set_advisor_message( "会议记录", "第 %d 回合开始。上一轮后的宏观状态已带入本轮，请继续选择政策。" % GameState.current_round)
 		return
 	var advisors: Array = DataLoader.load_array("res://data/advisors.json")
 	if advisors.size() > 0 and advisors[0] is Dictionary:
 		var advisor: Dictionary = advisors[0] as Dictionary
-		_advisor_panel.call("set_advisor", str(advisor.get("name", "财政部长")), str(advisor.get("line", "")))
+		_set_advisor_message( str(advisor.get("name", "财政部长")), str(advisor.get("line", "")))
 
 
 func _get_current_scenario() -> Dictionary:
@@ -944,7 +847,7 @@ func _toggle_budget_policy(policy_data: Dictionary) -> void:
 
 	var next_cost: int = int(policy_data.get("cost", policy_data.get("default_cost", 0)))
 	if _used_policy_points() + next_cost > _policy_point_limit():
-		_advisor_panel.call("set_advisor", "会议记录", "政策点数不足，无法选择该政策。")
+		_set_advisor_message( "会议记录", "政策点数不足，无法选择该政策。")
 		return
 	_selected_policies.append(policy_data)
 
@@ -954,6 +857,7 @@ func _refresh_card_selection() -> void:
 		card.call("set_selected", _is_policy_selected(str(card.get("policy_id"))))
 	if _policy_points_label != null:
 		_policy_points_label.text = _policy_points_text()
+	_refresh_confirm_button()
 
 
 func _selection_message(policy_name: String) -> String:
@@ -1046,6 +950,15 @@ func _tag_text(value: Variant) -> String:
 	return "｜".join(parts)
 
 
+func _compact_theory_hint(scenario: Dictionary) -> String:
+	var hint: String = str(scenario.get("model_hint", "")).strip_edges()
+	if hint.is_empty():
+		return "机制提示：观察当前冲击如何改变总需求，并通过 IS-LM 影响产出与利率。"
+	if not hint.begins_with("机制提示"):
+		hint = "机制提示：" + hint
+	return hint
+
+
 func _direction_arrow(before_value: String, after_value: String) -> String:
 	var before_number: Dictionary = _parse_state_number(before_value)
 	var after_number: Dictionary = _parse_state_number(after_value)
@@ -1073,7 +986,7 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 	if _is_policy_confirmed:
 		for card: Node in _policy_cards:
 			card.call("set_selected", _is_policy_selected(str(card.get("policy_id"))))
-		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
+		_set_advisor_message( "会议记录", "本轮政策已确认，暂不允许重复提交。")
 		return
 
 	var policy_data: Dictionary = _available_policy_entry_by_id(policy_id)
@@ -1083,7 +996,7 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 	if _is_budget_mode() and not _is_policy_selected(policy_id):
 		var next_cost: int = int(policy_data.get("cost", policy_data.get("default_cost", 0)))
 		if _used_policy_points() + next_cost > _policy_point_limit():
-			_advisor_panel.call("set_advisor", "会议记录", "政策点数不足，无法选择该政策。")
+			_set_advisor_message( "会议记录", "政策点数不足，无法选择该政策。")
 			AudioManager.play_sfx(&"card_play")
 			return
 
@@ -1094,7 +1007,7 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 
 	_refresh_card_selection()
 	AudioManager.play_sfx(&"card_play")
-	_advisor_panel.call("set_advisor", "政策秘书", _selection_message(policy_name))
+	_set_advisor_message( "政策秘书", _selection_message(policy_name))
 	_register_guide_targets()
 	if GameState.get_current_visible_level_number() == 1:
 		NarrativeManager.play_tutorial_once(
@@ -1108,11 +1021,11 @@ func _on_confirm_policy() -> void:
 	if _is_gameplay_input_blocked():
 		return
 	if _is_policy_confirmed:
-		_advisor_panel.call("set_advisor", "会议记录", "本轮政策已确认，暂不允许重复提交。")
+		_set_advisor_message( "会议记录", "本轮政策已确认，暂不允许重复提交。")
 		return
 	if _selected_policies.is_empty():
 		var empty_message: String = "请至少选择一张政策卡。" if _is_budget_mode() else "请先选择一张政策卡。"
-		_advisor_panel.call("set_advisor", "会议记录", empty_message)
+		_set_advisor_message( "会议记录", empty_message)
 		AudioManager.play_sfx(&"card_play")
 		return
 
@@ -1125,7 +1038,7 @@ func _on_confirm_policy() -> void:
 	_confirm_button.disabled = true
 
 	var summary: String = str(_last_result.get("summary", "政策已提交，宏观状态已进入测试更新。"))
-	_advisor_panel.call("set_advisor", "会议记录", _confirmed_meeting_log(summary))
+	_set_advisor_message( "会议记录", _confirmed_meeting_log(summary))
 	AudioManager.play_sfx(&"card_play")
 	if _model_replay_button != null and _is_budget_mode():
 		NarrativeManager.play_tutorial_once(
@@ -1144,7 +1057,7 @@ func _on_round_summary_pressed() -> void:
 	if _is_gameplay_input_blocked():
 		return
 	if _last_result.is_empty():
-		_advisor_panel.call("set_advisor", "会议记录", "请先确认政策，再进入本轮总结。")
+		_set_advisor_message( "会议记录", "请先确认政策，再进入本轮总结。")
 		return
 	get_tree().change_scene_to_file("res://scenes/Result.tscn")
 
@@ -1153,7 +1066,7 @@ func _on_open_replay_pressed() -> void:
 	if _is_gameplay_input_blocked():
 		return
 	if not _has_islm_graph_result(_last_result):
-		_advisor_panel.call("set_advisor", "会议记录", "当前关卡为基础教学演示，暂不提供模型图形回放。")
+		_set_advisor_message( "会议记录", "当前关卡为基础教学演示，暂不提供模型图形回放。")
 		return
 	_is_replay_open = true
 	_open_replay_overlay()
@@ -1207,25 +1120,6 @@ func _on_replay_closed() -> void:
 		_replay_overlay = null
 	AudioManager.play_sfx(&"card_play")
 
-
-func _on_zoom_out() -> void:
-	if _is_gameplay_input_blocked():
-		return
-
-
-func _on_zoom_in() -> void:
-	if _is_gameplay_input_blocked():
-		return
-
-
-func _on_zoom_reset() -> void:
-	if _is_gameplay_input_blocked():
-		return
-
-
-func _set_ui_scale(value: float) -> void:
-	_ui_scale = 1.0
-	GameState.set_ui_scale(_ui_scale)
 
 
 func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
@@ -1785,7 +1679,7 @@ func _font(value: int) -> int:
 
 func _hud_margin() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.x * 0.0075, 8.0, 16.0)))
+	return int(roundf(clampf(viewport.x * 0.010, 14.0, 20.0)))
 
 
 func _hud_size(value: float, min_value: float, max_value: float) -> int:
@@ -1801,7 +1695,7 @@ func _viewport_size() -> Vector2:
 
 func _top_hud_height() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.y * 0.105, 76.0, 104.0)))
+	return int(roundf(clampf(viewport.y * 0.105, 82.0, 104.0)))
 
 
 func _side_top_y() -> int:
@@ -1810,7 +1704,7 @@ func _side_top_y() -> int:
 
 func _left_hud_width() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.x * 0.16, 250.0, 325.0)))
+	return int(roundf(clampf(viewport.x * 0.135, 205.0, 270.0)))
 
 
 func _right_hud_width() -> int:
@@ -1818,19 +1712,29 @@ func _right_hud_width() -> int:
 	return int(roundf(clampf(viewport.x * 0.17, 270.0, 340.0)))
 
 
-func _advisor_hud_height() -> int:
-	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.y * 0.145, 105.0, 145.0)))
-
 
 func _theory_hud_height() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.y * 0.225, 170.0, 230.0)))
+	return int(roundf(clampf(viewport.y * 0.205, 145.0, 190.0)))
 
 
 func _hud_gap() -> int:
 	var viewport: Vector2 = _viewport_size()
 	return int(roundf(clampf(viewport.y * 0.012, 8.0, 14.0)))
+
+
+func _policy_card_ui_scale(policy_count: int) -> float:
+	var viewport: Vector2 = _viewport_size()
+	var count: int = maxi(1, policy_count)
+	var side_height: float = viewport.y - float(_side_top_y()) - float(_hud_margin())
+	var header_height: float = 52.0
+	if _is_budget_mode():
+		header_height += 24.0
+	var available_card_height: float = maxf(120.0, side_height - header_height - float(maxi(0, count - 1)) * 6.0 - 8.0)
+	var height_scale: float = available_card_height / float(count) / 360.0
+	var inner_width: float = float(_left_hud_width() - _dim(16))
+	var width_scale: float = inner_width / 240.0
+	return clampf(minf(minf(height_scale, width_scale), 0.78), 0.52, 0.78)
 
 
 func _apply_hud_rect(control: Control, left: int, top: int, right: int, bottom: int) -> void:
