@@ -349,3 +349,33 @@ A deployed no-hover/no-tooltip failure was traced to export_presets.cfg excludin
 Macro map tooltip rows must keep metric identity, display symbol, value text, and status text separate.
 
 The C/I/G state entries in several scenarios are qualitative status strings such as low/normal/high rather than numeric values. Tooltip value cells must not reuse those status strings as numbers. After this fix, parseable state values are shown as value_text; non-numeric qualitative entries fall back to an em dash. Status text remains derived separately from the existing state score logic.
+
+## IS-LM Demand Component Values
+
+This round separates demand-component values from qualitative status text.
+
+- Numeric fields: `C_value`, `I_value`, `G_value`.
+- Status fields: `C_status`, `I_status`, `G_status`.
+- Legacy fields `C`, `I`, `G` are retained as qualitative compatibility fields.
+- Unit: the same abstract output unit as `Y`.
+- Economy type: existing IS-LM levels are treated as closed economy levels, so `Y = C + I + G`.
+- Existing project audit found no prior explicit C/I/G component baseline, so a centralized teaching fallback is used: C 60%, I 20%, G 20% of Y.
+- Original qualitative shocks calibrate components: low uses a lower component weight, high uses a higher component weight, and normal components absorb the residual with a cap so normal components do not become implausibly large.
+- Policy settlement reuses the same component calibrator. Government purchase and contractionary fiscal policy primarily move G status; tax cuts primarily improve C status; monetary policy primarily moves I status.
+- Tooltip now reads `*_value` for the value column and `*_status` for the status column.
+
+| Level | Scenario | Y | C | I | G | NX | C status | I status | G status | Residual | Basis |
+|---|---|---:|---:|---:|---:|---:|---|---|---|---:|---|
+| consumer_confidence_drop_basic | IS_LEFT | 100.0 | 54.0 | 23.0 | 23.0 | - | low | normal | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| consumer_confidence_drop_training | IS_LEFT | 100.0 | 54.0 | 23.0 | 23.0 | - | low | normal | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| investment_confidence_drop_basic | IS_LEFT | 97.0 | 59.7 | 17.5 | 19.8 | - | normal | low | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| investment_confidence_drop_training | IS_LEFT | 97.0 | 59.7 | 17.5 | 19.8 | - | normal | low | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| money_market_tightening_basic | LM_LEFT | 97.6 | 60.0 | 17.6 | 20.0 | - | normal | low | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| money_market_tightening_training | LM_LEFT | 97.6 | 60.0 | 17.6 | 20.0 | - | normal | low | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| overheating_and_cooling_basic | IS_RIGHT | 114.0 | 68.4 | 22.8 | 22.8 | - | high | high | high | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| overheating_and_cooling_training | IS_RIGHT | 114.0 | 68.4 | 22.8 | 22.8 | - | high | high | high | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| fiscal_expansion_crowding_out_training | IS_RIGHT | 113.0 | 67.8 | 20.3 | 24.9 | - | normal | low | high | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| double_shock_investment_and_money_demand_training | IS_LEFT_AND_LM_LEFT | 94.0 | 57.8 | 16.9 | 19.3 | - | normal | low | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+| two_round_stabilization_challenge_training | COMPREHENSIVE_WEAK_DEMAND | 100.0 | 57.8 | 19.3 | 22.9 | - | low | low | normal | 0.00 | 60/20/20 fallback calibrated by original C/I/G status and scenario shock |
+
+Development validation entry: run Godot with --script res://scripts/tools/ValidateDemandComponents.gd to print every IS-LM level's C/I/G/Y residual check.

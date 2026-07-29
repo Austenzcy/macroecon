@@ -1,6 +1,7 @@
 extends Control
 
 const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
+const ISLMDemandComponents = preload("res://scripts/engine/ISLMDemandComponents.gd")
 const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
 const UnifiedMacroMapScene = preload("res://scenes/components/UnifiedMacroMap.tscn")
 const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
@@ -1494,6 +1495,9 @@ func _reference_arrow(key: String, state: Dictionary) -> String:
 
 
 func _state_score(key: String, state: Dictionary) -> float:
+	var status_key: String = ISLMDemandComponents.status_key(key)
+	if status_key != key and state.has(status_key):
+		return _qualitative_score(str(state.get(status_key)))
 	var value_text: String = _state_value(state, key)
 	var parsed: Dictionary = _parse_state_number(value_text)
 	if bool(parsed.get("ok", false)):
@@ -1536,7 +1540,10 @@ func _metric_id_for_symbol(symbol: String) -> String:
 
 
 func _metric_value_text(symbol: String, state: Dictionary) -> String:
-	var value_text: String = _state_value(state, symbol)
+	var value_text: String = _state_value(state, ISLMDemandComponents.value_key(symbol))
+	if bool(_parse_state_number(value_text).get("ok", false)):
+		return value_text
+	value_text = _state_value(state, symbol)
 	if bool(_parse_state_number(value_text).get("ok", false)):
 		return value_text
 	match symbol:

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const ISLMDemandComponents = preload("res://scripts/engine/ISLMDemandComponents.gd")
+
 # IS-LM v1 for closed economy, short run, sticky prices.
 # IS: Y = A - b i
 # LM: i = cY - d
@@ -15,11 +17,12 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 	var params: Dictionary = _get_islm_params(scenario)
 	if params.is_empty():
 		return _missing_params_result(scenario, selected_policies, current_state)
+	var normalized_current_state: Dictionary = ISLMDemandComponents.normalize_initial_state(scenario, current_state)
 
-	var a_before: float = _state_float(current_state, "_islm_A", float(params.get("A", 132.0)))
-	var b: float = _state_float(current_state, "_islm_b", float(params.get("b", 8.0)))
-	var c: float = _state_float(current_state, "_islm_c", float(params.get("c", 0.04)))
-	var d_before: float = _state_float(current_state, "_islm_d", float(params.get("d", 0.0)))
+	var a_before: float = _state_float(normalized_current_state, "_islm_A", float(params.get("A", 132.0)))
+	var b: float = _state_float(normalized_current_state, "_islm_b", float(params.get("b", 8.0)))
+	var c: float = _state_float(normalized_current_state, "_islm_c", float(params.get("c", 0.04)))
+	var d_before: float = _state_float(normalized_current_state, "_islm_d", float(params.get("d", 0.0)))
 	var y_potential: float = float(params.get("Y_potential", 110.0))
 	var u_before: float = _state_float(current_state, "u", float(params.get("u_base", 5.0)))
 	var pi_before: float = _state_float(current_state, "π", _state_float(current_state, "蟺", float(params.get("pi_base", 2.0))))
@@ -81,7 +84,7 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 		_format_percent(i_after, 2)
 	])
 
-	var before_state: Dictionary = current_state.duplicate(true)
+	var before_state: Dictionary = normalized_current_state.duplicate(true)
 	before_state["Y"] = _format_number(y_before, 1)
 	before_state["u"] = _format_percent(u_before, 1)
 	before_state["π"] = _format_percent(pi_before, 1)
@@ -104,6 +107,7 @@ static func solve(scenario: Dictionary, selected_policies: Array[Dictionary], cu
 	after_state["_islm_b"] = b
 	after_state["_islm_c"] = c
 	after_state["_islm_d"] = d_after
+	after_state = ISLMDemandComponents.update_after_policy(scenario, before_state, after_state, selected_policies)
 
 	return {
 		"settlement_mode": "model",

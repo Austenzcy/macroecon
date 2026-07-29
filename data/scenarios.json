@@ -65,7 +65,13 @@
       "i": "4.00%",
       "Debt": "60.0%",
       "G": "正常",
-      "I": "正常"
+      "I": "正常",
+      "C_value": "54.0",
+      "C_status": "偏低",
+      "I_value": "23.0",
+      "I_status": "适中",
+      "G_value": "23.0",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -74,9 +80,9 @@
         "c": 0.04,
         "d": 0,
         "Y_potential": 110,
-        "u_base": 5.0,
-        "pi_base": 2.0,
-        "debt_base": 60.0,
+        "u_base": 5,
+        "pi_base": 2,
+        "debt_base": 60,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -169,7 +175,13 @@
       "i": "4.00%",
       "Debt": "60.0%",
       "G": "正常",
-      "I": "正常"
+      "I": "正常",
+      "C_value": "54.0",
+      "C_status": "偏低",
+      "I_value": "23.0",
+      "I_status": "适中",
+      "G_value": "23.0",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -178,9 +190,9 @@
         "c": 0.04,
         "d": 0,
         "Y_potential": 110,
-        "u_base": 5.0,
-        "pi_base": 2.0,
-        "debt_base": 60.0,
+        "u_base": 5,
+        "pi_base": 2,
+        "debt_base": 60,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -204,13 +216,13 @@
       "targets": {
         "Y_target": 110,
         "u_target": 4.5,
-        "pi_target": 2.0
+        "pi_target": 2
       },
       "bands": {
         "Y_ideal_band": 2,
         "Y_zero_band": 15,
         "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
+        "u_zero_band": 2,
         "pi_ideal_band": 0.3,
         "pi_zero_band": 2.5
       },
@@ -308,7 +320,13 @@
       "i": "3.88%",
       "Debt": "60.0%",
       "C": "正常",
-      "G": "正常"
+      "G": "正常",
+      "C_value": "59.7",
+      "C_status": "适中",
+      "I_value": "17.5",
+      "I_status": "偏低",
+      "G_value": "19.8",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -319,7 +337,7 @@
         "Y_potential": 110,
         "u_base": 5.5,
         "pi_base": 1.9,
-        "debt_base": 60.0,
+        "debt_base": 60,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -412,7 +430,13 @@
       "i": "3.88%",
       "Debt": "60.0%",
       "C": "正常",
-      "G": "正常"
+      "G": "正常",
+      "C_value": "59.7",
+      "C_status": "适中",
+      "I_value": "17.5",
+      "I_status": "偏低",
+      "G_value": "19.8",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -423,7 +447,7 @@
         "Y_potential": 110,
         "u_base": 5.5,
         "pi_base": 1.9,
-        "debt_base": 60.0,
+        "debt_base": 60,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -447,13 +471,13 @@
       "targets": {
         "Y_target": 110,
         "u_target": 4.5,
-        "pi_target": 2.0
+        "pi_target": 2
       },
       "bands": {
         "Y_ideal_band": 2,
         "Y_zero_band": 15,
         "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
+        "u_zero_band": 2,
         "pi_ideal_band": 0.3,
         "pi_zero_band": 2.5
       },
@@ -551,7 +575,14 @@
       "i": "4.30%",
       "Debt": "60.0%",
       "I": "偏低",
-      "G": "正常"
+      "G": "正常",
+      "C_value": "60.0",
+      "C_status": "适中",
+      "C": "正常",
+      "I_value": "17.6",
+      "I_status": "偏低",
+      "G_value": "20.0",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -562,7 +593,7 @@
         "Y_potential": 110,
         "u_base": 5.5,
         "pi_base": 1.9,
-        "debt_base": 60.0,
+        "debt_base": 60,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -655,7 +686,14 @@
       "i": "4.30%",
       "Debt": "60.0%",
       "I": "偏低",
-      "G": "正常"
+      "G": "正常",
+      "C_value": "60.0",
+      "C_status": "适中",
+      "C": "正常",
+      "I_value": "17.6",
+      "I_status": "偏低",
+      "G_value": "20.0",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -666,7 +704,7 @@
         "Y_potential": 110,
         "u_base": 5.5,
         "pi_base": 1.9,
-        "debt_base": 60.0,
+        "debt_base": 60,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -690,13 +728,13 @@
       "targets": {
         "Y_target": 110,
         "u_target": 4.5,
-        "pi_target": 2.0
+        "pi_target": 2
       },
       "bands": {
         "Y_ideal_band": 2,
         "Y_zero_band": 15,
         "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
+        "u_zero_band": 2,
         "pi_ideal_band": 0.3,
         "pi_zero_band": 2.5
       },
@@ -796,7 +834,13 @@
       "i": "4.56%",
       "Debt": "66.0%",
       "C": "偏高",
-      "I": "偏高"
+      "I": "偏高",
+      "C_value": "68.4",
+      "C_status": "偏高",
+      "I_value": "22.8",
+      "I_status": "偏高",
+      "G_value": "22.8",
+      "G_status": "偏高"
     },
     "model_params": {
       "IS_LM": {
@@ -807,7 +851,7 @@
         "Y_potential": 110,
         "u_base": 4.4,
         "pi_base": 2.3,
-        "debt_base": 66.0,
+        "debt_base": 66,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -902,7 +946,13 @@
       "i": "4.56%",
       "Debt": "66.0%",
       "C": "偏高",
-      "I": "偏高"
+      "I": "偏高",
+      "C_value": "68.4",
+      "C_status": "偏高",
+      "I_value": "22.8",
+      "I_status": "偏高",
+      "G_value": "22.8",
+      "G_status": "偏高"
     },
     "model_params": {
       "IS_LM": {
@@ -913,7 +963,7 @@
         "Y_potential": 110,
         "u_base": 4.4,
         "pi_base": 2.3,
-        "debt_base": 66.0,
+        "debt_base": 66,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -937,13 +987,13 @@
       "targets": {
         "Y_target": 110,
         "u_target": 4.5,
-        "pi_target": 2.0
+        "pi_target": 2
       },
       "bands": {
         "Y_ideal_band": 2,
         "Y_zero_band": 15,
         "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
+        "u_zero_band": 2,
         "pi_ideal_band": 0.3,
         "pi_zero_band": 2.5
       },
@@ -1044,7 +1094,13 @@
       "π": "2.3%",
       "i": "4.52%",
       "Debt": "68.0%",
-      "C": "正常"
+      "C": "正常",
+      "C_value": "67.8",
+      "C_status": "适中",
+      "I_value": "20.3",
+      "I_status": "偏低",
+      "G_value": "24.9",
+      "G_status": "偏高"
     },
     "model_params": {
       "IS_LM": {
@@ -1055,7 +1111,7 @@
         "Y_potential": 110,
         "u_base": 4.5,
         "pi_base": 2.3,
-        "debt_base": 68.0,
+        "debt_base": 68,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -1079,13 +1135,13 @@
       "targets": {
         "Y_target": 110,
         "u_target": 4.5,
-        "pi_target": 2.0
+        "pi_target": 2
       },
       "bands": {
         "Y_ideal_band": 2,
         "Y_zero_band": 15,
         "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
+        "u_zero_band": 2,
         "pi_ideal_band": 0.3,
         "pi_zero_band": 2.5
       },
@@ -1190,7 +1246,13 @@
       "i": "4.36%",
       "Debt": "61.0%",
       "C": "正常",
-      "G": "正常"
+      "G": "正常",
+      "C_value": "57.8",
+      "C_status": "适中",
+      "I_value": "16.9",
+      "I_status": "偏低",
+      "G_value": "19.3",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -1201,7 +1263,7 @@
         "Y_potential": 110,
         "u_base": 5.8,
         "pi_base": 1.8,
-        "debt_base": 61.0,
+        "debt_base": 61,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -1225,13 +1287,13 @@
       "targets": {
         "Y_target": 110,
         "u_target": 4.5,
-        "pi_target": 2.0
+        "pi_target": 2
       },
       "bands": {
         "Y_ideal_band": 2,
         "Y_zero_band": 15,
         "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
+        "u_zero_band": 2,
         "pi_ideal_band": 0.3,
         "pi_zero_band": 2.5
       },
@@ -1339,7 +1401,13 @@
       "i": "4.00%",
       "Debt": "62.0%",
       "C": "偏低",
-      "G": "正常"
+      "G": "正常",
+      "C_value": "57.8",
+      "C_status": "偏低",
+      "I_value": "19.3",
+      "I_status": "偏低",
+      "G_value": "22.9",
+      "G_status": "适中"
     },
     "model_params": {
       "IS_LM": {
@@ -1349,8 +1417,8 @@
         "d": 0,
         "Y_potential": 110,
         "u_base": 5.2,
-        "pi_base": 2.0,
-        "debt_base": 62.0,
+        "pi_base": 2,
+        "debt_base": 62,
         "okun_beta": 0.04,
         "pi_sensitivity": 0.03
       }
@@ -1374,13 +1442,13 @@
       "targets": {
         "Y_target": 110,
         "u_target": 4.5,
-        "pi_target": 2.0
+        "pi_target": 2
       },
       "bands": {
         "Y_ideal_band": 2,
         "Y_zero_band": 15,
         "u_ideal_band": 0.3,
-        "u_zero_band": 2.0,
+        "u_zero_band": 2,
         "pi_ideal_band": 0.3,
         "pi_zero_band": 2.5
       },

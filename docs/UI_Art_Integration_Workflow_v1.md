@@ -115,3 +115,7 @@ Required workflow:
 - Hide or recompute tooltip state on page scroll and global UI zoom.
 
 For MacroMap v2, the old polygons remain only as debug/reference data. Formal hover uses alpha/white mask sampling. Permanent map labels are removed from normal gameplay and the same dynamic variable data is shown in the hover tooltip.
+
+## Demand Component Data Rule
+
+For dynamic macro-map tooltip content, visual symbols must not double as data keys. C/I/G now use separate numeric fields (`C_value`, `I_value`, `G_value`) and status fields (`C_status`, `I_status`, `G_status`). The tooltip value column reads only numeric value fields; the status column reads status fields. Missing numeric values should be treated as data problems, not replaced by status text.

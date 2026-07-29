@@ -1003,3 +1003,14 @@ Macro map tooltip metric value binding fix:
 - Numeric values now only use parseable state values; missing numeric values display an em dash instead of a status word.
 - Status text remains independently derived from the existing state score logic.
 - Did not change hover animation, alpha masks, map art, tooltip positioning, macro model logic, PolicyCard, DialogueOverlay, or fonts.
+
+IS-LM demand component values:
+- Audited 11 existing IS-LM scenarios.
+- Added C_value, I_value, G_value plus C_status, I_status, G_status to scenario initial states.
+- Kept legacy C, I, G qualitative fields for compatibility.
+- Used the same abstract unit as Y and closed-economy identity Y = C + I + G.
+- No existing project component baseline was found, so a centralized 60/20/20 teaching fallback was used and calibrated by each scenario shock/status.
+- Runtime now normalizes initial state, model settlement, demo settlement, reset, and level switching through the same IS-LM demand component helper.
+- Tooltip reads numeric value fields and no longer needs em dash fallback for C/I/G in existing IS-LM levels.
+- Did not change map art, masks, hover animation, tooltip positioning, policy-card art, DialogueOverlay, macro model equations, victory conditions, or fonts.
+- Added scripts/tools/ValidateDemandComponents.gd for development-only C/I/G/Y residual checks.

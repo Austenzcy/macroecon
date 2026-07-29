@@ -1,6 +1,7 @@
 extends Node
 
 const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
+const ISLMDemandComponents = preload("res://scripts/engine/ISLMDemandComponents.gd")
 const SCENARIOS_PATH: String = "res://data/scenarios.json"
 
 var current_scenario_id: String = "consumer_confidence_drop_basic"
@@ -262,8 +263,8 @@ func _load_initial_state() -> Dictionary:
 	var scenario: Dictionary = get_current_scenario()
 	var initial_variant: Variant = scenario.get("initial_state", {})
 	if initial_variant is Dictionary and not (initial_variant as Dictionary).is_empty():
-		return (initial_variant as Dictionary).duplicate(true)
-	return DataLoader.load_dict("res://data/variables.json").duplicate(true)
+		return ISLMDemandComponents.normalize_initial_state(scenario, (initial_variant as Dictionary).duplicate(true))
+	return ISLMDemandComponents.normalize_initial_state(scenario, DataLoader.load_dict("res://data/variables.json").duplicate(true))
 
 
 func _load_max_rounds() -> int:

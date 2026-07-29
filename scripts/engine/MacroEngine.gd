@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CardResolver = preload("res://scripts/engine/CardResolver.gd")
+const ISLMDemandComponents = preload("res://scripts/engine/ISLMDemandComponents.gd")
 const ISLMSolver = preload("res://scripts/engine/ISLMSolver.gd")
 const ADASSolver = preload("res://scripts/engine/ADASSolver.gd")
 const MundellFlemingSolver = preload("res://scripts/engine/MundellFlemingSolver.gd")
@@ -33,7 +34,8 @@ static func calculate_result(scenario: Dictionary, selected_policies: Array, cur
 
 static func calculate_demo_result(scenario: Dictionary, selected_policies: Array[Dictionary], current_state: Dictionary) -> Dictionary:
 	# Demo result is for basic teaching flow only. It is not a formal macro model calculation.
-	var after: Dictionary = current_state.duplicate(true)
+	var before_state: Dictionary = ISLMDemandComponents.normalize_initial_state(scenario, current_state.duplicate(true))
+	var after: Dictionary = before_state.duplicate(true)
 	var summary: String = "政策已执行，当前为基础教学演示结算。"
 	var mechanism: Array[String] = []
 
@@ -104,8 +106,8 @@ static func calculate_demo_result(scenario: Dictionary, selected_policies: Array
 		"settlement_mode": "demo",
 		"model_type": str(scenario.get("model_type", "IS_LM")),
 		"executed_policies": selected_policies,
-		"before": current_state.duplicate(true),
-		"after": after,
+		"before": before_state,
+		"after": ISLMDemandComponents.update_after_policy(scenario, before_state, after, selected_policies),
 		"summary": summary,
 		"mechanism": mechanism
 	}
