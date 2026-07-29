@@ -4,9 +4,13 @@ const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
 const ISLMDemandComponents = preload("res://scripts/engine/ISLMDemandComponents.gd")
 const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
 const UnifiedMacroMapScene = preload("res://scenes/components/UnifiedMacroMap.tscn")
-const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
-const TheoryISLMGraphScript = preload("res://scripts/ui/TheoryISLMGraph.gd")
-const DemandCompositionDonutScript = preload("res://scripts/ui/DemandCompositionDonut.gd")
+const HudV2Theme = preload("res://scripts/ui/hud_v2/HudV2Theme.gd")
+const HudPanelShapeScript = preload("res://scripts/ui/hud_v2/HudPanelShape.gd")
+const HudIconScript = preload("res://scripts/ui/hud_v2/HudIcon.gd")
+const ResourceChipV2Script = preload("res://scripts/ui/hud_v2/ResourceChipV2.gd")
+const PolicyOptionV2Script = preload("res://scripts/ui/hud_v2/PolicyOptionV2.gd")
+const MacroIndicatorRowV2Script = preload("res://scripts/ui/hud_v2/MacroIndicatorRowV2.gd")
+const TheoryPanelV2Script = preload("res://scripts/ui/hud_v2/TheoryPanelV2.gd")
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
@@ -55,8 +59,14 @@ var _model_replay_button: Button
 var _summary_button: Button
 var _policy_points_label: Label
 var _wisdom_label: Label
+var _wisdom_chip: Control
+var _top_policy_points_chip: Control
 var _request_hint_button: Button
 var _review_hint_button: Button
+var _left_hud_panel: PanelContainer
+var _right_hud_panel: PanelContainer
+var _left_drawer_collapsed: bool = false
+var _right_drawer_collapsed: bool = false
 var _scenario: Dictionary = {}
 var _selected_policies: Array[Dictionary] = []
 var _last_result: Dictionary = {}
@@ -123,8 +133,12 @@ func _build_ui() -> void:
 	_summary_button = null
 	_policy_points_label = null
 	_wisdom_label = null
+	_wisdom_chip = null
+	_top_policy_points_chip = null
 	_request_hint_button = null
 	_review_hint_button = null
+	_left_hud_panel = null
+	_right_hud_panel = null
 	_outer_margin = null
 	_content_margin = null
 	_hud_blockers.clear()
@@ -189,100 +203,117 @@ func _build_fullscreen_map_layer() -> Control:
 
 
 func _build_top_hud() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
+	var panel: PanelContainer = HudPanelShapeScript.new() as PanelContainer
 	panel.name = "TopHud"
+	panel.call("set_shape_kind", "top_challenge")
 	_problem_panel = panel
 	_register_hud_blocker(panel)
 	_apply_hud_rect(panel, _hud_margin(), _hud_margin(), -_hud_margin(), _hud_margin() + _top_hud_height())
-	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("top"))
 
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(18))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(20))
 	margin.add_theme_constant_override("margin_top", _dim(8))
 	margin.add_theme_constant_override("margin_right", _dim(18))
 	margin.add_theme_constant_override("margin_bottom", _dim(8))
 	panel.add_child(margin)
 
-	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", _dim(12))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(14))
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(row)
 
 	var scenario: Dictionary = _get_current_scenario()
-	var challenge_box: VBoxContainer = VBoxContainer.new()
-	challenge_box.custom_minimum_size = Vector2(_dim(280), 0)
+	var challenge_box := VBoxContainer.new()
+	challenge_box.custom_minimum_size = Vector2(_dim(315), 0)
 	challenge_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	challenge_box.size_flags_stretch_ratio = 0.95
 	challenge_box.add_theme_constant_override("separation", _dim(2))
 	row.add_child(challenge_box)
-	_add_micro_label(challenge_box, "当前挑战", Color(0.55, 0.78, 0.88), 12)
-	_add_single_line_label(challenge_box, str(scenario.get("problem_title", "消费信心下降")), Color(0.86, 0.96, 1.0), 21, TextServer.OVERRUN_TRIM_ELLIPSIS)
-	_add_single_line_label(challenge_box, _compact_theory_hint(scenario).replace("机制提示：", ""), Color(0.66, 0.82, 0.88), 13, TextServer.OVERRUN_TRIM_ELLIPSIS)
+	_add_micro_label(challenge_box, "当前挑战", HudV2Theme.ACCENT_SYSTEM, 12)
+	_add_single_line_label(challenge_box, str(scenario.get("problem_title", "消费信心下降")), HudV2Theme.TEXT_TITLE, 24, TextServer.OVERRUN_TRIM_ELLIPSIS)
+	_add_single_line_label(challenge_box, _compact_mechanism_line(scenario), HudV2Theme.TEXT_BODY, 13, TextServer.OVERRUN_TRIM_ELLIPSIS)
 
-	var center_box: VBoxContainer = VBoxContainer.new()
+	var center_box := VBoxContainer.new()
 	center_box.custom_minimum_size = Vector2(_dim(390), 0)
 	center_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	center_box.size_flags_stretch_ratio = 1.05
+	center_box.size_flags_stretch_ratio = 1.0
 	center_box.alignment = BoxContainer.ALIGNMENT_CENTER
 	center_box.add_theme_constant_override("separation", _dim(6))
 	row.add_child(center_box)
 
-	var round_label: Label = Label.new()
+	var round_label := Label.new()
 	round_label.text = "回合 %d / %d" % [GameState.current_round, GameState.max_rounds]
 	round_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	round_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	round_label.add_theme_font_size_override("font_size", _font(19))
-	round_label.modulate = Color(0.92, 0.98, 1.0, 1.0)
+	round_label.add_theme_font_size_override("font_size", _font(20))
+	round_label.add_theme_constant_override("outline_size", 1)
+	round_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.38))
+	round_label.modulate = HudV2Theme.TEXT_TITLE
 	center_box.add_child(round_label)
+	center_box.add_child(_build_model_tag_row(_top_hud_tags(scenario)))
 
-	var tag_scene: PackedScene = preload("res://scenes/components/ModelTagBar.tscn")
-	var tag_bar: HBoxContainer = tag_scene.instantiate() as HBoxContainer
-	tag_bar.alignment = BoxContainer.ALIGNMENT_CENTER
-	tag_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tag_bar.call("set_ui_scale", 0.82)
-	tag_bar.call("set_tags", _top_hud_tags(scenario))
-	center_box.add_child(tag_bar)
-
-	var right_box: HBoxContainer = HBoxContainer.new()
-	right_box.custom_minimum_size = Vector2(_dim(360), 0)
+	var right_box := HBoxContainer.new()
+	right_box.custom_minimum_size = Vector2(_dim(445), 0)
 	right_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right_box.size_flags_stretch_ratio = 0.88
+	right_box.size_flags_stretch_ratio = 1.0
 	right_box.alignment = BoxContainer.ALIGNMENT_END
-	right_box.add_theme_constant_override("separation", _dim(8))
+	right_box.add_theme_constant_override("separation", _dim(7))
 	row.add_child(right_box)
 	right_box.add_child(_build_time_label())
 	right_box.add_child(_build_wisdom_panel())
+	right_box.add_child(_build_top_policy_points_chip())
+	right_box.add_child(_build_hud_icon_button("hint", "提示", Callable(self, "_on_request_hint_pressed")))
+	right_box.add_child(_build_hud_icon_button("review", "回看", Callable(self, "_on_review_hint_pressed")))
 
 	return panel
 
-
 func _build_policy_hud() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.name = "PolicyHud"
+	var panel: PanelContainer = HudPanelShapeScript.new() as PanelContainer
+	panel.name = "PolicyHudV2"
+	panel.call("set_shape_kind", "left_drawer")
+	_left_hud_panel = panel
 	var margin_size: int = _hud_margin()
 	var side_width: int = _left_hud_width()
 	var top_y: int = _side_top_y()
 	_apply_hud_rect(panel, margin_size, top_y, margin_size + side_width, -margin_size)
-	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("left"))
 	_register_hud_blocker(panel)
 
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(8))
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(10))
 	margin.add_theme_constant_override("margin_top", _dim(10))
-	margin.add_theme_constant_override("margin_right", _dim(8))
+	margin.add_theme_constant_override("margin_right", _dim(16))
 	margin.add_theme_constant_override("margin_bottom", _dim(10))
 	panel.add_child(margin)
 
+	var root := VBoxContainer.new()
+	root.add_theme_constant_override("separation", _dim(8))
+	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(root)
+
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", _dim(6))
+	root.add_child(header)
+	_add_panel_title(header, "政策卡")
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(spacer)
+	header.add_child(_build_drawer_toggle_button("collapse_left", Callable(self, "_toggle_left_drawer")))
+
+	_policy_points_label = Label.new()
+	_policy_points_label.name = "PolicyPointsArea"
+	_policy_points_label.text = _policy_points_text()
+	_policy_points_label.modulate = HudV2Theme.ACCENT_RESOURCE
+	_policy_points_label.add_theme_font_size_override("font_size", _font(14))
+	root.add_child(_policy_points_label)
+	_add_wrapped_label(root, _policy_points_hint_text(), HudV2Theme.TEXT_MUTED, 11)
+
 	var policy_column: VBoxContainer = _build_policy_column()
-	policy_column.custom_minimum_size = Vector2(maxf(1.0, float(side_width - _dim(16))), 0.0)
+	policy_column.custom_minimum_size = Vector2(maxf(1.0, float(side_width - _dim(26))), 0.0)
 	policy_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	policy_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(policy_column)
+	root.add_child(policy_column)
 	return panel
-
-
-
 
 func _top_hud_tags(scenario: Dictionary) -> Array[String]:
 	var tags: Array[String] = []
@@ -299,6 +330,13 @@ func _top_hud_tags(scenario: Dictionary) -> Array[String]:
 		tags.append(problem_tag)
 	return tags
 
+
+func _compact_mechanism_line(scenario: Dictionary) -> String:
+	var hint: String = str(scenario.get("model_hint", "")).strip_edges()
+	if hint.is_empty():
+		return "核心变量变化会影响总需求，并通过 IS-LM 改变产出与利率。"
+	hint = hint.replace("机制提示：", "")
+	return hint
 
 func _add_micro_label(parent: Control, text: String, color: Color, font_size: int) -> Label:
 	var label: Label = Label.new()
@@ -325,104 +363,91 @@ func _add_single_line_label(parent: Control, text: String, color: Color, font_si
 
 
 func _build_time_label() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.name = "QuarterTimeLabel"
-	panel.add_theme_stylebox_override("panel", _make_compact_panel_style())
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(12))
-	margin.add_theme_constant_override("margin_top", _dim(7))
-	margin.add_theme_constant_override("margin_right", _dim(12))
-	margin.add_theme_constant_override("margin_bottom", _dim(7))
-	panel.add_child(margin)
-
-	var label: Label = Label.new()
-	label.text = NarrativeManager.get_current_quarter_label(GameState.current_scenario_id)
-	label.add_theme_font_size_override("font_size", _font(15))
-	label.modulate = Color(0.92, 0.80, 0.46)
-	margin.add_child(label)
-	return panel
+	var chip: PanelContainer = ResourceChipV2Script.new() as PanelContainer
+	chip.call("setup", "review", "季度", NarrativeManager.get_current_quarter_label(GameState.current_scenario_id), "system")
+	return chip
 
 
 func _build_wisdom_panel() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.name = "WisdomPanel"
-	panel.add_theme_stylebox_override("panel", _make_compact_panel_style())
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(10))
-	margin.add_theme_constant_override("margin_top", _dim(6))
-	margin.add_theme_constant_override("margin_right", _dim(10))
-	margin.add_theme_constant_override("margin_bottom", _dim(6))
-	panel.add_child(margin)
-
-	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", _dim(8))
-	margin.add_child(row)
-
-	var wisdom_icon_slot: PanelContainer = PanelContainer.new()
-	wisdom_icon_slot.name = "WisdomIconSlot"
-	wisdom_icon_slot.custom_minimum_size = Vector2(_dim(26), _dim(26))
-	wisdom_icon_slot.clip_contents = true
-	wisdom_icon_slot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	wisdom_icon_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	wisdom_icon_slot.add_theme_stylebox_override("panel", _make_icon_slot_style())
-	row.add_child(wisdom_icon_slot)
-
-	var wisdom_icon_label: Label = Label.new()
-	wisdom_icon_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	wisdom_icon_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	wisdom_icon_label.add_theme_font_size_override("font_size", _font(14))
-	wisdom_icon_label.modulate = ClassicalTheme.TEXT_MAIN
-	wisdom_icon_slot.add_child(wisdom_icon_label)
-
-	var wisdom_texture := ArtAssetRegistry.texture_for_ui("wisdom_points")
-	if wisdom_texture != null:
-		var wisdom_icon_texture: TextureRect = TextureRect.new()
-		wisdom_icon_texture.name = "WisdomIconTexture"
-		wisdom_icon_texture.set_anchors_preset(Control.PRESET_FULL_RECT)
-		wisdom_icon_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		wisdom_icon_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		wisdom_icon_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		wisdom_icon_texture.offset_left = 4
-		wisdom_icon_texture.offset_top = 4
-		wisdom_icon_texture.offset_right = -4
-		wisdom_icon_texture.offset_bottom = -4
-		wisdom_icon_texture.texture = wisdom_texture
-		wisdom_icon_slot.add_child(wisdom_icon_texture)
-	else:
-		wisdom_icon_label.text = ArtAssetRegistry.placeholder_for_ui("wisdom_points")
-
-	_wisdom_label = Label.new()
-	_wisdom_label.name = "WisdomPointsLabel"
-	_wisdom_label.custom_minimum_size = Vector2(_dim(86), _dim(30))
-	_wisdom_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_wisdom_label.add_theme_font_size_override("font_size", _font(14))
-	ClassicalTheme.apply_label_color(_wisdom_label, "title")
-	row.add_child(_wisdom_label)
-
-	_request_hint_button = Button.new()
-	_request_hint_button.name = "RequestHintButton"
-	_request_hint_button.text = "请求提示"
-	_request_hint_button.custom_minimum_size = Vector2(_dim(82), _dim(32))
-	_request_hint_button.add_theme_font_size_override("font_size", _font(14))
-	ClassicalTheme.apply_button(_request_hint_button, _ui_scale, "primary")
-	_request_hint_button.pressed.connect(_on_request_hint_pressed)
-	row.add_child(_request_hint_button)
-
-	_review_hint_button = Button.new()
-	_review_hint_button.name = "ReviewHintButton"
-	_review_hint_button.text = "回看"
-	_review_hint_button.custom_minimum_size = Vector2(_dim(54), _dim(32))
-	_review_hint_button.add_theme_font_size_override("font_size", _font(14))
-	ClassicalTheme.apply_button(_review_hint_button, _ui_scale, "quiet")
-	_review_hint_button.pressed.connect(_on_review_hint_pressed)
-	row.add_child(_review_hint_button)
-
+	var chip: PanelContainer = ResourceChipV2Script.new() as PanelContainer
+	chip.name = "WisdomPanel"
+	chip.call("setup", "wisdom", "智慧点", str(NarrativeManager.get_wisdom_points()), "resource")
+	_wisdom_chip = chip
+	_wisdom_label = chip.call("get_label_control") as Label
 	_refresh_wisdom_ui()
-	return panel
+	return chip
 
 
+func _build_top_policy_points_chip() -> PanelContainer:
+	var chip: PanelContainer = ResourceChipV2Script.new() as PanelContainer
+	chip.name = "TopPolicyPointsChip"
+	chip.call("setup", "policy_point", "政策点", _policy_points_value_text(), "resource")
+	_top_policy_points_chip = chip
+	return chip
+
+
+func _build_hud_icon_button(icon_type: String, text: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = "    %s" % text
+	button.custom_minimum_size = Vector2(_dim(68), _dim(34))
+	button.add_theme_font_size_override("font_size", _font(13))
+	HudV2Theme.apply_button(button, _ui_scale, "primary")
+	button.pressed.connect(callback)
+	var icon: Control = HudIconScript.new() as Control
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.call("setup", icon_type, HudV2Theme.ACCENT_SYSTEM, 1.5)
+	icon.anchor_left = 0.0
+	icon.anchor_top = 0.5
+	icon.anchor_right = 0.0
+	icon.anchor_bottom = 0.5
+	icon.offset_left = _dim(9)
+	icon.offset_top = -_dim(9)
+	icon.offset_right = _dim(27)
+	icon.offset_bottom = _dim(9)
+	button.add_child(icon)
+	if icon_type == "hint":
+		_request_hint_button = button
+	elif icon_type == "review":
+		_review_hint_button = button
+	return button
+
+
+func _build_drawer_toggle_button(icon_type: String, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = ""
+	button.custom_minimum_size = Vector2(_dim(30), _dim(30))
+	button.add_theme_font_size_override("font_size", _font(18))
+	HudV2Theme.apply_button(button, _ui_scale, "primary")
+	button.pressed.connect(callback)
+	var icon: Control = HudIconScript.new() as Control
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.call("setup", icon_type, HudV2Theme.ACCENT_SYSTEM, 1.6)
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon.offset_left = _dim(6)
+	icon.offset_top = _dim(6)
+	icon.offset_right = -_dim(6)
+	icon.offset_bottom = -_dim(6)
+	button.add_child(icon)
+	return button
+
+
+func _build_model_tag_row(tags: Array[String]) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", _dim(6))
+	for tag in tags:
+		var chip := PanelContainer.new()
+		chip.add_theme_stylebox_override("panel", HudV2Theme.chip_style("system"))
+		chip.custom_minimum_size = Vector2(_dim(72), _dim(24))
+		var label := Label.new()
+		label.text = tag
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", _font(12))
+		label.modulate = HudV2Theme.ACCENT_SYSTEM
+		chip.add_child(label)
+		row.add_child(chip)
+	return row
 
 func _build_problem_banner() -> PanelContainer:
 	var scenario: Dictionary = _get_current_scenario()
@@ -458,38 +483,22 @@ func _build_policy_column() -> VBoxContainer:
 	var column: VBoxContainer = VBoxContainer.new()
 	column.name = "PolicyCardsArea"
 	_policy_column = column
-	column.custom_minimum_size = Vector2(_dim(180), 0)
-	column.add_theme_constant_override("separation", _dim(6))
+	column.custom_minimum_size = Vector2(_dim(180), 0.0)
+	column.add_theme_constant_override("separation", _dim(7))
 
-	_add_panel_title(column, "政策卡")
-	_policy_points_label = Label.new()
-	_policy_points_label.name = "PolicyPointsArea"
-	_policy_points_label.text = _policy_points_text()
-	_policy_points_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_policy_points_label.modulate = Color(0.56, 0.88, 1.0)
-	_policy_points_label.add_theme_font_size_override("font_size", _font(13))
-	column.add_child(_policy_points_label)
-	_add_wrapped_label(column, _policy_points_hint_text(), Color(0.58, 0.70, 0.74), 11)
-
-	var card_scene: PackedScene = preload("res://scenes/components/PolicyCard.tscn")
 	var policies: Array[Dictionary] = _available_policy_entries()
 	var compact_scale: float = _policy_card_ui_scale(policies.size())
 	for policy_data: Dictionary in policies:
-		var card: PanelContainer = card_scene.instantiate() as PanelContainer
-		card.call("set_policy", policy_data)
-		if card.has_method("set_compact_hud_mode"):
-			card.call("set_compact_hud_mode", true)
-		card.call("set_ui_scale", compact_scale)
-		card.call("set_cost", _policy_cost(policy_data), true)
+		var card: PanelContainer = PolicyOptionV2Script.new() as PanelContainer
+		card.call("setup", policy_data, _policy_cost(policy_data), compact_scale)
 		card.call("set_selected", _is_policy_selected(str(policy_data.get("id", ""))))
 		card.connect("selected", _on_policy_selected)
-		card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		_policy_cards.append(card)
 		column.add_child(card)
 
 	return column
-
 
 func _build_map_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
@@ -611,87 +620,53 @@ func _refresh_unified_macro_map(map_state: Dictionary) -> void:
 
 
 func _build_theory_panel() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.name = "TheoryHud"
+	var panel: PanelContainer = TheoryPanelV2Script.new() as PanelContainer
+	panel.name = "BottomAnalysisHudV2"
 	_theory_panel = panel
 	var margin_size: int = _hud_margin()
 	var side_left: int = margin_size * 2 + _left_hud_width()
 	var side_right: int = -(margin_size * 2 + _right_hud_width())
 	var theory_h: int = _theory_hud_height()
-	var panel_width: float = _viewport_size().x - float(side_left) + float(side_right)
-	var compact_width: int = int(roundf(clampf(panel_width * 0.46, 420.0, 620.0)))
-	_apply_hud_rect(panel, side_left, -(margin_size + theory_h), side_left + compact_width, -margin_size)
-	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("theory"))
+	_apply_hud_rect(panel, side_left, -(margin_size + theory_h), side_right, -margin_size)
+	panel.call("setup", _get_current_scenario(), _visible_macro_state(), _ui_scale)
 	_register_hud_blocker(panel)
-
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(12))
-	margin.add_theme_constant_override("margin_top", _dim(9))
-	margin.add_theme_constant_override("margin_right", _dim(12))
-	margin.add_theme_constant_override("margin_bottom", _dim(9))
-	panel.add_child(margin)
-
-	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", _dim(5))
-	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(box)
-
-	var scenario: Dictionary = _get_current_scenario()
-	_add_panel_title(box, "理论面板：IS-LM 分析")
-	_add_single_line_label(box, _compact_theory_hint(scenario), Color(0.72, 0.88, 0.94), 13, TextServer.OVERRUN_TRIM_ELLIPSIS)
-
-	var graph_row: HBoxContainer = HBoxContainer.new()
-	graph_row.add_theme_constant_override("separation", _dim(8))
-	graph_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	graph_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(graph_row)
-
-	var graph: Control = _build_theory_graph(scenario)
-	graph.custom_minimum_size = Vector2(_dim(220), maxf(88.0, float(theory_h - _dim(64))))
-	graph.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	graph.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	graph_row.add_child(graph)
-
-	var donut: Control = DemandCompositionDonutScript.new() as Control
-	donut.call("setup", _visible_macro_state(), 0.86)
-	donut.custom_minimum_size = Vector2(_dim(170), maxf(88.0, float(theory_h - _dim(64))))
-	donut.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	donut.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	graph_row.add_child(donut)
 	return panel
 
 
-func _build_theory_graph(scenario: Dictionary) -> Control:
-	var graph: Control = TheoryISLMGraphScript.new() as Control
-	graph.call("setup", scenario, _ui_scale)
-	return graph
-
-
 func _build_right_column() -> PanelContainer:
-	var panel: PanelContainer = PanelContainer.new()
-	panel.name = "RightInfoPanel"
+	var panel: PanelContainer = HudPanelShapeScript.new() as PanelContainer
+	panel.name = "RightMacroHudV2"
+	panel.call("set_shape_kind", "right_drawer")
 	_right_panel = panel
+	_right_hud_panel = panel
 	var margin_size: int = _hud_margin()
 	var right_width: int = _right_hud_width()
 	var top_y: int = _side_top_y()
 	_apply_hud_rect(panel, -(margin_size + right_width), top_y, -margin_size, -margin_size)
-	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("right"))
 	_register_hud_blocker(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(14))
-	margin.add_theme_constant_override("margin_top", _dim(14))
-	margin.add_theme_constant_override("margin_right", _dim(14))
-	margin.add_theme_constant_override("margin_bottom", _dim(14))
+	margin.add_theme_constant_override("margin_left", _dim(16))
+	margin.add_theme_constant_override("margin_top", _dim(12))
+	margin.add_theme_constant_override("margin_right", _dim(10))
+	margin.add_theme_constant_override("margin_bottom", _dim(12))
 	panel.add_child(margin)
 
 	var box: VBoxContainer = VBoxContainer.new()
 	box.name = "RightMacroHudLayout"
-	box.add_theme_constant_override("separation", _dim(10))
+	box.add_theme_constant_override("separation", _dim(9))
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(box)
+
+	var header: HBoxContainer = HBoxContainer.new()
+	header.add_theme_constant_override("separation", _dim(6))
+	box.add_child(header)
+	header.add_child(_build_drawer_toggle_button("collapse_right", Callable(self, "_toggle_right_drawer")))
+	_add_panel_title(header, "宏观状态")
+	var spacer: Control = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(spacer)
 
 	_right_panel_box = VBoxContainer.new()
 	_right_panel_box.name = "RightMacroContent"
@@ -700,24 +675,22 @@ func _build_right_column() -> PanelContainer:
 	_right_panel_box.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	box.add_child(_right_panel_box)
 
-	var spacer: Control = Control.new()
-	spacer.name = "RightMacroSpacer"
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(spacer)
+	var spacer_bottom: Control = Control.new()
+	spacer_bottom.name = "RightMacroSpacer"
+	spacer_bottom.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(spacer_bottom)
 
 	_confirm_button = _build_confirm_policy_button()
 	box.add_child(_confirm_button)
 	_refresh_confirm_button()
-
 	return panel
-
 
 func _build_confirm_policy_button() -> Button:
 	var button: Button = Button.new()
 	button.name = "ConfirmPolicyButton"
-	button.custom_minimum_size = Vector2(_dim(0), _dim(56))
-	button.add_theme_font_size_override("font_size", _font(18))
-	ClassicalTheme.apply_button(button, _ui_scale, "primary")
+	button.custom_minimum_size = Vector2(_dim(0), _dim(52))
+	button.add_theme_font_size_override("font_size", _font(17))
+	HudV2Theme.apply_button(button, _ui_scale, "confirm")
 	button.pressed.connect(_on_confirm_policy)
 	return button
 
@@ -725,9 +698,8 @@ func _build_confirm_policy_button() -> Button:
 func _refresh_confirm_button() -> void:
 	if _confirm_button == null:
 		return
-	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "确认政策"
+	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "✓ 确认政策"
 	_confirm_button.disabled = _is_policy_confirmed or _selected_policies.is_empty()
-
 
 func _show_current_state_panel() -> void:
 	_clear_right_panel()
@@ -736,14 +708,13 @@ func _show_current_state_panel() -> void:
 	var scenario: Dictionary = _get_current_scenario()
 	var variables: Dictionary = GameState.get_current_state()
 
-	_add_panel_title(_right_panel_box, "宏观状态监测")
-	_add_section_label(_right_panel_box, "当前问题：")
-	_add_wrapped_label(_right_panel_box, str(scenario.get("problem_title", "消费信心下降")), Color(0.96, 0.98, 1.0), 18)
-	_add_section_label(_right_panel_box, "关键变量：")
+	_add_section_label(_right_panel_box, "当前问题")
+	_add_wrapped_label(_right_panel_box, str(scenario.get("problem_title", "消费信心下降")), HudV2Theme.TEXT_TITLE, 17)
+	_add_section_label(_right_panel_box, "关键指标")
 	for key: String in ["Y", "u", "π", "i", "Debt"]:
 		_add_stat_row(_right_panel_box, key, variables, {})
-	_add_section_label(_right_panel_box, "提示：")
-	_add_wrapped_label(_right_panel_box, "请选择一张政策卡，并在确认后观察宏观状态变化。", Color(0.78, 0.86, 0.92), 15)
+	_add_section_label(_right_panel_box, "行动提示")
+	_add_wrapped_label(_right_panel_box, "选择一张政策卡后，在右下角确认执行。", HudV2Theme.TEXT_BODY, 13)
 
 	_refresh_confirm_button()
 
@@ -782,7 +753,7 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		replay_button.text = "查看模型回放"
 		replay_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
 		replay_button.add_theme_font_size_override("font_size", _font(16))
-		ClassicalTheme.apply_button(replay_button, _ui_scale, "primary")
+		HudV2Theme.apply_button(replay_button, _ui_scale, "primary")
 		replay_button.pressed.connect(_on_open_replay_pressed)
 		_right_panel_box.add_child(replay_button)
 
@@ -792,7 +763,7 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 	summary_button.text = "本轮总结"
 	summary_button.custom_minimum_size = Vector2(_dim(0), _dim(42))
 	summary_button.add_theme_font_size_override("font_size", _font(16))
-	ClassicalTheme.apply_button(summary_button, _ui_scale, "primary")
+	HudV2Theme.apply_button(summary_button, _ui_scale, "primary")
 	summary_button.pressed.connect(_on_round_summary_pressed)
 	_right_panel_box.add_child(summary_button)
 	_refresh_confirm_button()
@@ -897,13 +868,19 @@ func _used_policy_points() -> int:
 
 
 func _policy_points_text() -> String:
-	return "政策点 %d / %d" % [_used_policy_points(), _policy_point_limit()]
+	return "政策点 %s" % _policy_points_value_text()
+
+
+func _policy_points_value_text() -> String:
+	var limit: int = _policy_point_limit()
+	var remaining: int = maxi(0, limit - _used_policy_points())
+	return "%d / %d" % [remaining, limit]
 
 
 func _policy_points_hint_text() -> String:
 	if _is_budget_mode():
 		return "按政策点组合选择；卡牌右下角为消耗。"
-	return "本关 1 点；每张卡消耗右下角数字。"
+	return "每张政策卡会消耗政策点。本关拥有 1 点政策点，只能执行一张政策卡。"
 
 
 func _is_policy_selected(policy_id: String) -> bool:
@@ -942,9 +919,15 @@ func _toggle_budget_policy(policy_data: Dictionary) -> void:
 func _refresh_card_selection() -> void:
 	for card: Node in _policy_cards:
 		card.call("set_selected", _is_policy_selected(str(card.get("policy_id"))))
+	_refresh_policy_points_ui()
+	_refresh_confirm_button()
+
+
+func _refresh_policy_points_ui() -> void:
 	if _policy_points_label != null:
 		_policy_points_label.text = _policy_points_text()
-	_refresh_confirm_button()
+	if _top_policy_points_chip != null and is_instance_valid(_top_policy_points_chip):
+		_top_policy_points_chip.call("set_value", _policy_points_value_text())
 
 
 func _selection_message(policy_name: String) -> String:
@@ -1245,6 +1228,54 @@ func _forward_map_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _toggle_left_drawer() -> void:
+	_left_drawer_collapsed = not _left_drawer_collapsed
+	_apply_left_drawer_state(true)
+
+
+func _toggle_right_drawer() -> void:
+	_right_drawer_collapsed = not _right_drawer_collapsed
+	_apply_right_drawer_state(true)
+
+
+func _apply_left_drawer_state(animated: bool = false) -> void:
+	if _left_hud_panel == null or not is_instance_valid(_left_hud_panel):
+		return
+	var width: int = _left_hud_width()
+	var margin_size: int = _hud_margin()
+	var tab_width: int = _drawer_tab_width()
+	var target_left: float = float(-width + tab_width) if _left_drawer_collapsed else float(margin_size)
+	var target_right: float = float(tab_width) if _left_drawer_collapsed else float(margin_size + width)
+	_tween_drawer_offsets(_left_hud_panel, target_left, target_right, animated)
+
+
+func _apply_right_drawer_state(animated: bool = false) -> void:
+	if _right_hud_panel == null or not is_instance_valid(_right_hud_panel):
+		return
+	var width: int = _right_hud_width()
+	var margin_size: int = _hud_margin()
+	var tab_width: int = _drawer_tab_width()
+	var target_left: float = float(-tab_width) if _right_drawer_collapsed else float(-(margin_size + width))
+	var target_right: float = float(width - tab_width) if _right_drawer_collapsed else float(-margin_size)
+	_tween_drawer_offsets(_right_hud_panel, target_left, target_right, animated)
+
+
+func _tween_drawer_offsets(panel: Control, target_left: float, target_right: float, animated: bool) -> void:
+	if not animated:
+		panel.offset_left = target_left
+		panel.offset_right = target_right
+		return
+	var tween := create_tween()
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(panel, "offset_left", target_left, 0.26)
+	tween.parallel().tween_property(panel, "offset_right", target_right, 0.26)
+
+
+func _drawer_tab_width() -> int:
+	return _dim(34)
+
+
 func _register_hud_blocker(control: Control) -> void:
 	if control != null:
 		_hud_blockers.append(control)
@@ -1439,8 +1470,10 @@ func _is_first_level_scenario() -> bool:
 
 
 func _refresh_wisdom_ui() -> void:
-	if _wisdom_label != null:
-		_wisdom_label.text = "智慧点数：%d" % NarrativeManager.get_wisdom_points()
+	if _wisdom_chip != null and is_instance_valid(_wisdom_chip):
+		_wisdom_chip.call("set_value", str(NarrativeManager.get_wisdom_points()))
+	elif _wisdom_label != null:
+		_wisdom_label.text = "智慧点 %d" % NarrativeManager.get_wisdom_points()
 	if _review_hint_button != null:
 		var unlocked_variant: Variant = NarrativeManager.unlocked_hints.get(GameState.current_scenario_id, [])
 		_review_hint_button.disabled = not (unlocked_variant is Array and (unlocked_variant as Array).size() > 0)
@@ -1472,7 +1505,7 @@ func _clear_right_panel() -> void:
 		child.queue_free()
 
 
-func _add_panel_title(parent: VBoxContainer, text: String) -> void:
+func _add_panel_title(parent: Control, text: String) -> void:
 	var label: Label = Label.new()
 	label.text = text
 	label.modulate = Color(0.82, 0.96, 1.0, 0.96)
@@ -1523,45 +1556,12 @@ func _add_stat_row(parent: VBoxContainer, key: String, current_state: Dictionary
 	var config: Dictionary = _variable_display_config(key)
 	var current_value_text: String = _state_value(current_state, key)
 	var current_number: float = _state_number(current_state, key, float(config.get("reference_value", 0.0)))
-	var arrow: String = _reference_arrow(key, current_state)
-	if not before_state.is_empty():
-		var before_value_text: String = _state_value(before_state, key)
-		arrow = _direction_arrow(before_value_text, current_value_text)
-
-	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", _dim(7))
+	var score: float = _state_score(key, current_state)
+	var status_text: String = _state_status_text(score)
+	var row: Control = MacroIndicatorRowV2Script.new() as Control
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.call("setup", _variable_display_name(key), key, config, current_value_text, current_number, status_text, score, _ui_scale)
 	parent.add_child(row)
-
-	var name_label: Label = Label.new()
-	name_label.text = key
-	name_label.custom_minimum_size = Vector2(_dim(34), _dim(30))
-	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.modulate = Color(0.72, 0.82, 0.90)
-	name_label.add_theme_font_size_override("font_size", _font(14))
-	row.add_child(name_label)
-
-	var arrow_label: Label = Label.new()
-	arrow_label.text = arrow
-	arrow_label.custom_minimum_size = Vector2(_dim(24), _dim(30))
-	arrow_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	arrow_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	arrow_label.modulate = _arrow_color(arrow)
-	arrow_label.add_theme_font_size_override("font_size", _font(17))
-	row.add_child(arrow_label)
-
-	var bar: Control = MacroStatBarScript.new() as Control
-	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bar.call("setup", config, current_number, _ui_scale)
-	row.add_child(bar)
-
-	var value_label: Label = Label.new()
-	value_label.text = current_value_text
-	value_label.custom_minimum_size = Vector2(_dim(58), _dim(30))
-	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	value_label.add_theme_font_size_override("font_size", _font(14))
-	row.add_child(value_label)
-
 
 func _visible_macro_state() -> Dictionary:
 	if _is_policy_confirmed and not _last_result.is_empty():
@@ -1645,6 +1645,21 @@ func _variable_display_config(key: String) -> Dictionary:
 		for override_key: Variant in (override_variant as Dictionary).keys():
 			config[override_key] = (override_variant as Dictionary).get(override_key)
 	return config
+
+
+func _variable_display_name(key: String) -> String:
+	match key:
+		"Y":
+			return "产出"
+		"u":
+			return "失业率"
+		"π", "蟺":
+			return "通胀率"
+		"i":
+			return "利率"
+		"Debt":
+			return "政府债务"
+	return key
 
 
 func _reference_arrow(key: String, state: Dictionary) -> String:
@@ -1805,7 +1820,7 @@ func _right_hud_width() -> int:
 
 func _theory_hud_height() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.y * 0.188, 138.0, 174.0)))
+	return int(roundf(clampf(viewport.y * 0.265, 210.0, 300.0)))
 
 
 func _hud_gap() -> int:
@@ -1817,9 +1832,9 @@ func _policy_card_ui_scale(policy_count: int) -> float:
 	var viewport: Vector2 = _viewport_size()
 	var count: int = maxi(1, policy_count)
 	var side_height: float = viewport.y - float(_side_top_y()) - float(_hud_margin())
-	var header_height: float = 72.0
-	var available_card_height: float = maxf(120.0, side_height - header_height - float(maxi(0, count - 1)) * 6.0 - 8.0)
-	var height_scale: float = available_card_height / float(count) / 106.0
+	var header_height: float = 92.0
+	var available_card_height: float = maxf(120.0, side_height - header_height - float(maxi(0, count - 1)) * 7.0 - 8.0)
+	var height_scale: float = available_card_height / float(count) / 92.0
 	var inner_width: float = float(_left_hud_width() - _dim(16))
 	var width_scale: float = inner_width / 238.0
 	return clampf(minf(minf(height_scale, width_scale), 1.0), 0.76, 1.0)

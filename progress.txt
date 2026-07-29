@@ -1078,3 +1078,17 @@ Fullscreen HUD visual convergence:
 - Web export and CloudBase deployment completed. BuildId: `20260729-210155`; release URL: `/releases/20260729-210155/index.html`; `index.pck` 10,712,508 bytes; `index.wasm.gz` 10,111,653 bytes.
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Did not generate new art, call Image Two, modify masks, modify scenario data, modify economic settlement, modify scoring, modify DialogueOverlay, or push GitHub.
+
+HUD 2.0 lightweight strategy-game visual system:
+- Added a new `scripts/ui/hud_v2/` component set for the visible gameplay HUD: theme tokens, shaped HUD panels, drawn line icons, resource chips, compact policy options, macro indicator rows, bounded IS-LM chart, C/I/G donut chart, and the bottom theory panel.
+- Replaced visible medieval policy cards with compact horizontal strategy cards that use custom line icons, clearer title/body hierarchy, hover/selected states, and a policy-point cost chip.
+- Replaced old macro arrow rows with V2 indicator rows: variable label, bright status track, reference tick, current pointer, value, and status text.
+- Replaced the old bottom theory layout with two independent V2 analysis modules so the IS-LM chart and C/I/G donut draw inside separate bounds without overlap.
+- Separated wisdom points and policy points into distinct top HUD resource chips; single-policy levels continue to show policy points as `1 / 1`, and each policy card shows cost `1`.
+- Added visible custom icons for wisdom, policy points, hint, review, policy types, drawer controls, and confirm-related affordances without adding external art or Image Two assets.
+- Added left and right drawer collapse/expand behavior using lightweight animated offsets; collapsed panels leave narrow edge tabs and do not move the map.
+- Kept fullscreen map art, alpha-mask hover, tooltip, middle-button drag, Space + left-button drag, policy logic, scenario data, economic settlement, scoring, and DialogueOverlay unchanged.
+- Removed old visible HUD zoom controls from the gameplay HUD and did not restore whole-page scrolling.
+- Godot headless load check passed.
+- Web export and CloudBase deployment completed. BuildId: `20260729-221933`; release URL: `/releases/20260729-221933/index.html`; `index.pck` 10,747,356 bytes; `index.wasm.gz` 10,111,653 bytes.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
