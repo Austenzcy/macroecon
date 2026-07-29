@@ -22,6 +22,7 @@ const REGION_MASK_TEXTURES := {
 const PREFERRED_ASPECT_RATIO: float = 4.0 / 3.0
 const MINIMUM_SIZE: Vector2 = Vector2(540.0, 413.0)
 const MAP_DRAW_SCALE: float = 1.12
+const MAP_FULLSCREEN_OVERSCAN: float = 1.15
 const MAP_EDGE_SAFE_INSET: Vector2 = Vector2(0.0, 4.0)
 const MAP_CONTENT_RECT: Rect2 = Rect2(Vector2(0.035, 0.035), Vector2(0.930, 0.930))
 const LABEL_REFERENCE_MAP_WIDTH: float = 540.0

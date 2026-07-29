@@ -16,6 +16,14 @@ const OUTER_MARGIN_BOTTOM: int = 144
 const SCALE_STEP: float = UIInteractionConfig.UI_SCALE_STEP
 const MIN_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MIN
 const MAX_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MAX
+const HUD_MARGIN: float = 12.0
+const HUD_TOP_HEIGHT: float = 106.0
+const HUD_SIDE_TOP: float = 126.0
+const HUD_SIDE_WIDTH: float = 324.0
+const HUD_RIGHT_WIDTH: float = 328.0
+const HUD_BOTTOM_HEIGHT: float = 124.0
+const HUD_THEORY_HEIGHT: float = 212.0
+const HUD_CENTER_GAP: float = 12.0
 const STAT_DISPLAY_DEFAULTS: Dictionary = {
 	"Y": {"display_min": 80.0, "display_max": 130.0, "reference_value": 110.0},
 	"u": {"display_min": 2.0, "display_max": 10.0, "reference_value": 4.5},
@@ -40,9 +48,10 @@ var _right_panel_box: VBoxContainer
 var _right_panel: PanelContainer
 var _problem_panel: PanelContainer
 var _policy_column: VBoxContainer
-var _map_panel: PanelContainer
+var _map_panel: Control
 var _theory_panel: PanelContainer
 var _unified_macro_map: Control
+var _hud_blockers: Array[Control] = []
 var _replay_overlay: Control
 var _confirm_button: Button
 var _model_replay_button: Button
@@ -92,16 +101,15 @@ func _input(event: InputEvent) -> void:
 		if _is_gameplay_input_blocked():
 			return
 		if mouse_event.ctrl_pressed:
-			if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
-				_set_ui_scale(_ui_scale + SCALE_STEP)
-			else:
-				_set_ui_scale(_ui_scale - SCALE_STEP)
 			get_viewport().set_input_as_handled()
 			return
 		if _replay_overlay != null:
 			return
-		_scroll_page_from_wheel(mouse_event.button_index, mouse_event.factor)
-		get_viewport().set_input_as_handled()
+		_forward_map_input(event)
+	elif event is InputEventMouseMotion:
+		if _is_gameplay_input_blocked():
+			return
+		_forward_map_input(event)
 
 
 func _build_ui() -> void:
@@ -126,6 +134,7 @@ func _build_ui() -> void:
 	_scale_label = null
 	_outer_margin = null
 	_content_margin = null
+	_hud_blockers.clear()
 	_guide_targets.clear()
 
 	for child: Node in get_children():
@@ -137,66 +146,25 @@ func _build_ui() -> void:
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
-	var scroll: ScrollContainer = ScrollContainer.new()
-	_main_scroll = scroll
-	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
-	scroll.follow_focus = true
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	add_child(scroll)
-	_target_scroll_y = 0.0
+	add_child(_build_fullscreen_map_layer())
 
-	_outer_margin = MarginContainer.new()
-	_outer_margin.custom_minimum_size = _scaled_content_size() + Vector2(float(OUTER_MARGIN_X * 2), float(OUTER_MARGIN_TOP + OUTER_MARGIN_BOTTOM))
-	_outer_margin.add_theme_constant_override("margin_left", OUTER_MARGIN_X)
-	_outer_margin.add_theme_constant_override("margin_top", OUTER_MARGIN_TOP)
-	_outer_margin.add_theme_constant_override("margin_right", OUTER_MARGIN_X)
-	_outer_margin.add_theme_constant_override("margin_bottom", OUTER_MARGIN_BOTTOM)
-	scroll.add_child(_outer_margin)
+	var map_dimmer: ColorRect = ColorRect.new()
+	map_dimmer.color = Color(0.0, 0.0, 0.0, 0.08)
+	map_dimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	map_dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(map_dimmer)
 
-	_content_margin = MarginContainer.new()
-	_content_margin.custom_minimum_size = _scaled_content_size()
-	_content_margin.add_theme_constant_override("margin_left", _dim(24))
-	_content_margin.add_theme_constant_override("margin_top", _dim(18))
-	_content_margin.add_theme_constant_override("margin_right", _dim(24))
-	_content_margin.add_theme_constant_override("margin_bottom", _dim(20))
-	_outer_margin.add_child(_content_margin)
+	var hud_root: Control = Control.new()
+	hud_root.name = "GameplayHudRoot"
+	hud_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(hud_root)
 
-	var root: VBoxContainer = VBoxContainer.new()
-	root.add_theme_constant_override("separation", _dim(14))
-	_content_margin.add_child(root)
-
-	root.add_child(_build_top_row())
-	root.add_child(_build_problem_banner())
-
-	var desk: HBoxContainer = HBoxContainer.new()
-	desk.add_theme_constant_override("separation", _dim(18))
-	root.add_child(desk)
-
-	desk.add_child(_build_policy_column())
-	desk.add_child(_build_map_panel())
-	desk.add_child(_build_right_column())
-
-	var bottom_row: HBoxContainer = HBoxContainer.new()
-	bottom_row.add_theme_constant_override("separation", _dim(14))
-	root.add_child(bottom_row)
-
-	var advisor_scene: PackedScene = preload("res://scenes/components/AdvisorPanel.tscn")
-	_advisor_panel = advisor_scene.instantiate() as PanelContainer
-	_advisor_panel.custom_minimum_size = Vector2(_dim(0), _dim(132))
-	_advisor_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bottom_row.add_child(_advisor_panel)
-	_set_default_advisor()
-
-	_confirm_button = Button.new()
-	_confirm_button.name = "ConfirmPolicyButton"
-	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "确认政策"
-	_confirm_button.disabled = _is_policy_confirmed
-	_confirm_button.custom_minimum_size = Vector2(_dim(160), _dim(64))
-	_confirm_button.add_theme_font_size_override("font_size", _font(20))
-	ClassicalTheme.apply_button(_confirm_button, _ui_scale, "primary")
-	_confirm_button.pressed.connect(_on_confirm_policy)
-	bottom_row.add_child(_confirm_button)
+	hud_root.add_child(_build_top_hud())
+	hud_root.add_child(_build_policy_hud())
+	hud_root.add_child(_build_right_column())
+	hud_root.add_child(_build_theory_panel())
+	hud_root.add_child(_build_bottom_hud())
 
 	if _is_policy_confirmed:
 		_show_policy_result_panel(_last_result)
@@ -206,6 +174,158 @@ func _build_ui() -> void:
 	if _is_replay_open:
 		_open_replay_overlay()
 	_register_guide_targets()
+
+
+func _build_fullscreen_map_layer() -> Control:
+	var layer: Control = Control.new()
+	layer.name = "FullscreenMacroMapLayer"
+	_map_panel = layer
+	layer.mouse_filter = Control.MOUSE_FILTER_PASS
+	layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	var map_state: Dictionary = _visible_macro_state()
+	var map_view: Control = _build_macro_map_view(map_state)
+	map_view.set_anchors_preset(Control.PRESET_FULL_RECT)
+	map_view.offset_left = 0
+	map_view.offset_top = 0
+	map_view.offset_right = 0
+	map_view.offset_bottom = 0
+	map_view.mouse_filter = Control.MOUSE_FILTER_PASS
+	layer.add_child(map_view)
+	return layer
+
+
+func _build_top_hud() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "TopHud"
+	_problem_panel = panel
+	_register_hud_blocker(panel)
+	_apply_hud_rect(panel, _hud_margin(), _hud_margin(), -_hud_margin(), _hud_margin() + _top_hud_height())
+	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("top"))
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(14))
+	margin.add_theme_constant_override("margin_top", _dim(10))
+	margin.add_theme_constant_override("margin_right", _dim(14))
+	margin.add_theme_constant_override("margin_bottom", _dim(10))
+	panel.add_child(margin)
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(14))
+	margin.add_child(row)
+
+	var scenario: Dictionary = _get_current_scenario()
+	var problem_box: VBoxContainer = VBoxContainer.new()
+	problem_box.custom_minimum_size = Vector2(_dim(330), 0)
+	problem_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	problem_box.add_theme_constant_override("separation", _dim(3))
+	row.add_child(problem_box)
+	_add_wrapped_label(problem_box, "当前挑战", Color(0.92, 0.80, 0.46), 14)
+	_add_wrapped_label(problem_box, str(scenario.get("problem_title", "消费信心下降")), Color(0.98, 0.90, 0.62), 20)
+	_add_wrapped_label(problem_box, str(scenario.get("model_hint", "核心变量变化会影响总需求。")), Color(0.78, 0.88, 0.90), 14)
+
+	var status_box: VBoxContainer = VBoxContainer.new()
+	status_box.custom_minimum_size = Vector2(_dim(360), 0)
+	status_box.add_theme_constant_override("separation", _dim(8))
+	row.add_child(status_box)
+
+	var round_label: Label = Label.new()
+	round_label.text = "回合 %d / %d" % [GameState.current_round, GameState.max_rounds]
+	round_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	round_label.add_theme_font_size_override("font_size", _font(20))
+	ClassicalTheme.apply_label_color(round_label, "title")
+	status_box.add_child(round_label)
+
+	var tag_scene: PackedScene = preload("res://scenes/components/ModelTagBar.tscn")
+	var tag_bar: HBoxContainer = tag_scene.instantiate() as HBoxContainer
+	tag_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tag_bar.call("set_ui_scale", _ui_scale)
+	tag_bar.call("set_tags", scenario.get("model_tags", ["封闭经济", "短期", "价格粘性", "IS-LM"]))
+	status_box.add_child(tag_bar)
+
+	var controls_box: HBoxContainer = HBoxContainer.new()
+	controls_box.custom_minimum_size = Vector2(_dim(430), 0)
+	controls_box.add_theme_constant_override("separation", _dim(8))
+	row.add_child(controls_box)
+	controls_box.add_child(_build_time_label())
+	controls_box.add_child(_build_wisdom_panel())
+
+	return panel
+
+
+func _build_policy_hud() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "PolicyHud"
+	var margin_size: int = _hud_margin()
+	var side_width: int = _left_hud_width()
+	var top_y: int = _side_top_y()
+	_apply_hud_rect(panel, margin_size, top_y, margin_size + side_width, -margin_size)
+	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("left"))
+	_register_hud_blocker(panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(14))
+	margin.add_theme_constant_override("margin_top", _dim(14))
+	margin.add_theme_constant_override("margin_right", _dim(14))
+	margin.add_theme_constant_override("margin_bottom", _dim(14))
+	panel.add_child(margin)
+
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "PolicyHudScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(scroll)
+
+	var policy_column: VBoxContainer = _build_policy_column()
+	policy_column.custom_minimum_size = Vector2(maxf(1.0, float(side_width - _dim(42))), 0.0)
+	scroll.add_child(policy_column)
+	return panel
+
+
+func _build_bottom_hud() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "BottomHud"
+	var margin_size: int = _hud_margin()
+	var left_x: int = margin_size * 2 + _left_hud_width()
+	var right_x: int = -(margin_size * 2 + _right_hud_width())
+	var bottom_h: int = _advisor_hud_height()
+	_apply_hud_rect(panel, left_x, -(margin_size + bottom_h), right_x, -margin_size)
+	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("bottom"))
+	_register_hud_blocker(panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(12))
+	margin.add_theme_constant_override("margin_top", _dim(10))
+	margin.add_theme_constant_override("margin_right", _dim(12))
+	margin.add_theme_constant_override("margin_bottom", _dim(10))
+	panel.add_child(margin)
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(12))
+	margin.add_child(row)
+
+	var advisor_scene: PackedScene = preload("res://scenes/components/AdvisorPanel.tscn")
+	_advisor_panel = advisor_scene.instantiate() as PanelContainer
+	_advisor_panel.custom_minimum_size = Vector2(_dim(0), _dim(98))
+	_advisor_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_advisor_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(_advisor_panel)
+	_set_default_advisor()
+
+	_confirm_button = Button.new()
+	_confirm_button.name = "ConfirmPolicyButton"
+	_confirm_button.text = "政策已确认" if _is_policy_confirmed else "确认政策"
+	_confirm_button.disabled = _is_policy_confirmed
+	_confirm_button.custom_minimum_size = Vector2(_dim(160), _dim(72))
+	_confirm_button.add_theme_font_size_override("font_size", _font(20))
+	ClassicalTheme.apply_button(_confirm_button, _ui_scale, "primary")
+	_confirm_button.pressed.connect(_on_confirm_policy)
+	row.add_child(_confirm_button)
+
+	return panel
 
 
 func _build_top_row() -> HBoxContainer:
@@ -558,19 +678,37 @@ func _refresh_unified_macro_map(map_state: Dictionary) -> void:
 
 func _build_theory_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(_dim(0), _dim(410))
-	panel.add_theme_stylebox_override("panel", _make_theory_panel_style())
+	panel.name = "TheoryHud"
+	_theory_panel = panel
+	var margin_size: int = _hud_margin()
+	var side_left: int = margin_size * 2 + _left_hud_width()
+	var side_right: int = -(margin_size * 2 + _right_hud_width())
+	var bottom_h: int = _advisor_hud_height()
+	var theory_h: int = _theory_hud_height()
+	var gap: int = _hud_gap()
+	_apply_hud_rect(panel, side_left, -(margin_size + bottom_h + gap + theory_h), side_right, -(margin_size + bottom_h + gap))
+	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("theory"))
+	_register_hud_blocker(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", _dim(16))
-	margin.add_theme_constant_override("margin_top", _dim(14))
+	margin.add_theme_constant_override("margin_top", _dim(12))
 	margin.add_theme_constant_override("margin_right", _dim(16))
-	margin.add_theme_constant_override("margin_bottom", _dim(14))
+	margin.add_theme_constant_override("margin_bottom", _dim(12))
 	panel.add_child(margin)
+
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "TheoryHudScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(scroll)
 
 	var box: VBoxContainer = VBoxContainer.new()
 	box.add_theme_constant_override("separation", _dim(10))
-	margin.add_child(box)
+	scroll.add_child(box)
 
 	var scenario: Dictionary = _get_current_scenario()
 	_add_panel_title(box, "理论面板：IS-LM 分析")
@@ -593,8 +731,12 @@ func _build_right_column() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "RightInfoPanel"
 	_right_panel = panel
-	panel.custom_minimum_size = Vector2(_dim(282), _dim(520))
-	panel.add_theme_stylebox_override("panel", _make_right_panel_style())
+	var margin_size: int = _hud_margin()
+	var right_width: int = _right_hud_width()
+	var top_y: int = _side_top_y()
+	_apply_hud_rect(panel, -(margin_size + right_width), top_y, -margin_size, -margin_size)
+	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("right"))
+	_register_hud_blocker(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", _dim(16))
@@ -603,9 +745,18 @@ func _build_right_column() -> PanelContainer:
 	margin.add_theme_constant_override("margin_bottom", _dim(16))
 	panel.add_child(margin)
 
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.name = "RightInfoScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.follow_focus = true
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_child(scroll)
+
 	_right_panel_box = VBoxContainer.new()
 	_right_panel_box.add_theme_constant_override("separation", _dim(10))
-	margin.add_child(_right_panel_box)
+	scroll.add_child(_right_panel_box)
 
 	return panel
 
@@ -1060,39 +1211,25 @@ func _on_replay_closed() -> void:
 func _on_zoom_out() -> void:
 	if _is_gameplay_input_blocked():
 		return
-	_set_ui_scale(_ui_scale - SCALE_STEP)
 
 
 func _on_zoom_in() -> void:
 	if _is_gameplay_input_blocked():
 		return
-	_set_ui_scale(_ui_scale + SCALE_STEP)
 
 
 func _on_zoom_reset() -> void:
 	if _is_gameplay_input_blocked():
 		return
-	_set_ui_scale(1.0)
 
 
 func _set_ui_scale(value: float) -> void:
-	var next_scale: float = UIInteractionConfig.normalized_scale(value)
-	if is_equal_approx(next_scale, _ui_scale):
-		return
-	var center_ratio: float = _capture_scroll_center_ratio()
-	_clear_macro_map_hover()
-	_ui_scale = next_scale
+	_ui_scale = 1.0
 	GameState.set_ui_scale(_ui_scale)
-	_build_ui()
-	call_deferred("_restore_scroll_after_scale", center_ratio)
 
 
 func handle_narrative_wheel(button_index: int, ctrl_pressed: bool) -> void:
 	if ctrl_pressed:
-		if button_index == MOUSE_BUTTON_WHEEL_UP:
-			_set_ui_scale(_ui_scale + SCALE_STEP)
-		elif button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_set_ui_scale(_ui_scale - SCALE_STEP)
 		return
 	if _main_scroll == null:
 		return
@@ -1107,6 +1244,39 @@ func _refresh_initial_layout() -> void:
 	if _main_scroll != null:
 		_target_scroll_y = float(_main_scroll.scroll_vertical)
 	_register_guide_targets()
+
+
+func _forward_map_input(event: InputEvent) -> void:
+	if _unified_macro_map == null or not is_instance_valid(_unified_macro_map):
+		return
+	if not _unified_macro_map.has_method("handle_viewport_input"):
+		return
+	var viewport_position: Vector2 = get_viewport().get_mouse_position()
+	var over_hud: bool = _is_pointer_over_hud(viewport_position)
+	var consumed: bool = bool(_unified_macro_map.call(
+		"handle_viewport_input",
+		event,
+		viewport_position,
+		Input.is_key_pressed(KEY_SPACE),
+		not over_hud
+	))
+	if consumed:
+		get_viewport().set_input_as_handled()
+
+
+func _register_hud_blocker(control: Control) -> void:
+	if control != null:
+		_hud_blockers.append(control)
+
+
+func _is_pointer_over_hud(viewport_position: Vector2) -> bool:
+	for control: Control in _hud_blockers:
+		if control == null or not is_instance_valid(control) or not control.visible:
+			continue
+		var local: Vector2 = control.get_global_transform_with_canvas().affine_inverse() * viewport_position
+		if Rect2(Vector2.ZERO, control.size).has_point(local):
+			return true
+	return false
 
 
 func _scroll_page_from_wheel(button_index: int, event_factor: float = 1.0) -> void:
@@ -1611,6 +1781,89 @@ func _dim(value: float) -> int:
 
 func _font(value: int) -> int:
 	return maxi(11, int(roundf(float(value) * _ui_scale)))
+
+
+func _hud_margin() -> int:
+	var viewport: Vector2 = _viewport_size()
+	return int(roundf(clampf(viewport.x * 0.0075, 8.0, 16.0)))
+
+
+func _hud_size(value: float, min_value: float, max_value: float) -> int:
+	return int(roundf(clampf(value * _ui_scale, min_value, max_value)))
+
+
+func _viewport_size() -> Vector2:
+	var viewport: Vector2 = get_viewport_rect().size
+	if viewport.x <= 1.0 or viewport.y <= 1.0:
+		return Vector2(1600.0, 900.0)
+	return viewport
+
+
+func _top_hud_height() -> int:
+	var viewport: Vector2 = _viewport_size()
+	return int(roundf(clampf(viewport.y * 0.105, 76.0, 104.0)))
+
+
+func _side_top_y() -> int:
+	return _hud_margin() + _top_hud_height() + _hud_gap()
+
+
+func _left_hud_width() -> int:
+	var viewport: Vector2 = _viewport_size()
+	return int(roundf(clampf(viewport.x * 0.16, 250.0, 325.0)))
+
+
+func _right_hud_width() -> int:
+	var viewport: Vector2 = _viewport_size()
+	return int(roundf(clampf(viewport.x * 0.17, 270.0, 340.0)))
+
+
+func _advisor_hud_height() -> int:
+	var viewport: Vector2 = _viewport_size()
+	return int(roundf(clampf(viewport.y * 0.145, 105.0, 145.0)))
+
+
+func _theory_hud_height() -> int:
+	var viewport: Vector2 = _viewport_size()
+	return int(roundf(clampf(viewport.y * 0.225, 170.0, 230.0)))
+
+
+func _hud_gap() -> int:
+	var viewport: Vector2 = _viewport_size()
+	return int(roundf(clampf(viewport.y * 0.012, 8.0, 14.0)))
+
+
+func _apply_hud_rect(control: Control, left: int, top: int, right: int, bottom: int) -> void:
+	control.anchor_left = 0.0 if left >= 0 else 1.0
+	control.anchor_top = 0.0 if top >= 0 else 1.0
+	control.anchor_right = 0.0 if right >= 0 else 1.0
+	control.anchor_bottom = 0.0 if bottom >= 0 else 1.0
+	control.offset_left = float(left)
+	control.offset_top = float(top)
+	control.offset_right = float(right)
+	control.offset_bottom = float(bottom)
+	control.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	control.grow_vertical = Control.GROW_DIRECTION_BOTH
+
+
+func _make_hud_panel_style(kind: String = "default") -> StyleBoxFlat:
+	var base_kind: String = "right"
+	match kind:
+		"left":
+			base_kind = "map"
+		"top", "bottom":
+			base_kind = "compact"
+		"theory":
+			base_kind = "theory"
+		_:
+			base_kind = "right"
+	var style: StyleBoxFlat = ClassicalTheme.panel_style(base_kind, _ui_scale)
+	style.bg_color = Color(style.bg_color.r, style.bg_color.g, style.bg_color.b, 0.78)
+	style.border_color = Color(style.border_color.r, style.border_color.g, style.border_color.b, 0.78)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.46)
+	style.shadow_size = _dim(18)
+	style.shadow_offset = Vector2(0, _dim(4))
+	return style
 
 
 func _make_map_panel_style() -> StyleBoxFlat:

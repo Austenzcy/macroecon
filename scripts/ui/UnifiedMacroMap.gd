@@ -26,6 +26,9 @@ var _hover_progress: Dictionary = {}
 var _hover_tweens: Dictionary = {}
 var _last_mouse_viewport_position: Vector2 = Vector2.ZERO
 var _debug_hit_text: String = ""
+var _map_pan_offset: Vector2 = Vector2.ZERO
+var _is_dragging_map: bool = false
+var _last_drag_position: Vector2 = Vector2.ZERO
 
 var _tooltip_layer: CanvasLayer
 var _tooltip_panel: PanelContainer
@@ -37,7 +40,7 @@ var _tooltip_tween: Tween
 
 
 func _ready() -> void:
-	mouse_filter = Control.MOUSE_FILTER_PASS
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
 	mouse_exited.connect(_on_mouse_exited)
 	_map_texture = _resolve_master_texture()
@@ -83,6 +86,7 @@ func set_regions(regions: Array) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
+		_map_pan_offset = _clamped_pan_offset(_map_pan_offset)
 		_layout_region_nodes()
 		_clear_hover(false)
 		queue_redraw()
@@ -91,12 +95,62 @@ func _notification(what: int) -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		var mouse_event: InputEventMouseMotion = event
-		_last_mouse_viewport_position = get_viewport().get_mouse_position()
-		_update_hover_at_local_position(mouse_event.position)
+		handle_viewport_input(event, get_viewport().get_mouse_position(), Input.is_key_pressed(KEY_SPACE), true)
 	elif event is InputEventMouseButton:
 		var mouse_event: InputEventMouseButton = event
 		if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP or mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_clear_hover(false)
+		else:
+			handle_viewport_input(event, get_viewport().get_mouse_position(), Input.is_key_pressed(KEY_SPACE), true)
+
+
+func handle_viewport_input(event: InputEvent, viewport_position: Vector2, space_pressed: bool = false, allow_hover: bool = true) -> bool:
+	if event is InputEventMouseButton:
+		var button_event: InputEventMouseButton = event
+		var drag_button: bool = button_event.button_index == MOUSE_BUTTON_MIDDLE or (button_event.button_index == MOUSE_BUTTON_LEFT and space_pressed)
+		if drag_button:
+			if button_event.pressed and allow_hover:
+				_begin_map_drag(viewport_position)
+				return true
+			if not button_event.pressed and _is_dragging_map:
+				_end_map_drag()
+				return true
+		if button_event.button_index == MOUSE_BUTTON_WHEEL_UP or button_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_clear_hover(false)
+			return false
+	if event is InputEventMouseMotion:
+		var motion_event: InputEventMouseMotion = event
+		_last_mouse_viewport_position = viewport_position
+		if _is_dragging_map:
+			_pan_map(viewport_position - _last_drag_position)
+			_last_drag_position = viewport_position
+			return true
+		if allow_hover:
+			_update_hover_at_local_position(to_local(viewport_position))
+		else:
+			_clear_hover(false)
+	return false
+
+
+func _begin_map_drag(viewport_position: Vector2) -> void:
+	_is_dragging_map = true
+	_last_drag_position = viewport_position
+	_clear_hover(false)
+	mouse_default_cursor_shape = Control.CURSOR_DRAG
+
+
+func _end_map_drag() -> void:
+	_is_dragging_map = false
+	mouse_default_cursor_shape = Control.CURSOR_ARROW
+
+
+func _pan_map(delta: Vector2) -> void:
+	if delta.length_squared() <= 0.0:
+		return
+	_map_pan_offset = _clamped_pan_offset(_map_pan_offset + delta)
+	_layout_region_nodes()
+	_clear_hover(false)
+	queue_redraw()
 
 
 func _draw() -> void:
@@ -176,28 +230,41 @@ func _calculate_map_rect() -> Rect2:
 	var available: Vector2 = size
 	if available.x <= 1.0 or available.y <= 1.0:
 		available = custom_minimum_size
-	var safe_inset: Vector2 = MacroMapArtSpec.MAP_EDGE_SAFE_INSET * _ui_scale
-	safe_inset.x = clampf(safe_inset.x, 0.0, maxf(0.0, available.x * 0.05))
-	safe_inset.y = clampf(safe_inset.y, 0.0, maxf(0.0, available.y * 0.05))
-	var safe_available: Vector2 = Vector2(
-		maxf(1.0, available.x - safe_inset.x * 2.0),
-		maxf(1.0, available.y - safe_inset.y * 2.0)
-	)
 	var aspect: float = MacroMapArtSpec.PREFERRED_ASPECT_RATIO
-	var width: float = safe_available.x
+	var width: float = available.x
 	var height: float = width / aspect
-	if height > safe_available.y:
-		height = safe_available.y
+	if height < available.y:
+		height = available.y
 		width = height * aspect
-	var requested_scale: float = maxf(1.0, MacroMapArtSpec.MAP_DRAW_SCALE)
-	var max_scale: float = minf(safe_available.x / width, safe_available.y / height)
-	var scale: float = minf(requested_scale, max_scale)
-	width *= scale
-	height *= scale
-	var pos: Vector2 = (available - Vector2(width, height)) * 0.5
+	var overscan: float = maxf(1.0, MacroMapArtSpec.MAP_FULLSCREEN_OVERSCAN)
+	width *= overscan
+	height *= overscan
+	var rect_size := Vector2(ceilf(width), ceilf(height))
+	_map_pan_offset = _clamped_pan_offset(_map_pan_offset, rect_size)
+	var pos: Vector2 = (available - rect_size) * 0.5 + _map_pan_offset
 	pos = Vector2(roundf(pos.x), roundf(pos.y))
-	var rect_size := Vector2(floorf(width), floorf(height))
 	return Rect2(pos, rect_size)
+
+
+func _clamped_pan_offset(offset: Vector2, rect_size: Vector2 = Vector2.ZERO) -> Vector2:
+	var available: Vector2 = size
+	if available.x <= 1.0 or available.y <= 1.0:
+		available = custom_minimum_size
+	if rect_size == Vector2.ZERO:
+		var aspect: float = MacroMapArtSpec.PREFERRED_ASPECT_RATIO
+		var width: float = available.x
+		var height: float = width / aspect
+		if height < available.y:
+			height = available.y
+			width = height * aspect
+		var overscan: float = maxf(1.0, MacroMapArtSpec.MAP_FULLSCREEN_OVERSCAN)
+		rect_size = Vector2(ceilf(width * overscan), ceilf(height * overscan))
+	var max_x: float = maxf(0.0, (rect_size.x - available.x) * 0.5)
+	var max_y: float = maxf(0.0, (rect_size.y - available.y) * 0.5)
+	return Vector2(
+		clampf(offset.x, -max_x, max_x),
+		clampf(offset.y, -max_y, max_y)
+	)
 
 
 func _draw_region_overlay(region_id: String) -> void:

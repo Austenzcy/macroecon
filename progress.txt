@@ -1025,3 +1025,25 @@ Demand component settlement consistency audit:
 - Added `docs/Demand_Component_Settlement_Audit_v1.md` with the data flow, initial semantic table, representative policy deltas, reset/isolation results, and known remaining issues.
 - Web export and CloudBase deployment completed. BuildId: `20260729-173738`; release URL: `/releases/20260729-173738/index.html`; `index.pck` 10,698,280 bytes; `index.wasm.gz` 10,111,653 bytes.
 - Did not change policy costs, victory conditions, macro equations, map resources, hover animation, policy-card art, DialogueOverlay, or fonts.
+
+Fullscreen map + HUD framework migration:
+- Migrated `PolicyDesk` away from the old page-like `ScrollContainer` shell into a fullscreen gameplay HUD shell.
+- The validated irregular `UnifiedMacroMap` is now the fullscreen map layer behind the HUD instead of a center page block.
+- Added semi-transparent HUD panels around the map: top challenge/status bar, left policy card sidebar, right macro status sidebar, bottom advisor/confirm bar, and a bottom-center theory HUD.
+- Kept existing policy cards, macro state panel, theory graph, unified map hover data, advisor panel, confirm policy flow, model replay and summary entry logic.
+- Main gameplay view no longer depends on whole-page vertical scrolling; long policy/status/theory content uses internal HUD scroll containers.
+- Did not generate new art, call Image Two, change map resources, change policy-card art, change portrait/dialogue art, change scenario text, change model formulas, change scoring, or push GitHub.
+
+Fullscreen HUD stabilization and map interaction restore:
+- Replaced fixed HUD widths with desktop-responsive viewport rules: left policy HUD uses `clamp(viewport_width * 0.16, 250, 325)`, right macro HUD uses `clamp(viewport_width * 0.17, 270, 340)`.
+- Removed the old free UI scaling from the gameplay HUD: Ctrl+wheel no longer changes HUD size and the top-bar percentage/minus/plus/reset controls are no longer shown.
+- Reworked bottom HUD geometry so `TheoryHUD` and `BottomHud` share a clear vertical safe area instead of overlapping fixed offsets.
+- Changed HUD root to ignore mouse input while concrete HUD panels are tracked as blockers; map input is now forwarded only when the pointer is outside HUD panels.
+- Updated `UnifiedMacroMap` to render as a cover-scale fullscreen map with `MAP_FULLSCREEN_OVERSCAN = 1.15`.
+- Added map panning through middle-button drag and Space + left-button drag; pan is clamped so the map cannot expose empty background.
+- Kept alpha-mask hover as the formal hit test, now using the panned map draw rect so hover remains aligned after dragging.
+- Basic responsive geometry checked for 1920x1080, 1600x900, 1366x768, and 1680x1050: side HUDs stay within target widths, the central map remains the largest area, and `TheoryHUD` / `BottomHud` do not overlap.
+- Headless Godot load check passed before export.
+- Web export and CloudBase deployment completed. BuildId: `20260729-181755`; release URL: `/releases/20260729-181755/index.html`; `index.pck` 10,705,736 bytes; `index.wasm.gz` 10,111,653 bytes.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Did not generate new art, call Image Two, modify masks, modify scenario data, modify economic settlement, modify scoring, or push GitHub.
