@@ -16,6 +16,7 @@ var _is_selected: bool = false
 var _ui_scale: float = 1.0
 var _has_card_art: bool = false
 var _show_cost_value: bool = true
+var _compact_hud_mode: bool = false
 
 var _card_root: Control
 var _card_texture: TextureRect
@@ -76,10 +77,19 @@ func set_selected(value: bool) -> void:
 
 func set_ui_scale(value: float) -> void:
 	_ui_scale = UIInteractionConfig.normalized_scale(value)
-	custom_minimum_size = Vector2(240, 360) * _ui_scale
+	custom_minimum_size = (Vector2(238, 106) if _compact_hud_mode else Vector2(240, 360)) * _ui_scale
 	pivot_offset = custom_minimum_size * 0.5
 	_apply_typography()
 	_apply_layout_spec()
+
+
+func set_compact_hud_mode(value: bool) -> void:
+	_compact_hud_mode = value
+	if is_inside_tree() or _card_root != null:
+		set_ui_scale(_ui_scale)
+		_refresh_art()
+		_apply_style(false, _is_selected)
+		queue_redraw()
 
 
 func set_cost(cost: int, show_cost: bool) -> void:
@@ -236,6 +246,15 @@ func _current_spec() -> Dictionary:
 func _apply_layout_spec() -> void:
 	if _card_root == null:
 		return
+	if _compact_hud_mode:
+		_set_fractional_rect(_title_area, 0.315, 0.120, 0.875, 0.385)
+		_set_fractional_rect(_type_area, 0.055, 0.210, 0.255, 0.735)
+		_set_fractional_rect(_description_area, 0.315, 0.395, 0.875, 0.855)
+		_set_fractional_rect(_cost_area, 0.835, 0.580, 0.975, 0.905)
+		if _stamp_label != null:
+			ArtLayoutSpecs.apply_anchor_rect(_stamp_label, Rect2(0.045, 0.050, 0.210, 0.135))
+		_position_type_fallback_icon()
+		return
 	var spec := _current_spec()
 	if _title_area != null:
 		ArtLayoutSpecs.apply_anchor_rect(_title_area, spec[ArtLayoutSpecs.SAFE_TITLE])
@@ -252,6 +271,24 @@ func _apply_layout_spec() -> void:
 
 func _apply_typography() -> void:
 	if _title_label == null:
+		return
+	if _compact_hud_mode:
+		_title_label.add_theme_font_size_override("font_size", int(roundf(16.0 * _ui_scale)))
+		_title_label.add_theme_constant_override("outline_size", 0)
+		_title_label.add_theme_color_override("font_outline_color", Color.TRANSPARENT)
+		_type_label.add_theme_font_size_override("font_size", int(roundf(10.0 * _ui_scale)))
+		_type_icon_label.add_theme_font_size_override("font_size", int(roundf(18.0 * _ui_scale)))
+		_description_label.add_theme_font_size_override("font_size", int(roundf(12.0 * _ui_scale)))
+		_description_label.add_theme_constant_override("line_spacing", int(roundf(1.0 * _ui_scale)))
+		_description_label.add_theme_constant_override("outline_size", 0)
+		_description_label.add_theme_color_override("font_outline_color", Color.TRANSPARENT)
+		_cost_label.add_theme_font_size_override("font_size", int(roundf(20.0 * _ui_scale)))
+		_cost_label.add_theme_constant_override("outline_size", 1)
+		_cost_label.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.07, 0.90))
+		_cost_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.45))
+		_cost_label.add_theme_constant_override("shadow_offset_x", 1)
+		_cost_label.add_theme_constant_override("shadow_offset_y", 1)
+		_stamp_label.add_theme_font_size_override("font_size", int(roundf(11.0 * _ui_scale)))
 		return
 	var spec := _current_spec()
 	_title_label.add_theme_font_size_override("font_size", ArtLayoutSpecs.scaled_int(spec, "title_font", _ui_scale))
@@ -274,6 +311,16 @@ func _apply_typography() -> void:
 
 func _position_type_fallback_icon() -> void:
 	if _type_area == null or _type_icon_texture == null or _type_icon_label == null:
+		return
+	if _compact_hud_mode:
+		var icon_size := maxf(32.0 * _ui_scale, minf(_type_area.size.x, _type_area.size.y) * 0.74)
+		var icon_rect := Rect2((_type_area.size - Vector2(icon_size, icon_size)) * 0.5, Vector2(icon_size, icon_size))
+		for control_variant: Variant in [_type_icon_texture, _type_icon_label]:
+			var compact_control := control_variant as Control
+			compact_control.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			compact_control.position = icon_rect.position
+			compact_control.size = icon_rect.size
+			compact_control.custom_minimum_size = icon_rect.size
 		return
 	var spec := _current_spec()
 	var icon_size := float(ArtLayoutSpecs.scaled_int(spec, "type_icon_size", _ui_scale))
@@ -301,6 +348,22 @@ func _set_fractional_rect(control: Control, left: float, top: float, right: floa
 func _refresh_art() -> void:
 	var card_texture := ArtAssetRegistry.texture_for_policy_card(policy_id, policy_type, policy_name)
 	_has_card_art = card_texture != null
+	if _compact_hud_mode:
+		_card_texture.texture = null
+		_card_texture.visible = false
+		_fallback_panel.visible = true
+		_fallback_panel.add_theme_stylebox_override("panel", _compact_card_style())
+		var compact_type_texture := ArtAssetRegistry.texture_for_policy_type(policy_type, policy_id)
+		_type_icon_texture.texture = compact_type_texture
+		_type_icon_texture.visible = compact_type_texture != null
+		_type_icon_label.visible = compact_type_texture == null
+		_type_icon_label.text = ArtAssetRegistry.placeholder_for_policy_type(policy_type, policy_id)
+		_type_label.visible = false
+		_title_label.modulate = Color(0.86, 0.97, 1.0, 1.0)
+		_description_label.modulate = Color(0.70, 0.82, 0.86, 0.96)
+		_cost_label.modulate = Color(1.0, 0.72, 0.30, 1.0)
+		_position_type_fallback_icon()
+		return
 	if _has_card_art:
 		_card_texture.texture = card_texture
 		_card_texture.visible = true
@@ -338,6 +401,12 @@ func _transparent_panel_style() -> StyleBoxFlat:
 
 func _selected_overlay_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
+	if _compact_hud_mode:
+		style.bg_color = Color(0.16, 0.58, 0.76, 0.13)
+		style.border_color = Color(0.42, 0.86, 1.0, 0.86)
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(8)
+		return style
 	style.bg_color = Color(1.0, 0.70, 0.22, 0.035)
 	style.border_color = Color(1.0, 0.76, 0.28, 0.92)
 	style.set_border_width_all(3)
@@ -365,6 +434,8 @@ func _on_gui_input(event: InputEvent) -> void:
 
 
 func _apply_style(is_hover: bool, is_chosen: bool) -> void:
+	if _compact_hud_mode and _fallback_panel != null:
+		_fallback_panel.add_theme_stylebox_override("panel", _compact_card_style(is_hover, is_chosen))
 	if _selected_overlay != null:
 		_selected_overlay.visible = is_chosen or is_hover
 		var style := _selected_overlay_style()
@@ -377,6 +448,27 @@ func _apply_style(is_hover: bool, is_chosen: bool) -> void:
 		_stamp_label.visible = is_chosen
 	if _disabled_overlay != null:
 		_disabled_overlay.color = Color(0.02, 0.018, 0.014, 0.0)
+
+
+func _compact_card_style(is_hover: bool = false, is_chosen: bool = false) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	var alpha: float = 0.68
+	if is_hover:
+		alpha = 0.78
+	if is_chosen:
+		alpha = 0.86
+	style.bg_color = Color(0.025, 0.070, 0.090, alpha)
+	style.border_color = Color(0.28, 0.72, 0.88, 0.48 if not is_chosen else 0.92)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.28)
+	style.shadow_size = int(roundf(8.0 * _ui_scale))
+	style.shadow_offset = Vector2(0, 2 * _ui_scale)
+	return style
 
 
 func _draw_named_safe_rect(rect_ratio: Rect2, label: String, color: Color) -> void:

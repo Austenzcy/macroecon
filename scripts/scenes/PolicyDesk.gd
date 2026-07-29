@@ -6,6 +6,7 @@ const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.ts
 const UnifiedMacroMapScene = preload("res://scenes/components/UnifiedMacroMap.tscn")
 const MacroStatBarScript = preload("res://scripts/ui/MacroStatBar.gd")
 const TheoryISLMGraphScript = preload("res://scripts/ui/TheoryISLMGraph.gd")
+const DemandCompositionDonutScript = preload("res://scripts/ui/DemandCompositionDonut.gd")
 const ClassicalTheme = preload("res://scripts/ui/ClassicalTheme.gd")
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
@@ -186,6 +187,7 @@ func _build_fullscreen_map_layer() -> Control:
 	return layer
 
 
+
 func _build_top_hud() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "TopHud"
@@ -195,51 +197,62 @@ func _build_top_hud() -> PanelContainer:
 	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("top"))
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(14))
-	margin.add_theme_constant_override("margin_top", _dim(10))
-	margin.add_theme_constant_override("margin_right", _dim(14))
-	margin.add_theme_constant_override("margin_bottom", _dim(10))
+	margin.add_theme_constant_override("margin_left", _dim(18))
+	margin.add_theme_constant_override("margin_top", _dim(8))
+	margin.add_theme_constant_override("margin_right", _dim(18))
+	margin.add_theme_constant_override("margin_bottom", _dim(8))
 	panel.add_child(margin)
 
 	var row: HBoxContainer = HBoxContainer.new()
-	row.add_theme_constant_override("separation", _dim(14))
+	row.add_theme_constant_override("separation", _dim(12))
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(row)
 
 	var scenario: Dictionary = _get_current_scenario()
-	var problem_box: VBoxContainer = VBoxContainer.new()
-	problem_box.custom_minimum_size = Vector2(_dim(330), 0)
-	problem_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	problem_box.add_theme_constant_override("separation", _dim(3))
-	row.add_child(problem_box)
-	_add_wrapped_label(problem_box, "当前挑战", Color(0.92, 0.80, 0.46), 14)
-	_add_wrapped_label(problem_box, str(scenario.get("problem_title", "消费信心下降")), Color(0.98, 0.90, 0.62), 20)
-	_add_wrapped_label(problem_box, str(scenario.get("model_hint", "核心变量变化会影响总需求。")), Color(0.78, 0.88, 0.90), 14)
+	var challenge_box: VBoxContainer = VBoxContainer.new()
+	challenge_box.custom_minimum_size = Vector2(_dim(280), 0)
+	challenge_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	challenge_box.size_flags_stretch_ratio = 0.95
+	challenge_box.add_theme_constant_override("separation", _dim(2))
+	row.add_child(challenge_box)
+	_add_micro_label(challenge_box, "当前挑战", Color(0.55, 0.78, 0.88), 12)
+	_add_single_line_label(challenge_box, str(scenario.get("problem_title", "消费信心下降")), Color(0.86, 0.96, 1.0), 21, TextServer.OVERRUN_TRIM_ELLIPSIS)
+	_add_single_line_label(challenge_box, _compact_theory_hint(scenario).replace("机制提示：", ""), Color(0.66, 0.82, 0.88), 13, TextServer.OVERRUN_TRIM_ELLIPSIS)
 
-	var status_box: VBoxContainer = VBoxContainer.new()
-	status_box.custom_minimum_size = Vector2(_dim(360), 0)
-	status_box.add_theme_constant_override("separation", _dim(8))
-	row.add_child(status_box)
+	var center_box: VBoxContainer = VBoxContainer.new()
+	center_box.custom_minimum_size = Vector2(_dim(390), 0)
+	center_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_box.size_flags_stretch_ratio = 1.05
+	center_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	center_box.add_theme_constant_override("separation", _dim(6))
+	row.add_child(center_box)
 
 	var round_label: Label = Label.new()
 	round_label.text = "回合 %d / %d" % [GameState.current_round, GameState.max_rounds]
 	round_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	round_label.add_theme_font_size_override("font_size", _font(20))
-	ClassicalTheme.apply_label_color(round_label, "title")
-	status_box.add_child(round_label)
+	round_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	round_label.add_theme_font_size_override("font_size", _font(19))
+	round_label.modulate = Color(0.92, 0.98, 1.0, 1.0)
+	center_box.add_child(round_label)
 
 	var tag_scene: PackedScene = preload("res://scenes/components/ModelTagBar.tscn")
 	var tag_bar: HBoxContainer = tag_scene.instantiate() as HBoxContainer
+	tag_bar.alignment = BoxContainer.ALIGNMENT_CENTER
 	tag_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tag_bar.call("set_ui_scale", _ui_scale)
-	tag_bar.call("set_tags", scenario.get("model_tags", ["封闭经济", "短期", "价格粘性", "IS-LM"]))
-	status_box.add_child(tag_bar)
+	tag_bar.call("set_ui_scale", 0.82)
+	tag_bar.call("set_tags", _top_hud_tags(scenario))
+	center_box.add_child(tag_bar)
 
-	var controls_box: HBoxContainer = HBoxContainer.new()
-	controls_box.custom_minimum_size = Vector2(_dim(430), 0)
-	controls_box.add_theme_constant_override("separation", _dim(8))
-	row.add_child(controls_box)
-	controls_box.add_child(_build_time_label())
-	controls_box.add_child(_build_wisdom_panel())
+	var right_box: HBoxContainer = HBoxContainer.new()
+	right_box.custom_minimum_size = Vector2(_dim(360), 0)
+	right_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_box.size_flags_stretch_ratio = 0.88
+	right_box.alignment = BoxContainer.ALIGNMENT_END
+	right_box.add_theme_constant_override("separation", _dim(8))
+	row.add_child(right_box)
+	right_box.add_child(_build_time_label())
+	right_box.add_child(_build_wisdom_panel())
 
 	return panel
 
@@ -268,6 +281,47 @@ func _build_policy_hud() -> PanelContainer:
 	margin.add_child(policy_column)
 	return panel
 
+
+
+
+func _top_hud_tags(scenario: Dictionary) -> Array[String]:
+	var tags: Array[String] = []
+	var raw_tags: Variant = scenario.get("model_tags", [])
+	if raw_tags is Array:
+		for item: Variant in raw_tags:
+			var tag: String = str(item)
+			if not tag.is_empty():
+				tags.append(tag)
+	var problem_tag: String = str(scenario.get("problem_tag", scenario.get("shock_tag", "")))
+	if problem_tag.is_empty():
+		problem_tag = "需求不足" if _state_score("Y", GameState.get_current_state()) < -0.15 else str(scenario.get("problem_title", "当前问题"))
+	if not problem_tag.is_empty() and tags.find(problem_tag) == -1:
+		tags.append(problem_tag)
+	return tags
+
+
+func _add_micro_label(parent: Control, text: String, color: Color, font_size: int) -> Label:
+	var label: Label = Label.new()
+	label.text = text
+	label.modulate = color
+	label.add_theme_font_size_override("font_size", _font(font_size))
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.clip_text = true
+	parent.add_child(label)
+	return label
+
+
+func _add_single_line_label(parent: Control, text: String, color: Color, font_size: int, overrun: TextServer.OverrunBehavior = TextServer.OVERRUN_TRIM_ELLIPSIS) -> Label:
+	var label: Label = Label.new()
+	label.text = text
+	label.modulate = color
+	label.add_theme_font_size_override("font_size", _font(font_size))
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.text_overrun_behavior = overrun
+	label.clip_text = true
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(label)
+	return label
 
 
 func _build_time_label() -> PanelContainer:
@@ -407,16 +461,15 @@ func _build_policy_column() -> VBoxContainer:
 	column.custom_minimum_size = Vector2(_dim(180), 0)
 	column.add_theme_constant_override("separation", _dim(6))
 
-	_add_panel_title(column, "政策卡区")
-	_add_wrapped_label(column, _selection_mode_text(), Color(0.72, 0.86, 1.0), 15)
-	if _is_budget_mode():
-		_policy_points_label = Label.new()
-		_policy_points_label.name = "PolicyPointsArea"
-		_policy_points_label.text = _policy_points_text()
-		_policy_points_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		_policy_points_label.modulate = Color(0.92, 0.80, 0.46)
-		_policy_points_label.add_theme_font_size_override("font_size", _font(15))
-		column.add_child(_policy_points_label)
+	_add_panel_title(column, "政策卡")
+	_policy_points_label = Label.new()
+	_policy_points_label.name = "PolicyPointsArea"
+	_policy_points_label.text = _policy_points_text()
+	_policy_points_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_policy_points_label.modulate = Color(0.56, 0.88, 1.0)
+	_policy_points_label.add_theme_font_size_override("font_size", _font(13))
+	column.add_child(_policy_points_label)
+	_add_wrapped_label(column, _policy_points_hint_text(), Color(0.58, 0.70, 0.74), 11)
 
 	var card_scene: PackedScene = preload("res://scenes/components/PolicyCard.tscn")
 	var policies: Array[Dictionary] = _available_policy_entries()
@@ -424,8 +477,10 @@ func _build_policy_column() -> VBoxContainer:
 	for policy_data: Dictionary in policies:
 		var card: PanelContainer = card_scene.instantiate() as PanelContainer
 		card.call("set_policy", policy_data)
+		if card.has_method("set_compact_hud_mode"):
+			card.call("set_compact_hud_mode", true)
 		card.call("set_ui_scale", compact_scale)
-		card.call("set_cost", int(policy_data.get("cost", policy_data.get("default_cost", 0))), _is_budget_mode())
+		card.call("set_cost", _policy_cost(policy_data), true)
 		card.call("set_selected", _is_policy_selected(str(policy_data.get("id", ""))))
 		card.connect("selected", _on_policy_selected)
 		card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -554,6 +609,7 @@ func _refresh_unified_macro_map(map_state: Dictionary) -> void:
 		_unified_macro_map.call("set_regions", _unified_map_region_data(map_state))
 
 
+
 func _build_theory_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.name = "TheoryHud"
@@ -562,15 +618,17 @@ func _build_theory_panel() -> PanelContainer:
 	var side_left: int = margin_size * 2 + _left_hud_width()
 	var side_right: int = -(margin_size * 2 + _right_hud_width())
 	var theory_h: int = _theory_hud_height()
-	_apply_hud_rect(panel, side_left, -(margin_size + theory_h), side_right, -margin_size)
+	var panel_width: float = _viewport_size().x - float(side_left) + float(side_right)
+	var compact_width: int = int(roundf(clampf(panel_width * 0.46, 420.0, 620.0)))
+	_apply_hud_rect(panel, side_left, -(margin_size + theory_h), side_left + compact_width, -margin_size)
 	panel.add_theme_stylebox_override("panel", _make_hud_panel_style("theory"))
 	_register_hud_blocker(panel)
 
 	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", _dim(14))
-	margin.add_theme_constant_override("margin_top", _dim(10))
-	margin.add_theme_constant_override("margin_right", _dim(14))
-	margin.add_theme_constant_override("margin_bottom", _dim(10))
+	margin.add_theme_constant_override("margin_left", _dim(12))
+	margin.add_theme_constant_override("margin_top", _dim(9))
+	margin.add_theme_constant_override("margin_right", _dim(12))
+	margin.add_theme_constant_override("margin_bottom", _dim(9))
 	panel.add_child(margin)
 
 	var box: VBoxContainer = VBoxContainer.new()
@@ -581,12 +639,26 @@ func _build_theory_panel() -> PanelContainer:
 
 	var scenario: Dictionary = _get_current_scenario()
 	_add_panel_title(box, "理论面板：IS-LM 分析")
-	_add_wrapped_label(box, _compact_theory_hint(scenario), Color(0.84, 0.90, 0.94), 15)
+	_add_single_line_label(box, _compact_theory_hint(scenario), Color(0.72, 0.88, 0.94), 13, TextServer.OVERRUN_TRIM_ELLIPSIS)
+
+	var graph_row: HBoxContainer = HBoxContainer.new()
+	graph_row.add_theme_constant_override("separation", _dim(8))
+	graph_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	graph_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(graph_row)
+
 	var graph: Control = _build_theory_graph(scenario)
-	graph.custom_minimum_size = Vector2(0.0, maxf(82.0, float(theory_h - _dim(70))))
+	graph.custom_minimum_size = Vector2(_dim(220), maxf(88.0, float(theory_h - _dim(64))))
 	graph.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	graph.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(graph)
+	graph_row.add_child(graph)
+
+	var donut: Control = DemandCompositionDonutScript.new() as Control
+	donut.call("setup", _visible_macro_state(), 0.86)
+	donut.custom_minimum_size = Vector2(_dim(170), maxf(88.0, float(theory_h - _dim(64))))
+	donut.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	donut.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	graph_row.add_child(donut)
 	return panel
 
 
@@ -804,19 +876,34 @@ func _selection_mode_text() -> String:
 	return "决策模式：单一政策决策"
 
 
+
 func _policy_point_limit() -> int:
-	return int(_scenario.get("policy_point_limit", 0))
+	if _is_budget_mode():
+		return int(_scenario.get("policy_point_limit", 0))
+	return 1
+
+
+func _policy_cost(policy_data: Dictionary) -> int:
+	if _is_budget_mode():
+		return int(policy_data.get("cost", policy_data.get("default_cost", 0)))
+	return 1
 
 
 func _used_policy_points() -> int:
 	var total: int = 0
 	for policy: Dictionary in _selected_policies:
-		total += int(policy.get("cost", policy.get("default_cost", 0)))
+		total += _policy_cost(policy)
 	return total
 
 
 func _policy_points_text() -> String:
-	return "政策点数：已用 %d / %d" % [_used_policy_points(), _policy_point_limit()]
+	return "政策点 %d / %d" % [_used_policy_points(), _policy_point_limit()]
+
+
+func _policy_points_hint_text() -> String:
+	if _is_budget_mode():
+		return "按政策点组合选择；卡牌右下角为消耗。"
+	return "本关 1 点；每张卡消耗右下角数字。"
 
 
 func _is_policy_selected(policy_id: String) -> bool:
@@ -845,7 +932,7 @@ func _toggle_budget_policy(policy_data: Dictionary) -> void:
 				break
 		return
 
-	var next_cost: int = int(policy_data.get("cost", policy_data.get("default_cost", 0)))
+	var next_cost: int = _policy_cost(policy_data)
 	if _used_policy_points() + next_cost > _policy_point_limit():
 		_set_advisor_message( "会议记录", "政策点数不足，无法选择该政策。")
 		return
@@ -994,7 +1081,7 @@ func _on_policy_selected(policy_id: String, policy_name: String) -> void:
 		return
 
 	if _is_budget_mode() and not _is_policy_selected(policy_id):
-		var next_cost: int = int(policy_data.get("cost", policy_data.get("default_cost", 0)))
+		var next_cost: int = _policy_cost(policy_data)
 		if _used_policy_points() + next_cost > _policy_point_limit():
 			_set_advisor_message( "会议记录", "政策点数不足，无法选择该政策。")
 			AudioManager.play_sfx(&"card_play")
@@ -1388,15 +1475,18 @@ func _clear_right_panel() -> void:
 func _add_panel_title(parent: VBoxContainer, text: String) -> void:
 	var label: Label = Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", _font(24))
+	label.modulate = Color(0.82, 0.96, 1.0, 0.96)
+	label.add_theme_font_size_override("font_size", _font(19))
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	label.clip_text = true
 	parent.add_child(label)
 
 
 func _add_section_label(parent: VBoxContainer, text: String) -> void:
 	var label: Label = Label.new()
 	label.text = text
-	label.modulate = Color(0.72, 0.86, 1.0)
-	label.add_theme_font_size_override("font_size", _font(15))
+	label.modulate = Color(0.48, 0.78, 0.88)
+	label.add_theme_font_size_override("font_size", _font(13))
 	parent.add_child(label)
 
 
@@ -1695,7 +1785,7 @@ func _viewport_size() -> Vector2:
 
 func _top_hud_height() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.y * 0.105, 82.0, 104.0)))
+	return int(roundf(clampf(viewport.y * 0.092, 76.0, 92.0)))
 
 
 func _side_top_y() -> int:
@@ -1709,13 +1799,13 @@ func _left_hud_width() -> int:
 
 func _right_hud_width() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.x * 0.17, 270.0, 340.0)))
+	return int(roundf(clampf(viewport.x * 0.155, 260.0, 320.0)))
 
 
 
 func _theory_hud_height() -> int:
 	var viewport: Vector2 = _viewport_size()
-	return int(roundf(clampf(viewport.y * 0.205, 145.0, 190.0)))
+	return int(roundf(clampf(viewport.y * 0.188, 138.0, 174.0)))
 
 
 func _hud_gap() -> int:
@@ -1727,14 +1817,12 @@ func _policy_card_ui_scale(policy_count: int) -> float:
 	var viewport: Vector2 = _viewport_size()
 	var count: int = maxi(1, policy_count)
 	var side_height: float = viewport.y - float(_side_top_y()) - float(_hud_margin())
-	var header_height: float = 52.0
-	if _is_budget_mode():
-		header_height += 24.0
+	var header_height: float = 72.0
 	var available_card_height: float = maxf(120.0, side_height - header_height - float(maxi(0, count - 1)) * 6.0 - 8.0)
-	var height_scale: float = available_card_height / float(count) / 360.0
+	var height_scale: float = available_card_height / float(count) / 106.0
 	var inner_width: float = float(_left_hud_width() - _dim(16))
-	var width_scale: float = inner_width / 240.0
-	return clampf(minf(minf(height_scale, width_scale), 0.78), 0.52, 0.78)
+	var width_scale: float = inner_width / 238.0
+	return clampf(minf(minf(height_scale, width_scale), 1.0), 0.76, 1.0)
 
 
 func _apply_hud_rect(control: Control, left: int, top: int, right: int, bottom: int) -> void:
@@ -1751,22 +1839,25 @@ func _apply_hud_rect(control: Control, left: int, top: int, right: int, bottom: 
 
 
 func _make_hud_panel_style(kind: String = "default") -> StyleBoxFlat:
-	var base_kind: String = "right"
-	match kind:
-		"left":
-			base_kind = "map"
-		"top", "bottom":
-			base_kind = "compact"
-		"theory":
-			base_kind = "theory"
-		_:
-			base_kind = "right"
-	var style: StyleBoxFlat = ClassicalTheme.panel_style(base_kind, _ui_scale)
-	style.bg_color = Color(style.bg_color.r, style.bg_color.g, style.bg_color.b, 0.78)
-	style.border_color = Color(style.border_color.r, style.border_color.g, style.border_color.b, 0.78)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.46)
-	style.shadow_size = _dim(18)
-	style.shadow_offset = Vector2(0, _dim(4))
+	var style := StyleBoxFlat.new()
+	var alpha: float = 0.58
+	if kind == "left" or kind == "right":
+		alpha = 0.66
+	elif kind == "top":
+		alpha = 0.56
+	elif kind == "theory":
+		alpha = 0.62
+	style.bg_color = Color(0.015, 0.040, 0.055, alpha)
+	style.border_color = Color(0.28, 0.68, 0.82, 0.38)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(8))
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
+	style.shadow_size = _dim(10)
+	style.shadow_offset = Vector2(0, _dim(3))
 	return style
 
 
@@ -1791,13 +1882,23 @@ func _make_chart_style() -> StyleBoxFlat:
 
 
 func _make_compact_panel_style() -> StyleBoxFlat:
-	return ClassicalTheme.panel_style("compact", _ui_scale)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.052, 0.068, 0.54)
+	style.border_color = Color(0.32, 0.74, 0.88, 0.30)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(_dim(7))
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	return style
 
 
 func _make_icon_slot_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.14, 0.10, 0.07, 0.88)
-	style.border_color = Color(0.58, 0.42, 0.22, 0.82)
+	style.bg_color = Color(0.02, 0.10, 0.12, 0.72)
+	style.border_color = Color(0.48, 0.88, 1.0, 0.46)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(_dim(6))
 	return style
+

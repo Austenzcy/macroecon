@@ -1064,3 +1064,17 @@ Fullscreen map restore and compact fixed HUD:
 - Web export and CloudBase deployment completed. BuildId: `20260729-185922`; release URL: `/releases/20260729-185922/index.html`; `index.pck` 10,704,152 bytes; `index.wasm.gz` 10,111,653 bytes.
 - Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
 - Did not generate new art, call Image Two, modify masks, modify PolicyCard art, modify DialogueOverlay, modify scenario data, modify economic settlement, modify scoring, or push GitHub.
+
+Fullscreen HUD visual convergence:
+- Reorganized the top HUD into three lightweight groups: left challenge/mechanism, centered round and model tags, and right time/wisdom/hint controls.
+- Removed the remaining gameplay zoom UI from the visible HUD; Ctrl+wheel is no longer exposed as a HUD scaling affordance.
+- Restyled gameplay HUD panels from heavy medieval frames toward translucent blue-black strategy HUD panels with thin cyan borders and softer shadows.
+- Reworked policy cards in the fullscreen HUD into compact horizontal strategy cards: icon on the left, title/description on the right, and a compact cost digit badge.
+- Policy points now appear as a dedicated left-panel resource line, separate from top-right wisdom points. Single-policy levels use `1 / 1` and each card displays cost `1`.
+- Current three policy cards fit the fixed left HUD without a policy ScrollContainer.
+- Compact theory HUD now shows a title, one concise mechanism hint, the IS-LM graph, and a lightweight C/I/G demand-composition donut from current `C_value`, `I_value`, and `G_value`.
+- Theory HUD remains fixed and non-scrolling; the permanent bottom advisor strip remains removed and the confirm policy action stays at the bottom of the right macro HUD.
+- Kept the validated fullscreen unified map, alpha-mask hover, tooltip, middle-button drag, and Space + left-button drag path intact.
+- Web export and CloudBase deployment completed. BuildId: `20260729-210155`; release URL: `/releases/20260729-210155/index.html`; `index.pck` 10,712,508 bytes; `index.wasm.gz` 10,111,653 bytes.
+- Lightweight online checks returned HTTP 200 for `health.html` and the release `index.html`.
+- Did not generate new art, call Image Two, modify masks, modify scenario data, modify economic settlement, modify scoring, modify DialogueOverlay, or push GitHub.
