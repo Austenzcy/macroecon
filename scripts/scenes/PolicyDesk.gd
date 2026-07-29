@@ -549,6 +549,13 @@ func _unified_map_region_data(map_state: Dictionary) -> Array[Dictionary]:
 	return regions
 
 
+func _refresh_unified_macro_map(map_state: Dictionary) -> void:
+	if _unified_macro_map == null or not is_instance_valid(_unified_macro_map):
+		return
+	if _unified_macro_map.has_method("set_regions"):
+		_unified_macro_map.call("set_regions", _unified_map_region_data(map_state))
+
+
 func _build_theory_panel() -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(_dim(0), _dim(410))
@@ -630,6 +637,7 @@ func _show_policy_result_panel(result: Dictionary) -> void:
 		before = before_variant
 	if after_variant is Dictionary:
 		after = after_variant
+		_refresh_unified_macro_map(after)
 	var executed_variant: Variant = result.get("executed_policies", [])
 	var executed: Array = []
 	if executed_variant is Array:

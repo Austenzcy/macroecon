@@ -1014,3 +1014,14 @@ IS-LM demand component values:
 - Tooltip reads numeric value fields and no longer needs em dash fallback for C/I/G in existing IS-LM levels.
 - Did not change map art, masks, hover animation, tooltip positioning, policy-card art, DialogueOverlay, macro model equations, victory conditions, or fonts.
 - Added scripts/tools/ValidateDemandComponents.gd for development-only C/I/G/Y residual checks.
+
+Demand component settlement consistency audit:
+- Added `scripts/tools/ValidateDemandComponentSettlement.gd` to audit all 11 IS-LM levels, all 38 scenario-policy combinations, reset behavior, isolation, and the two-round stabilization transfer.
+- Verified the active settlement flow is policy -> IS-LM model output -> demand component synchronization; C/I/G do not feed back into Y and no policy delta is double-applied.
+- Verified all initial closed-economy IS-LM states satisfy `Y = C_value + I_value + G_value`.
+- Confirmed `Y = 100` in weak-demand levels is the post-shock current output level below the `Y_target` / `Y_potential` reference, not the universal normal output.
+- Validation result: 62 PASS, 0 WARN, 0 FAIL.
+- Fixed a UI refresh risk where the macro map hover tooltip could retain pre-policy region data after policy confirmation; the map now refreshes from the result after-state.
+- Added `docs/Demand_Component_Settlement_Audit_v1.md` with the data flow, initial semantic table, representative policy deltas, reset/isolation results, and known remaining issues.
+- Web export and CloudBase deployment completed. BuildId: `20260729-173738`; release URL: `/releases/20260729-173738/index.html`; `index.pck` 10,698,280 bytes; `index.wasm.gz` 10,111,653 bytes.
+- Did not change policy costs, victory conditions, macro equations, map resources, hover animation, policy-card art, DialogueOverlay, or fonts.
