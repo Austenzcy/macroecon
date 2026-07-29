@@ -5,6 +5,7 @@ const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
 const POLICY_DESK_PATH: String = "res://scenes/PolicyDesk.tscn"
 const SCENARIO_INTRO_PATH: String = "res://scenes/ScenarioIntro.tscn"
+const HUD_REFERENCE_PROTOTYPE_PATH: String = "res://scenes/ui/hud_reference/HudReferencePrototype.tscn"
 const SCALE_STEP: float = UIInteractionConfig.UI_SCALE_STEP
 const MIN_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MIN
 const MAX_UI_SCALE: float = UIInteractionConfig.UI_SCALE_MAX
@@ -64,6 +65,7 @@ func _build_ui() -> void:
 	margin.add_child(root)
 
 	root.add_child(_build_header())
+	root.add_child(_build_hud_reference_entry())
 	root.add_child(_build_level_grid())
 
 	_status_label = Label.new()
@@ -102,6 +104,48 @@ func _build_header() -> PanelContainer:
 	ClassicalTheme.apply_label_color(subtitle, "soft")
 	subtitle.add_theme_font_size_override("font_size", _font(18))
 	box.add_child(subtitle)
+
+	return panel
+
+
+func _build_hud_reference_entry() -> PanelContainer:
+	var panel: PanelContainer = PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", ClassicalTheme.panel_style("desk", _ui_scale))
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", _dim(22))
+	margin.add_theme_constant_override("margin_top", _dim(16))
+	margin.add_theme_constant_override("margin_right", _dim(22))
+	margin.add_theme_constant_override("margin_bottom", _dim(16))
+	panel.add_child(margin)
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", _dim(18))
+	margin.add_child(row)
+
+	var copy: VBoxContainer = VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", _dim(4))
+	row.add_child(copy)
+
+	var title: Label = Label.new()
+	title.text = "HUD 参考图样板"
+	title.add_theme_font_size_override("font_size", _font(22))
+	ClassicalTheme.apply_label_color(title, "title")
+	copy.add_child(title)
+
+	var note: Label = Label.new()
+	note.text = "静态高保真视觉样板，不替换正式游戏界面。"
+	note.add_theme_font_size_override("font_size", _font(14))
+	ClassicalTheme.apply_label_color(note, "soft")
+	copy.add_child(note)
+
+	var button: Button = Button.new()
+	button.text = "打开样板"
+	button.custom_minimum_size = Vector2(_dim(142), _dim(44))
+	button.add_theme_font_size_override("font_size", _font(16))
+	button.pressed.connect(_on_hud_reference_pressed)
+	row.add_child(button)
 
 	return panel
 
@@ -173,6 +217,11 @@ func _on_level_pressed(level_number: int) -> void:
 	AudioManager.unlock_audio_from_user_gesture()
 	AudioManager.play_bgm()
 	get_tree().change_scene_to_file(_entry_scene_for_current_scenario())
+
+
+func _on_hud_reference_pressed() -> void:
+	AudioManager.unlock_audio_from_user_gesture()
+	get_tree().change_scene_to_file(HUD_REFERENCE_PROTOTYPE_PATH)
 
 
 func _entry_scene_for_current_scenario() -> String:
