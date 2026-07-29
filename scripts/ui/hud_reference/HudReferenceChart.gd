@@ -76,15 +76,15 @@ func _draw_islm() -> void:
 	draw_dashed_line(Vector2(rect.position.x, e0.y), e0, Color(1, 1, 1, 0.20), 1.0, 5.0, true)
 	draw_dashed_line(Vector2(e0.x, rect.position.y + rect.size.y), e0, Color(1, 1, 1, 0.20), 1.0, 5.0, true)
 
-	var font: Font = ThemeDB.fallback_font
-	var fs: int = 13
-	draw_string(font, y_top + Vector2(-16, 4), "i", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, HudReferenceTheme.BODY)
-	draw_string(font, x_right + Vector2(-2, 18), "Y", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, HudReferenceTheme.BODY)
+	var font: Font = HudReferenceTheme.UI_FONT
+	var fs: int = HudReferenceTheme.font(HudReferenceTheme.FONT_CHART_AXIS, 1.0)
+	draw_string(font, y_top + Vector2(-16, 4), "i", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, HudReferenceTheme.TEXT_BODY)
+	draw_string(font, x_right + Vector2(-2, 18), "Y", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, HudReferenceTheme.TEXT_BODY)
 	draw_string(font, lm_b + Vector2(8, 2), "LM", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, cyan)
 	draw_string(font, is_b + Vector2(-20, 18), "IS", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, red)
 	draw_string(font, is2_a + Vector2(-4, -8), "IS'", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(red.r, red.g, red.b, 0.72))
-	draw_string(font, e0 + Vector2(8, -7), "E0", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, HudReferenceTheme.MUTED)
-	draw_string(font, e1 + Vector2(8, 15), "E1", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, HudReferenceTheme.MUTED)
+	draw_string(font, e0 + Vector2(8, -7), "E0", HORIZONTAL_ALIGNMENT_LEFT, -1, HudReferenceTheme.font(13, 1.0), HudReferenceTheme.TEXT_BODY)
+	draw_string(font, e1 + Vector2(8, 15), "E1", HORIZONTAL_ALIGNMENT_LEFT, -1, HudReferenceTheme.font(13, 1.0), HudReferenceTheme.TEXT_BODY)
 
 
 func _draw_donut() -> void:
@@ -105,14 +105,14 @@ func _draw_donut() -> void:
 	draw_arc(center, radius, 0, TAU, 64, Color(1, 1, 1, 0.12), 1.0, true)
 	draw_circle(center, radius - width * 0.58, Color(0.0, 0.02, 0.028, 0.56))
 
-	var font: Font = ThemeDB.fallback_font
-	draw_string(font, center + Vector2(-22, -2), "Y", HORIZONTAL_ALIGNMENT_CENTER, 44, 18, HudReferenceTheme.TITLE)
-	draw_string(font, center + Vector2(-30, 18), "100", HORIZONTAL_ALIGNMENT_CENTER, 60, 12, HudReferenceTheme.MUTED)
+	var font: Font = HudReferenceTheme.UI_FONT
+	draw_string(font, center + Vector2(-22, -2), "Y", HORIZONTAL_ALIGNMENT_CENTER, 44, HudReferenceTheme.font(HudReferenceTheme.FONT_DONUT_CENTER_TITLE, 1.0), HudReferenceTheme.TEXT_PRIMARY)
+	draw_string(font, center + Vector2(-30, 20), "100", HORIZONTAL_ALIGNMENT_CENTER, 60, HudReferenceTheme.font(HudReferenceTheme.FONT_DONUT_CENTER_VALUE, 1.0), HudReferenceTheme.TEXT_BODY)
 
 	var y: float = size.y * 0.27
 	var x: float = size.x * 0.70
 	for item: Dictionary in items:
 		var percent: float = 100.0 * float(item["value"]) / total
 		draw_circle(Vector2(x, y - 5), 4.0, item["color"])
-		draw_string(font, Vector2(x + 12, y), "%s  %.0f%%" % [String(item["label"]), percent], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, HudReferenceTheme.BODY)
-		y += 25.0
+		draw_string(font, Vector2(x + 12, y), "%s  %.0f%%" % [String(item["label"]), percent], HORIZONTAL_ALIGNMENT_LEFT, -1, HudReferenceTheme.font(HudReferenceTheme.FONT_DONUT_LEGEND, 1.0), HudReferenceTheme.TEXT_BODY)
+		y += 28.0

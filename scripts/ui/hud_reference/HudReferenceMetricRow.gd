@@ -21,7 +21,8 @@ func setup(next_name: String, next_symbol: String, next_value: String, next_stat
 
 
 func _draw() -> void:
-	var font: Font = ThemeDB.fallback_font
+	var font: Font = HudReferenceTheme.UI_FONT
+	var font_scale: float = 1.0 if size.x >= 320.0 else 0.88
 	var status_color: Color = HudReferenceTheme.status_color(status_text)
 	var name_x: float = 0.0
 	var track_x: float = size.x * 0.36
@@ -30,13 +31,13 @@ func _draw() -> void:
 	var status_x: float = size.x * 0.87
 	var mid_y: float = size.y * 0.56
 
-	draw_string(font, Vector2(name_x, mid_y + 5), "%s（%s）" % [metric_name, symbol], HORIZONTAL_ALIGNMENT_LEFT, track_x - 10.0, 14, HudReferenceTheme.BODY)
+	draw_string(font, Vector2(name_x, mid_y + 6), "%s（%s）" % [metric_name, symbol], HORIZONTAL_ALIGNMENT_LEFT, track_x - 10.0, HudReferenceTheme.font(HudReferenceTheme.FONT_METRIC_NAME, font_scale), HudReferenceTheme.TEXT_BODY)
 	draw_rect(Rect2(Vector2(track_x, mid_y - 3), Vector2(track_w, 6)), Color(0.92, 0.98, 1.0, 0.22), true)
 	draw_rect(Rect2(Vector2(track_x, mid_y - 3), Vector2(track_w * normalized_value, 6)), Color(status_color.r, status_color.g, status_color.b, 0.42), true)
 
 	var ref_x: float = track_x + track_w * reference_value
 	draw_line(Vector2(ref_x, mid_y - 11), Vector2(ref_x, mid_y + 11), HudReferenceTheme.GOLD, 1.2, true)
-	draw_string(font, Vector2(ref_x - 18, mid_y - 14), "参考", HORIZONTAL_ALIGNMENT_CENTER, 36, 9, Color(HudReferenceTheme.GOLD.r, HudReferenceTheme.GOLD.g, HudReferenceTheme.GOLD.b, 0.78))
+	draw_string(font, Vector2(ref_x - 22, mid_y - 14), "参考值", HORIZONTAL_ALIGNMENT_CENTER, 44, HudReferenceTheme.font(HudReferenceTheme.FONT_REFERENCE_LABEL, font_scale), Color(HudReferenceTheme.TEXT_GOLD.r, HudReferenceTheme.TEXT_GOLD.g, HudReferenceTheme.TEXT_GOLD.b, 0.78))
 
 	var now_x: float = track_x + track_w * normalized_value
 	var tri: PackedVector2Array = PackedVector2Array([
@@ -47,5 +48,5 @@ func _draw() -> void:
 	draw_colored_polygon(tri, HudReferenceTheme.CYAN)
 	draw_line(Vector2(now_x, mid_y - 5), Vector2(now_x, mid_y + 9), HudReferenceTheme.CYAN, 1.4, true)
 
-	draw_string(font, Vector2(value_x, mid_y + 5), value_text, HORIZONTAL_ALIGNMENT_RIGHT, status_x - value_x - 8.0, 14, HudReferenceTheme.TITLE)
-	draw_string(font, Vector2(status_x, mid_y + 5), status_text, HORIZONTAL_ALIGNMENT_RIGHT, size.x - status_x, 14, status_color)
+	draw_string(font, Vector2(value_x, mid_y + 6), value_text, HORIZONTAL_ALIGNMENT_RIGHT, status_x - value_x - 8.0, HudReferenceTheme.font(HudReferenceTheme.FONT_METRIC_VALUE, font_scale), HudReferenceTheme.TEXT_PRIMARY)
+	draw_string(font, Vector2(status_x, mid_y + 6), status_text, HORIZONTAL_ALIGNMENT_RIGHT, size.x - status_x, HudReferenceTheme.font(HudReferenceTheme.FONT_METRIC_STATUS, font_scale), status_color)
