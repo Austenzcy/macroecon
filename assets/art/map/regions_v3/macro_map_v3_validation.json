@@ -1,0 +1,127 @@
+{
+  "work_resolution": [
+    1536,
+    1024
+  ],
+  "output_resolution": [
+    3072,
+    2048
+  ],
+  "topology": {
+    "union_area_ratio": 0.228223,
+    "overlap_pixels": 0,
+    "union_connected_components": 1,
+    "unassigned_inside_union_pixels": 0
+  },
+  "regions": {
+    "consumption": {
+      "area_ratio": 0.048275,
+      "boundary_edge_distance_median_px": 1.0,
+      "boundary_edge_distance_p90_px": 1.0
+    },
+    "industry": {
+      "area_ratio": 0.055635,
+      "boundary_edge_distance_median_px": 1.0,
+      "boundary_edge_distance_p90_px": 4.197
+    },
+    "finance": {
+      "area_ratio": 0.063939,
+      "boundary_edge_distance_median_px": 1.0,
+      "boundary_edge_distance_p90_px": 2.0
+    },
+    "government": {
+      "area_ratio": 0.060373,
+      "boundary_edge_distance_median_px": 1.0,
+      "boundary_edge_distance_p90_px": 1.4
+    }
+  },
+  "reviewed_local_fix": {
+    "from": "finance",
+    "to": "industry",
+    "moved_pixels": 1409
+  },
+  "baseline_v2": {
+    "topology": {
+      "union_area_ratio": 0.237057,
+      "overlap_pixels": 101,
+      "union_connected_components": 1,
+      "unassigned_inside_union_pixels": 0
+    },
+    "regions": {
+      "consumption": {
+        "area_ratio": 0.04508,
+        "boundary_edge_distance_median_px": 1.0,
+        "boundary_edge_distance_p90_px": 3.197
+      },
+      "industry": {
+        "area_ratio": 0.052916,
+        "boundary_edge_distance_median_px": 1.4,
+        "boundary_edge_distance_p90_px": 16.701
+      },
+      "finance": {
+        "area_ratio": 0.073985,
+        "boundary_edge_distance_median_px": 1.0,
+        "boundary_edge_distance_p90_px": 7.394
+      },
+      "government": {
+        "area_ratio": 0.065141,
+        "boundary_edge_distance_median_px": 1.0,
+        "boundary_edge_distance_p90_px": 8.593
+      }
+    }
+  },
+  "local_operation_guard": {
+    "consumption": {
+      "changed_pixels": 0,
+      "changed_outside_local_zone": 0
+    },
+    "industry": {
+      "changed_pixels": 1409,
+      "changed_outside_local_zone": 0
+    },
+    "finance": {
+      "changed_pixels": 1409,
+      "changed_outside_local_zone": 0
+    },
+    "government": {
+      "changed_pixels": 0,
+      "changed_outside_local_zone": 0
+    }
+  },
+  "metadata": {
+    "consumption": {
+      "layer_rect": [
+        0.2509765625,
+        0.18798828125,
+        0.2994791666666667,
+        0.29296875
+      ]
+    },
+    "industry": {
+      "layer_rect": [
+        0.4736328125,
+        0.17724609375,
+        0.279296875,
+        0.3291015625
+      ]
+    },
+    "finance": {
+      "layer_rect": [
+        0.2542317708333333,
+        0.41650390625,
+        0.24674479166666666,
+        0.357421875
+      ]
+    },
+    "government": {
+      "layer_rect": [
+        0.4697265625,
+        0.45947265625,
+        0.2864583333333333,
+        0.32421875
+      ]
+    }
+  },
+  "passed": true,
+  "failures": []
+}

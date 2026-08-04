@@ -104,14 +104,14 @@ const MAP_REGION_SCENES := {
 }
 
 const UNIFIED_MACRO_MAP := {
-	"master_v1": "res://assets/art/map/macro_map_master_v1.webp"
+	"master_v1": "res://assets/art/map/macro_map_master_v2.webp"
 }
 
 const UNIFIED_MACRO_MAP_REGION_LAYERS := {
-	"consumption": "res://assets/art/map/regions/macro_map_region_consumption_v1.png",
-	"industry": "res://assets/art/map/regions/macro_map_region_industry_v1.png",
-	"finance": "res://assets/art/map/regions/macro_map_region_finance_v1.png",
-	"government": "res://assets/art/map/regions/macro_map_region_government_v1.png"
+	"consumption": "res://assets/art/map/regions_v3/macro_map_region_consumption_v3.webp",
+	"industry": "res://assets/art/map/regions_v3/macro_map_region_industry_v3.webp",
+	"finance": "res://assets/art/map/regions_v3/macro_map_region_finance_v3.webp",
+	"government": "res://assets/art/map/regions_v3/macro_map_region_government_v3.webp"
 }
 
 const MAP_REGION_FALLBACK := {

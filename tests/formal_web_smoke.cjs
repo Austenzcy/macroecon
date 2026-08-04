@@ -79,11 +79,48 @@ async function openReadyPage(browser, failures, label) {
     await startPage.mouse.click(1090, 628);
     await startPage.waitForTimeout(1800);
     await startPage.screenshot({ path: path.join(artifactRoot, 'formal-first-level-entry.png') });
+    await startPage.mouse.click(650, 680);
+    await startPage.waitForTimeout(260);
+    await startPage.mouse.click(650, 680);
+    await startPage.waitForTimeout(260);
+    await startPage.mouse.click(650, 680);
+    await startPage.waitForTimeout(350);
+    await startPage.mouse.move(470, 210);
+    await startPage.waitForTimeout(350);
+    await startPage.screenshot({ path: path.join(artifactRoot, 'formal-first-level-map-hover.png') });
+    await startPage.mouse.move(650, 320);
+    await startPage.mouse.wheel(0, -480);
+    await startPage.waitForTimeout(450);
+    await startPage.screenshot({ path: path.join(artifactRoot, 'formal-first-level-map-zoom.png') });
 
     const hudPage = await openReadyPage(browser, failures, 'hud');
     await hudPage.mouse.click(1166, 47);
     await hudPage.waitForTimeout(1500);
     await hudPage.screenshot({ path: path.join(artifactRoot, 'formal-hud-reference-entry.png') });
+
+    // The reference scene uses the exact same map component as formal levels.
+    // Exercise region hover, wheel zoom, and middle-button pan in an unobstructed area.
+    const regionHoverPoints = {
+      consumption: [512, 215],
+      industry: [795, 225],
+      finance: [488, 435],
+      government: [795, 460],
+    };
+    for (const [regionId, point] of Object.entries(regionHoverPoints)) {
+      await hudPage.mouse.move(point[0], point[1]);
+      await hudPage.waitForTimeout(350);
+      await hudPage.screenshot({ path: path.join(artifactRoot, `formal-hud-reference-hover-${regionId}.png`) });
+    }
+    await hudPage.mouse.move(650, 330);
+    await hudPage.mouse.wheel(0, -480);
+    await hudPage.waitForTimeout(450);
+    await hudPage.screenshot({ path: path.join(artifactRoot, 'formal-hud-reference-zoom.png') });
+    await hudPage.mouse.move(650, 330);
+    await hudPage.mouse.down({ button: 'middle' });
+    await hudPage.mouse.move(760, 390, { steps: 8 });
+    await hudPage.mouse.up({ button: 'middle' });
+    await hudPage.waitForTimeout(250);
+    await hudPage.screenshot({ path: path.join(artifactRoot, 'formal-hud-reference-pan.png') });
 
     if (failures.length) {
       failures.forEach(failure => console.error(`FORMAL_WEB_FAILURE: ${failure}`));

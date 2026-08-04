@@ -5,15 +5,18 @@ const HudReferencePanel = preload("res://scripts/ui/hud_reference/HudReferencePa
 const HudReferenceIcon = preload("res://scripts/ui/hud_reference/HudReferenceIcon.gd")
 const HudReferenceChart = preload("res://scripts/ui/hud_reference/HudReferenceChart.gd")
 const HudReferenceMetricRow = preload("res://scripts/ui/hud_reference/HudReferenceMetricRow.gd")
+const UnifiedMacroMapScene = preload("res://scenes/components/UnifiedMacroMap.tscn")
 
 const LEVEL_SELECT_PATH := "res://scenes/LevelSelect.tscn"
-const MAP_TEXTURE := preload("res://assets/art/map/macro_map_master_v1.webp")
 
 var _layout_version: int = 0
+var _unified_macro_map: Control
+var _hud_blocker_rects: Array[Rect2] = []
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	set_process_input(true)
 	_build_ui()
 	_report_web_boot_ready()
 
@@ -24,17 +27,16 @@ func _notification(what: int) -> void:
 		queue_redraw()
 
 
-func _draw() -> void:
-	_draw_map_background()
-
-
 func _build_ui() -> void:
 	_layout_version += 1
+	_unified_macro_map = null
+	_hud_blocker_rects.clear()
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
 	if size.x < 200.0 or size.y < 200.0:
 		return
+	_build_reference_map()
 
 	var scale: float = _responsive_scale()
 	var margin: float = _d(14, scale)
@@ -44,28 +46,92 @@ func _build_ui() -> void:
 	var bottom_h: float = clampf(size.y * 0.265, _d(214, scale), _d(304, scale))
 	var gap: float = _d(18, scale)
 
-	_build_top_band(Rect2(margin, margin, size.x - margin * 2.0, top_h), scale)
-	_build_left_drawer(Rect2(margin, top_h + margin + gap, left_w, size.y - top_h - bottom_h - margin * 2.0 - gap * 2.0), scale)
-	_build_right_drawer(Rect2(size.x - margin - right_w, top_h + margin + gap, right_w, size.y - top_h - margin * 2.0 - gap), scale)
+	var top_rect := Rect2(margin, margin, size.x - margin * 2.0, top_h)
+	var left_rect := Rect2(margin, top_h + margin + gap, left_w, size.y - top_h - bottom_h - margin * 2.0 - gap * 2.0)
+	var right_rect := Rect2(size.x - margin - right_w, top_h + margin + gap, right_w, size.y - top_h - margin * 2.0 - gap)
+	_build_top_band(top_rect, scale)
+	_build_left_drawer(left_rect, scale)
+	_build_right_drawer(right_rect, scale)
 
 	var central_left: float = margin + left_w + gap * 1.25
 	var central_right: float = size.x - margin - right_w - gap * 1.25
 	var bottom_w: float = clampf(central_right - central_left, _d(620, scale), _d(930, scale))
 	var bottom_x: float = central_left + maxf(0.0, (central_right - central_left - bottom_w) * 0.5)
-	_build_bottom_analysis(Rect2(bottom_x, size.y - margin - bottom_h, bottom_w, bottom_h), scale)
+	var bottom_rect := Rect2(bottom_x, size.y - margin - bottom_h, bottom_w, bottom_h)
+	_build_bottom_analysis(bottom_rect, scale)
+	_hud_blocker_rects.assign([top_rect, left_rect, right_rect, bottom_rect])
 
 
-func _draw_map_background() -> void:
-	var tex_size: Vector2 = MAP_TEXTURE.get_size()
-	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.0, 0.0, 0.0, 1.0), true)
+func _build_reference_map() -> void:
+	var map := UnifiedMacroMapScene.instantiate() as Control
+	if map == null:
 		return
-	var cover_scale: float = maxf(size.x / tex_size.x, size.y / tex_size.y) * 1.06
-	var scaled_size: Vector2 = tex_size * cover_scale
-	var rect: Rect2 = Rect2((size - scaled_size) * 0.5, scaled_size)
-	draw_texture_rect(MAP_TEXTURE, rect, false, Color(0.92, 0.98, 1.0, 0.86))
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.0, 0.018, 0.027, 0.34), true)
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.0, 0.0, 0.0, 0.10), true)
+	_unified_macro_map = map
+	map.name = "UnifiedMacroMap"
+	map.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	map.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(map)
+	if map.has_method("set_regions"):
+		map.call("set_regions", _reference_region_data())
+
+
+func _reference_region_data() -> Array[Dictionary]:
+	return [
+		{
+			"region_id": "consumption", "name": "居民消费区",
+			"lines": [{"display_symbol": "C", "value_text": "54.0", "status_text": "偏低"}]
+		},
+		{
+			"region_id": "industry", "name": "工业产区",
+			"lines": [
+				{"display_symbol": "Y", "value_text": "100.0", "status_text": "正常"},
+				{"display_symbol": "I", "value_text": "23.0", "status_text": "适中"}
+			]
+		},
+		{
+			"region_id": "finance", "name": "金融市场区",
+			"lines": [{"display_symbol": "i", "value_text": "5.0%", "status_text": "正常"}]
+		},
+		{
+			"region_id": "government", "name": "政府部门区",
+			"lines": [
+				{"display_symbol": "G", "value_text": "23.0", "status_text": "适中"},
+				{"display_symbol": "Debt", "value_text": "50.0", "status_text": "适中"}
+			]
+		}
+	]
+
+
+func _input(event: InputEvent) -> void:
+	if _unified_macro_map == null or not is_instance_valid(_unified_macro_map):
+		return
+	if not (event is InputEventMouseButton or event is InputEventMouseMotion):
+		return
+	if event is InputEventMouseButton:
+		var button_event := event as InputEventMouseButton
+		var is_wheel := button_event.button_index == MOUSE_BUTTON_WHEEL_UP or button_event.button_index == MOUSE_BUTTON_WHEEL_DOWN
+		if is_wheel and button_event.ctrl_pressed:
+			get_viewport().set_input_as_handled()
+			return
+	var viewport_position := get_viewport().get_mouse_position()
+	var local_position := get_global_transform_with_canvas().affine_inverse() * viewport_position
+	var over_hud := _is_pointer_over_hud(local_position)
+	var consumed := bool(_unified_macro_map.call(
+		"handle_viewport_input",
+		event,
+		viewport_position,
+		Input.is_key_pressed(KEY_SPACE),
+		not over_hud
+	))
+	if consumed:
+		get_viewport().set_input_as_handled()
+
+
+func _is_pointer_over_hud(local_position: Vector2) -> bool:
+	for rect: Rect2 in _hud_blocker_rects:
+		if rect.has_point(local_position):
+			return true
+	return false
 
 
 func _build_top_band(rect: Rect2, scale: float) -> void:

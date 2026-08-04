@@ -3,12 +3,12 @@ extends Control
 const ArtAssetRegistry = preload("res://scripts/ui/ArtAssetRegistry.gd")
 const MacroMapArtSpec = preload("res://scripts/ui/map/MacroMapArtSpec.gd")
 const UIInteractionConfig = preload("res://scripts/ui/UIInteractionConfig.gd")
-const MASTER_MAP_TEXTURE: Texture2D = preload("res://assets/art/map/macro_map_master_v1.webp")
+const MASTER_MAP_TEXTURE: Texture2D = preload("res://assets/art/map/macro_map_master_v2.webp")
 const REGION_LAYER_TEXTURES := {
-	"consumption": preload("res://assets/art/map/regions/macro_map_region_consumption_v1.png"),
-	"industry": preload("res://assets/art/map/regions/macro_map_region_industry_v1.png"),
-	"finance": preload("res://assets/art/map/regions/macro_map_region_finance_v1.png"),
-	"government": preload("res://assets/art/map/regions/macro_map_region_government_v1.png")
+	"consumption": preload("res://assets/art/map/regions_v3/macro_map_region_consumption_v3.webp"),
+	"industry": preload("res://assets/art/map/regions_v3/macro_map_region_industry_v3.webp"),
+	"finance": preload("res://assets/art/map/regions_v3/macro_map_region_finance_v3.webp"),
+	"government": preload("res://assets/art/map/regions_v3/macro_map_region_government_v3.webp")
 }
 
 var _ui_scale: float = 1.0
@@ -29,6 +29,9 @@ var _debug_hit_text: String = ""
 var _map_pan_offset: Vector2 = Vector2.ZERO
 var _is_dragging_map: bool = false
 var _last_drag_position: Vector2 = Vector2.ZERO
+var _map_zoom: float = MacroMapArtSpec.MAP_MIN_ZOOM
+var _target_map_zoom: float = MacroMapArtSpec.MAP_MIN_ZOOM
+var _zoom_tween: Tween
 
 var _tooltip_layer: CanvasLayer
 var _tooltip_panel: PanelContainer
@@ -70,6 +73,23 @@ func clear_hover_state() -> void:
 	_clear_hover(false)
 
 
+func get_map_zoom() -> float:
+	return _map_zoom
+
+
+func get_map_zoom_limits() -> Vector2:
+	return Vector2(MacroMapArtSpec.MAP_MIN_ZOOM, _maximum_zoom())
+
+
+func get_map_rect() -> Rect2:
+	_map_rect = _calculate_map_rect()
+	return _map_rect
+
+
+func get_hovered_region_id() -> String:
+	return _hovered_region_id
+
+
 func set_regions(regions: Array) -> void:
 	_regions.clear()
 	for item: Variant in regions:
@@ -86,6 +106,8 @@ func set_regions(regions: Array) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
+		_map_zoom = clampf(_map_zoom, MacroMapArtSpec.MAP_MIN_ZOOM, _maximum_zoom())
+		_target_map_zoom = _map_zoom
 		_map_pan_offset = _clamped_pan_offset(_map_pan_offset)
 		_layout_region_nodes()
 		_clear_hover(false)
@@ -97,11 +119,9 @@ func _gui_input(event: InputEvent) -> void:
 		var mouse_event: InputEventMouseMotion = event
 		handle_viewport_input(event, get_viewport().get_mouse_position(), Input.is_key_pressed(KEY_SPACE), true)
 	elif event is InputEventMouseButton:
-		var mouse_event: InputEventMouseButton = event
-		if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP or mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			_clear_hover(false)
-		else:
-			handle_viewport_input(event, get_viewport().get_mouse_position(), Input.is_key_pressed(KEY_SPACE), true)
+		var consumed := handle_viewport_input(event, get_viewport().get_mouse_position(), Input.is_key_pressed(KEY_SPACE), true)
+		if consumed:
+			accept_event()
 
 
 func handle_viewport_input(event: InputEvent, viewport_position: Vector2, space_pressed: bool = false, allow_hover: bool = true) -> bool:
@@ -117,6 +137,12 @@ func handle_viewport_input(event: InputEvent, viewport_position: Vector2, space_
 				return true
 		if button_event.button_index == MOUSE_BUTTON_WHEEL_UP or button_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			_clear_hover(false)
+			if allow_hover and button_event.pressed:
+				_zoom_map_at(
+					viewport_position,
+					1.0 if button_event.button_index == MOUSE_BUTTON_WHEEL_UP else -1.0
+				)
+				return true
 			return false
 	if event is InputEventMouseMotion:
 		var motion_event: InputEventMouseMotion = event
@@ -154,6 +180,44 @@ func _pan_map(delta: Vector2) -> void:
 	_map_pan_offset = _clamped_pan_offset(_map_pan_offset + delta)
 	_layout_region_nodes()
 	_clear_hover(false)
+	queue_redraw()
+
+
+func _zoom_map_at(viewport_position: Vector2, direction: float) -> void:
+	var local_anchor := _viewport_to_local(viewport_position)
+	var current_rect := _calculate_map_rect()
+	if current_rect.size.x <= 0.0 or current_rect.size.y <= 0.0:
+		return
+	var anchor_uv := (local_anchor - current_rect.position) / current_rect.size
+	anchor_uv.x = clampf(anchor_uv.x, 0.0, 1.0)
+	anchor_uv.y = clampf(anchor_uv.y, 0.0, 1.0)
+
+	var factor: float = MacroMapArtSpec.MAP_ZOOM_FACTOR if direction > 0.0 else 1.0 / MacroMapArtSpec.MAP_ZOOM_FACTOR
+	var maximum_zoom := _maximum_zoom()
+	_target_map_zoom = clampf(_map_zoom * factor, MacroMapArtSpec.MAP_MIN_ZOOM, maximum_zoom)
+	if is_equal_approx(_target_map_zoom, _map_zoom):
+		return
+	if _zoom_tween != null and _zoom_tween.is_running():
+		_zoom_tween.kill()
+	_zoom_tween = create_tween()
+	_zoom_tween.set_trans(Tween.TRANS_CUBIC)
+	_zoom_tween.set_ease(Tween.EASE_OUT)
+	_zoom_tween.tween_method(
+		func(value: float) -> void: _apply_zoom_value(value, local_anchor, anchor_uv),
+		_map_zoom,
+		_target_map_zoom,
+		MacroMapArtSpec.MAP_ZOOM_ANIMATION_DURATION
+	)
+
+
+func _apply_zoom_value(value: float, local_anchor: Vector2, anchor_uv: Vector2) -> void:
+	_map_zoom = clampf(value, MacroMapArtSpec.MAP_MIN_ZOOM, _maximum_zoom())
+	var available := _available_map_size()
+	var rect_size := _map_rect_size_for_zoom(_map_zoom)
+	var centered_position := (available - rect_size) * 0.5
+	var desired_position := local_anchor - anchor_uv * rect_size
+	_map_pan_offset = _clamped_pan_offset(desired_position - centered_position, rect_size)
+	_layout_region_nodes()
 	queue_redraw()
 
 
@@ -220,30 +284,24 @@ func _draw_region_layer(region_id: String) -> void:
 	if texture == null:
 		return
 	var progress: float = float(_hover_progress.get(region_id, 0.0))
+	if progress <= 0.001:
+		return
 	var scale: float = lerpf(1.0, MacroMapArtSpec.HOVER_SCALE, progress)
 	var brightness: float = lerpf(1.0, MacroMapArtSpec.HOVER_BRIGHTNESS, progress)
 	var pivot: Vector2 = _region_pivots.get(region_id, Vector2(0.5, 0.5)) as Vector2
 	var pivot_px: Vector2 = _map_rect.position + pivot * _map_rect.size
-	var draw_pos: Vector2 = pivot_px - (pivot_px - _map_rect.position) * scale
-	var draw_size: Vector2 = _map_rect.size * scale
+	var layer_rect: Rect2 = MacroMapArtSpec.region_layer_rect(region_id)
+	var layer_position := _map_rect.position + layer_rect.position * _map_rect.size
+	var layer_size := layer_rect.size * _map_rect.size
+	var draw_pos: Vector2 = pivot_px - (pivot_px - layer_position) * scale
+	var draw_size: Vector2 = layer_size * scale
 	var modulate := Color(brightness, brightness, brightness, 1.0)
 	draw_texture_rect(texture, Rect2(draw_pos, draw_size), false, modulate)
 
 
 func _calculate_map_rect() -> Rect2:
-	var available: Vector2 = size
-	if available.x <= 1.0 or available.y <= 1.0:
-		available = custom_minimum_size
-	var aspect: float = MacroMapArtSpec.PREFERRED_ASPECT_RATIO
-	var width: float = available.x
-	var height: float = width / aspect
-	if height < available.y:
-		height = available.y
-		width = height * aspect
-	var overscan: float = maxf(1.0, MacroMapArtSpec.MAP_FULLSCREEN_OVERSCAN)
-	width *= overscan
-	height *= overscan
-	var rect_size := Vector2(ceilf(width), ceilf(height))
+	var available := _available_map_size()
+	var rect_size := _map_rect_size_for_zoom(_map_zoom)
 	_map_pan_offset = _clamped_pan_offset(_map_pan_offset, rect_size)
 	var pos: Vector2 = (available - rect_size) * 0.5 + _map_pan_offset
 	pos = Vector2(roundf(pos.x), roundf(pos.y))
@@ -251,23 +309,55 @@ func _calculate_map_rect() -> Rect2:
 
 
 func _clamped_pan_offset(offset: Vector2, rect_size: Vector2 = Vector2.ZERO) -> Vector2:
-	var available: Vector2 = size
-	if available.x <= 1.0 or available.y <= 1.0:
-		available = custom_minimum_size
+	var available := _available_map_size()
 	if rect_size == Vector2.ZERO:
-		var aspect: float = MacroMapArtSpec.PREFERRED_ASPECT_RATIO
-		var width: float = available.x
-		var height: float = width / aspect
-		if height < available.y:
-			height = available.y
-			width = height * aspect
-		var overscan: float = maxf(1.0, MacroMapArtSpec.MAP_FULLSCREEN_OVERSCAN)
-		rect_size = Vector2(ceilf(width * overscan), ceilf(height * overscan))
+		rect_size = _map_rect_size_for_zoom(_map_zoom)
 	var max_x: float = maxf(0.0, (rect_size.x - available.x) * 0.5)
 	var max_y: float = maxf(0.0, (rect_size.y - available.y) * 0.5)
 	return Vector2(
 		clampf(offset.x, -max_x, max_x),
 		clampf(offset.y, -max_y, max_y)
+	)
+
+
+func _available_map_size() -> Vector2:
+	var available: Vector2 = size
+	if available.x <= 1.0 or available.y <= 1.0:
+		available = custom_minimum_size
+	return available
+
+
+func _base_map_rect_size() -> Vector2:
+	var available := _available_map_size()
+	var aspect: float = MacroMapArtSpec.PREFERRED_ASPECT_RATIO
+	var width: float = available.x
+	var height: float = width / aspect
+	if height < available.y:
+		height = available.y
+		width = height * aspect
+	var overscan: float = maxf(1.0, MacroMapArtSpec.MAP_FULLSCREEN_OVERSCAN)
+	return Vector2(ceilf(width * overscan), ceilf(height * overscan))
+
+
+func _map_rect_size_for_zoom(zoom: float) -> Vector2:
+	return (_base_map_rect_size() * zoom).ceil()
+
+
+func _maximum_zoom() -> float:
+	var available := _available_map_size()
+	var base_size := _base_map_rect_size()
+	var content_rect: Rect2 = MacroMapArtSpec.MAP_CONTENT_RECT
+	var content_zoom_x: float = available.x / maxf(1.0, base_size.x * content_rect.size.x)
+	var content_zoom_y: float = available.y / maxf(1.0, base_size.y * content_rect.size.y)
+	var content_limit: float = minf(content_zoom_x, content_zoom_y)
+	var texture_limit: float = MacroMapArtSpec.MAP_MAX_ZOOM
+	if _map_texture != null:
+		var texture_size := _map_texture.get_size()
+		texture_limit = minf(texture_size.x / maxf(1.0, base_size.x), texture_size.y / maxf(1.0, base_size.y))
+	return clampf(
+		minf(MacroMapArtSpec.MAP_MAX_ZOOM, minf(content_limit, texture_limit)),
+		MacroMapArtSpec.MAP_MIN_ZOOM,
+		MacroMapArtSpec.MAP_MAX_ZOOM
 	)
 
 
