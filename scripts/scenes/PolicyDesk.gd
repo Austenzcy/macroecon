@@ -155,12 +155,6 @@ func _build_ui() -> void:
 
 	add_child(_build_fullscreen_map_layer())
 
-	var map_dimmer: ColorRect = ColorRect.new()
-	map_dimmer.color = Color(0.0, 0.0, 0.0, 0.08)
-	map_dimmer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	map_dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(map_dimmer)
-
 	var hud_root: Control = Control.new()
 	hud_root.name = "GameplayHudRoot"
 	hud_root.mouse_filter = Control.MOUSE_FILTER_IGNORE

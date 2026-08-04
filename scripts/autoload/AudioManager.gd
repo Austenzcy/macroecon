@@ -3,7 +3,6 @@ extends Node
 var _bgm_player: AudioStreamPlayer
 var _sfx_player: AudioStreamPlayer
 var _audio_unlocked: bool = false
-var _bgm_stream: AudioStreamWAV
 var _card_sfx_stream: AudioStreamWAV
 
 
@@ -22,13 +21,13 @@ func unlock_audio_from_user_gesture() -> void:
 
 
 func play_bgm() -> void:
-	if not _audio_unlocked:
+	# The previous placeholder was a continuously looping 220 Hz sine wave.
+	# Browsers reproduced it as an audible electrical hum, so keep the BGM
+	# channel silent until a real background track is supplied.
+	if _bgm_player == null:
 		return
-	_ensure_audio_streams()
-	if _bgm_player.stream == null:
-		_bgm_player.stream = _bgm_stream
-	if not _bgm_player.playing:
-		_bgm_player.play()
+	_bgm_player.stop()
+	_bgm_player.stream = null
 
 
 func play_sfx(name: StringName = &"card_play") -> void:
@@ -44,8 +43,6 @@ func play_sfx(name: StringName = &"card_play") -> void:
 
 
 func _ensure_audio_streams() -> void:
-	if _bgm_stream == null:
-		_bgm_stream = _make_tone_stream(220.0, 1.5, 0.12, true)
 	if _card_sfx_stream == null:
 		_card_sfx_stream = _make_tone_stream(720.0, 0.12, 0.35, false)
 
