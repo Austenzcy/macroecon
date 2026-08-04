@@ -5,6 +5,7 @@ const CarouselControllerScript = preload("res://scripts/ui/level_select/Carousel
 const LevelCardScript = preload("res://scripts/ui/level_select/LevelCard.gd")
 const TextRevealScript = preload("res://scripts/ui/level_select/TextReveal.gd")
 const BackgroundScript = preload("res://scripts/ui/level_select/BackgroundRenderer.gd")
+const LEVEL_SELECT_FONT: FontFile = preload("res://assets/fonts/NotoSansSC-Regular.ttf")
 
 const POLICY_DESK_PATH := "res://scenes/PolicyDesk.tscn"
 const SCENARIO_INTRO_PATH := "res://scenes/ScenarioIntro.tscn"
@@ -131,6 +132,10 @@ func _build_action() -> void:
 	_start_button.size = Vector2(188, 59)
 	_start_button.text = "进入关卡"
 	_start_button.add_theme_font_size_override("font_size", 23)
+	var start_button_font := FontVariation.new()
+	start_button_font.base_font = LEVEL_SELECT_FONT
+	start_button_font.variation_embolden = 1.0
+	_start_button.add_theme_font_override("font", start_button_font)
 	_start_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_start_button.focus_mode = Control.FOCUS_ALL
 	_start_button.add_theme_color_override("font_color", Color(0.055, 0.058, 0.06, 1.0))

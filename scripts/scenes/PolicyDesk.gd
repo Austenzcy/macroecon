@@ -3,7 +3,7 @@ extends Control
 const MacroEngine = preload("res://scripts/engine/MacroEngine.gd")
 const ISLMDemandComponents = preload("res://scripts/engine/ISLMDemandComponents.gd")
 const ISLMReplayPanelScene = preload("res://scenes/components/ISLMReplayPanel.tscn")
-const UnifiedMacroMapScene = preload("res://scenes/components/UnifiedMacroMap.tscn")
+const UnifiedMacroMapScene = preload("res://scenes/components/GlobeMacroMap.tscn")
 const HudV2Theme = preload("res://scripts/ui/hud_v2/HudV2Theme.gd")
 const HudPanelShapeScript = preload("res://scripts/ui/hud_v2/HudPanelShape.gd")
 const HudIconScript = preload("res://scripts/ui/hud_v2/HudIcon.gd")

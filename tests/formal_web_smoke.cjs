@@ -5,6 +5,7 @@ const { chromium } = require(path.join(process.env.CODEX_NODE_MODULES, 'playwrig
 
 const buildRoot = path.resolve(__dirname, '..', 'web_build');
 const artifactRoot = path.resolve(__dirname, 'artifacts');
+const targetUrl = process.env.FORMAL_WEB_URL || 'http://127.0.0.1:8766/';
 fs.mkdirSync(artifactRoot, { recursive: true });
 
 const mime = {
@@ -42,7 +43,7 @@ async function openReadyPage(browser, failures, label) {
       failures.push(`${label} resource ${pathname} returned ${response.status()}`);
     }
   });
-  const response = await page.goto('http://127.0.0.1:8766/', { waitUntil: 'domcontentloaded' });
+  const response = await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
   if (!response || response.status() !== 200) {
     failures.push(`${label} index did not return 200`);
   }
@@ -55,7 +56,9 @@ async function openReadyPage(browser, failures, label) {
   const failures = [];
   let browser;
   try {
-    await new Promise(resolve => server.listen(8766, '127.0.0.1', resolve));
+    if (!process.env.FORMAL_WEB_URL) {
+      await new Promise(resolve => server.listen(8766, '127.0.0.1', resolve));
+    }
     browser = await chromium.launch({
       headless: true,
       executablePath: process.env.BROWSER_EXE || undefined,
@@ -79,15 +82,19 @@ async function openReadyPage(browser, failures, label) {
     await startPage.mouse.click(1090, 628);
     await startPage.waitForTimeout(1800);
     await startPage.screenshot({ path: path.join(artifactRoot, 'formal-first-level-entry.png') });
-    await startPage.mouse.click(650, 680);
-    await startPage.waitForTimeout(260);
-    await startPage.mouse.click(650, 680);
-    await startPage.waitForTimeout(260);
-    await startPage.mouse.click(650, 680);
+    // Clear the first-entry narrative so the formal globe can be inspected unobstructed.
+    for (let step = 0; step < 30; step += 1) {
+      await startPage.mouse.click(650, 680);
+      await startPage.waitForTimeout(220);
+    }
+    await startPage.mouse.move(650, 320);
     await startPage.waitForTimeout(350);
-    await startPage.mouse.move(470, 210);
-    await startPage.waitForTimeout(350);
-    await startPage.screenshot({ path: path.join(artifactRoot, 'formal-first-level-map-hover.png') });
+    await startPage.screenshot({ path: path.join(artifactRoot, 'formal-first-level-globe.png') });
+    await startPage.mouse.down({ button: 'left' });
+    await startPage.mouse.move(760, 365, { steps: 10 });
+    await startPage.mouse.up({ button: 'left' });
+    await startPage.waitForTimeout(550);
+    await startPage.screenshot({ path: path.join(artifactRoot, 'formal-first-level-globe-rotation.png') });
     await startPage.mouse.move(650, 320);
     await startPage.mouse.wheel(0, -480);
     await startPage.waitForTimeout(450);
@@ -98,8 +105,8 @@ async function openReadyPage(browser, failures, label) {
     await hudPage.waitForTimeout(1500);
     await hudPage.screenshot({ path: path.join(artifactRoot, 'formal-hud-reference-entry.png') });
 
-    // The reference scene uses the exact same map component as formal levels.
-    // Exercise region hover, wheel zoom, and middle-button pan in an unobstructed area.
+    // The reference scene intentionally retains the legacy flat map.
+    // Keep exercising its hover, wheel zoom, and middle-button pan independently.
     const regionHoverPoints = {
       consumption: [512, 215],
       industry: [795, 225],
@@ -130,10 +137,12 @@ async function openReadyPage(browser, failures, label) {
     }
   } finally {
     if (browser) await browser.close();
-    await new Promise(resolve => server.close(resolve));
+    if (server.listening) {
+      await new Promise(resolve => server.close(resolve));
+    }
   }
 })().catch(error => {
   console.error(error);
   process.exitCode = 1;
-  server.close();
+  if (server.listening) server.close();
 });
