@@ -22,6 +22,24 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", HudV2Theme.transparent_panel_style())
 	if get_child_count() == 0:
 		_rebuild()
+	queue_redraw()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		queue_redraw()
+
+
+func _draw() -> void:
+	var w: float = size.x
+	var h: float = size.y
+	if w <= 4.0 or h <= 4.0:
+		return
+	var accent := HudV2Theme.ACCENT_SYSTEM
+	draw_rect(Rect2(0, h * 0.14, w, h * 0.86), Color(0.010, 0.030, 0.040, 0.26), true)
+	draw_rect(Rect2(0, h * 0.52, w, h * 0.48), Color(0.0, 0.0, 0.0, 0.16), true)
+	draw_line(Vector2(w * 0.08, 1), Vector2(w * 0.28, 1), Color(accent.r, accent.g, accent.b, 0.20), 1.0, true)
+	draw_line(Vector2(w * 0.52, h - 1), Vector2(w * 0.88, h - 1), Color(accent.r, accent.g, accent.b, 0.16), 1.0, true)
 
 
 func _rebuild() -> void:
@@ -34,6 +52,8 @@ func _rebuild() -> void:
 	row.add_theme_constant_override("separation", HudV2Theme.dim(10, _ui_scale))
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.offset_left = HudV2Theme.dim(2, _ui_scale)
+	row.offset_right = -HudV2Theme.dim(2, _ui_scale)
 	add_child(row)
 
 	var theory_module := _module_panel("module")

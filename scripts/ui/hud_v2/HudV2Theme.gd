@@ -38,14 +38,17 @@ static func transparent_panel_style() -> StyleBoxFlat:
 static func chip_style(tone: String = "system", selected: bool = false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	var accent: Color = ACCENT_RESOURCE if tone == "resource" else ACCENT_SYSTEM
-	style.bg_color = Color(0.025, 0.065, 0.078, 0.60 if not selected else 0.76)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.34 if not selected else 0.74)
+	style.bg_color = Color(0.018, 0.052, 0.066, 0.44 if not selected else 0.62)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.18 if not selected else 0.48)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+	style.set_corner_radius_all(4)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	style.content_margin_top = 5
 	style.content_margin_bottom = 5
+	style.shadow_color = Color(0, 0, 0, 0.16)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0, 1)
 	return style
 
 
@@ -54,21 +57,24 @@ static func button_style(state: String = "normal", variant: String = "primary") 
 	var accent: Color = ACCENT_SYSTEM
 	if variant == "confirm":
 		accent = ACCENT_RESOURCE
-	var alpha := 0.42
+	var alpha := 0.24
 	if state == "hover":
-		alpha = 0.58
+		alpha = 0.42
 	elif state == "pressed":
-		alpha = 0.72
+		alpha = 0.58
 	elif state == "disabled":
-		alpha = 0.16
-	style.bg_color = Color(accent.r * 0.16, accent.g * 0.20, accent.b * 0.22, alpha)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.42 if state != "disabled" else 0.18)
+		alpha = 0.10
+	style.bg_color = Color(accent.r * 0.13, accent.g * 0.17, accent.b * 0.19, alpha)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.22 if state != "disabled" else 0.08)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
+	style.set_corner_radius_all(4)
 	style.content_margin_left = 12
 	style.content_margin_right = 12
 	style.content_margin_top = 7
 	style.content_margin_bottom = 7
+	style.shadow_color = Color(0, 0, 0, 0.14)
+	style.shadow_size = 3
+	style.shadow_offset = Vector2(0, 1)
 	return style
 
 

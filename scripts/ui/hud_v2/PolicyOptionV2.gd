@@ -165,17 +165,17 @@ func _apply_state() -> void:
 
 func _style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	var alpha := 0.50
+	var alpha := 0.34
 	if _is_hover:
-		alpha = 0.62
+		alpha = 0.48
 	if _is_selected:
-		alpha = 0.72
-	style.bg_color = Color(0.020, 0.054, 0.067, alpha)
-	style.border_color = Color(HudV2Theme.ACCENT_SYSTEM.r, HudV2Theme.ACCENT_SYSTEM.g, HudV2Theme.ACCENT_SYSTEM.b, 0.28 if not _is_selected else 0.82)
+		alpha = 0.58
+	style.bg_color = Color(0.014, 0.042, 0.054, alpha)
+	style.border_color = Color(HudV2Theme.ACCENT_SYSTEM.r, HudV2Theme.ACCENT_SYSTEM.g, HudV2Theme.ACCENT_SYSTEM.b, 0.14 if not _is_selected else 0.52)
 	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
-	style.shadow_color = Color(0, 0, 0, 0.28)
-	style.shadow_size = 7
+	style.set_corner_radius_all(4)
+	style.shadow_color = Color(0, 0, 0, 0.18)
+	style.shadow_size = 5
 	style.shadow_offset = Vector2(0, 2)
 	return style
 
